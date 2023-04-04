@@ -20,6 +20,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
           content="Elevate your reselling game with advanced tools, inventory tracking, and more."
         />
         <link rel="icon" href="/favicon.ico" />
+       
       </Head>
       <Component {...pageProps} />
     </SessionProvider>

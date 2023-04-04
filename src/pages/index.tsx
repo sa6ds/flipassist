@@ -1,5 +1,4 @@
 import { type NextPage } from "next";
-import Head from "next/head";
 import Link from "next/link";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Image from "next/image";
@@ -11,7 +10,7 @@ const Home: NextPage = () => {
 
   return (
     <>
-      <div className=" container mx-auto w-[100vw] p-6">
+      <div className="container mx-auto w-[100vw] p-6 font-inter font-[300]">
         <div className="flex">
           <h1 className="logo text-5xl">flipassist</h1>
           <div className="ml-auto flex">
@@ -20,7 +19,7 @@ const Home: NextPage = () => {
             </Link>
             <Link
               href="/register"
-              className=" duration-1500 rounded-[10px] border border-black pb-2 pl-10 pr-10 pt-2 transition-all hover:scale-110 hover:bg-black hover:text-white"
+              className=" duration-1500 rounded-lg border border-black px-8 py-2 transition-all hover:scale-110 hover:bg-black hover:text-white"
             >
               Register
             </Link>
@@ -29,8 +28,8 @@ const Home: NextPage = () => {
 
         <div className="flex">
           <div className="flex flex-col justify-center">
-            <h1 className="pt-[250px] text-[45px]">Reselling Simplified</h1>
-            <p className="w-[650px] text-[25px]">
+            <h1 className="pb-2 pt-64 text-5xl">Reselling Simplified</h1>
+            <p className="w-[650px] pt-4 text-2xl">
               Elevate your reselling game with advanced tools, inventory
               tracking, and more.
             </p>
