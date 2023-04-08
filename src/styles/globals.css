@@ -9,3 +9,15 @@
   letter-spacing: -0.7px;
   font-weight: 600;
 }
+
+.text-muted {
+  color: #757575;
+}
+
+.active {
+  --tw-border-opacity: 1;
+  border-right-color: rgb(31 41 55 / var(--tw-border-opacity));
+  border-right-width: 4px;
+  --tw-border-opacity: 1;
+  background-color: rgb(229 231 240 / var(--tw-border-opacity));
+}
