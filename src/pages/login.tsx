@@ -1,5 +1,4 @@
 import { NextPage } from "next";
-import { signIn } from "next-auth/react";
 import Link from "next/link";
 
 const LoginPage: NextPage = () => {

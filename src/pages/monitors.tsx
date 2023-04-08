@@ -1,10 +1,6 @@
-import { faGithub } from "@fortawesome/free-brands-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { NextPage } from "next";
-import { signIn } from "next-auth/react";
-import Link from "next/link";
-import Sidebar from "./Components/Sidebar";
-import { useContext, useEffect, useState } from "react";
+import Sidebar from "../Components/Sidebar";
+import { useEffect, useState } from "react";
 
 const Monitors: NextPage = () => {
   const [users, setUsers] = useState({ name: "" });

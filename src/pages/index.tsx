@@ -1,13 +1,9 @@
 import { type NextPage } from "next";
 import Link from "next/link";
-import { signIn, signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import placeholderImg from "../../public/placeholder_img.png";
-import { api } from "~/utils/api";
 
 const Home: NextPage = () => {
-  const hello = api.example.hello.useQuery({ text: "from tRPC" });
-
   return (
     <div className="container mx-auto p-6 font-inter font-[300]">
       <nav className="flex">

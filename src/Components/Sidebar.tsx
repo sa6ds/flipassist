@@ -23,7 +23,9 @@ function Sidebar({ name }: { name: string }) {
                   isActive ? "active" : ""
                 }`}
                 onClick={() => {
-                  router.push(val.link);
+                  router.push(val.link).catch((error) => {
+                    console.error(error);
+                  });
                 }}
               >
                 <i className="pl-5">{val.icon}</i>

@@ -1,15 +1,9 @@
 import { NextPage } from "next";
-import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
 
 const RegisterPage: NextPage = () => {
-  const handleSignIn = () => {
-    signIn();
-    // Use NextAuth's signIn() function to initiate the authentication flow
-  };
-
   return (
     <div className="mb-10 flex font-poppins font-[300]">
       {/* LEFT SIDE */}
@@ -48,10 +42,7 @@ const RegisterPage: NextPage = () => {
             className="w-96 rounded-lg border border-gray-300 bg-gray-100 px-3 py-1.5"
           ></input>
 
-          <button
-            onClick={handleSignIn}
-            className="duration-1500 mt-10 w-96 rounded-[10px] border border-black bg-black px-7 py-1.5 text-white transition-all hover:bg-white hover:text-black"
-          >
+          <button className="duration-1500 mt-10 w-96 rounded-[10px] border border-black bg-black px-7 py-1.5 text-white transition-all hover:bg-white hover:text-black">
             Sign up
           </button>
 
@@ -61,10 +52,7 @@ const RegisterPage: NextPage = () => {
             <div className="flex-grow border-t border-gray-400"></div>
           </div>
 
-          <button
-            onClick={handleSignIn}
-            className=" duration-1500 transition-al flex w-96 justify-center rounded-[10px] border px-7 py-1.5 font-[500] hover:bg-gray-100"
-          >
+          <button className=" duration-1500 transition-al flex w-96 justify-center rounded-[10px] border px-7 py-1.5 font-[500] hover:bg-gray-100">
             <FontAwesomeIcon className="w-7 pr-2" icon={faGithub} />
             Continue with GitHub
           </button>
