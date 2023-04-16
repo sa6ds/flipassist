@@ -1,6 +1,7 @@
 import { NextPage } from "next";
-import Sidebar from "../Components/Sidebar";
+import Sidebar from "../../Components/Sidebar";
 import { useEffect, useState } from "react";
+import Header from "~/Components/Header";
 
 const Calculators: NextPage = () => {
   const [users, setUsers] = useState({ name: "" });
@@ -12,9 +13,11 @@ const Calculators: NextPage = () => {
   }, []);
 
   return (
-    <div className="flex truncate font-poppins font-[500]">
+    <div className="font-poppins flex truncate font-[500]">
       <Sidebar name={users.name} />
-      <div>Calculators</div>
+      <div className="w-full">
+        <Header pageTitle="Calculators" />
+      </div>
     </div>
   );
 };
