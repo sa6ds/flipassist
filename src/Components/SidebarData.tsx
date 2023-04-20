@@ -9,26 +9,26 @@ export const SidebarData = [
   {
     title: "Dashboard",
     icon: <GridViewOutlinedIcon className="mr-5 w-8" />,
-    link: "/dashboard",
+    link: "dashboard",
   },
   {
     title: "Inventory",
     icon: <Inventory2OutlinedIcon className="mr-5 w-8" />,
-    link: "/inventory",
+    link: "inventory",
   },
   {
     title: "Calculators",
     icon: <CalculateOutlinedIcon className="mr-5 w-8" />,
-    link: "/calculators",
+    link: "calculators",
   },
   {
     title: "Tools",
     icon: <HandymanOutlinedIcon className="mr-5 w-8" />,
-    link: "/tools",
+    link: "tools",
   },
   {
     title: "Monitors",
     icon: <MonitorHeartOutlinedIcon className="mr-5 w-8" />,
-    link: "/monitors",
+    link: "monitors",
   },
 ];

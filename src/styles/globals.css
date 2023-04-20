@@ -2,11 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+* {
+  font-family: "Poppins", sans-serif;
+  font-weight: lighter;
+}
+
 .logo {
-  font-family: "Acumin Pro", sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 1.875rem /* 30px */;
-  line-height: 2.25rem /* 36px */;
-  letter-spacing: -0.7px;
   font-weight: 600;
 }
 
@@ -21,3 +24,4 @@
   --tw-border-opacity: 1;
   background-color: rgb(229 231 240 / var(--tw-border-opacity));
 }
+
