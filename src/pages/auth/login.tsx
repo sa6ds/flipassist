@@ -1,5 +1,6 @@
 import { NextPage } from "next";
 import Link from "next/link";
+import Footer from "~/Components/Footer";
 
 const LoginPage: NextPage = () => {
   const handleSignIn = () => {
@@ -12,7 +13,7 @@ const LoginPage: NextPage = () => {
         {/* LEFT SIDE */}
         <div className="mx-auto my-auto w-full py-4 md:w-[500px]">
           {/* FORM */}
-          <form className="mt-24 flex w-full flex-col border-stone-800 px-12 md:px-6">
+          <form className="mt-24 w-full border-stone-800 px-12 md:px-6">
             <h1 className="text-4xl tracking-wide">Welcome Back!</h1>
             <p className="mb-5 mt-2 text-lg">
               New to flipassist?{" "}

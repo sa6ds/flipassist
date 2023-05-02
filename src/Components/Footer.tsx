@@ -8,10 +8,9 @@ function Footer() {
   const [theme, setTheme] = useState<"light" | "dark">("dark");
 
   return (
-    // FIX STICK
-    <footer className="h-48 w-full bg-gray-100">
-      <div className="container mx-auto p-6 font-light">
-        <div className="flex gap-8 pt-8">
+    <footer className="w-full bg-gray-100 py-6">
+      <div className="mx-4 p-6 font-light md:mx-16">
+        <div className="flex gap-8">
           <div className="">
             {" "}
             <Link href="/links/contact" target="">

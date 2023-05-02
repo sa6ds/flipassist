@@ -24,7 +24,7 @@ const Home: NextPage = () => {
             </p>
           </div>
           <Image
-            className="mx-auto w-72 md:w-96 lg:mx-0 lg:ml-auto lg:w-96"
+            className="mx-auto w-72 md:w-80 lg:mx-0 lg:ml-auto lg:w-[350px] "
             src={placeholderImg}
             alt="App Preview"
           />
