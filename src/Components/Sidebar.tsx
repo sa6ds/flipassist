@@ -19,17 +19,14 @@ function Sidebar({ name }: { name: string }) {
         &#9776;
       </button>
 
+      {/* SIDEBAR  */}
       <div
         className={`fixed z-50 h-screen w-auto min-w-[288px] bg-white shadow-xl md:block ${
-          !isOpen && "hidden"
-        }`} // Conditionally apply "hidden" class when isOpen is false
+          isOpen ? "hidden" : ""
+        }`}
       >
         <div className="relative">
-          <div
-            className={`md: fixed z-50 h-screen w-auto min-w-[288px] bg-white shadow-xl ${
-              !isOpen && "hideen"
-            }`}
-          >
+          <div className="fixed z-50 h-screen w-auto min-w-[288px] bg-white shadow-xl">
             <h1 className="logo mt-7 text-center">
               <Link href="/" className="font-bold">
                 flipassist

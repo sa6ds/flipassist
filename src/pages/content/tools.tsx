@@ -1,8 +1,7 @@
-import { NextPage } from "next";
+import { type NextPage } from "next";
 import Sidebar from "../../Components/Sidebar";
 import { useEffect, useState } from "react";
 import Header from "~/Components/Header";
-import Footer from "~/Components/Footer";
 
 const Tools: NextPage = () => {
   const [users, setUsers] = useState({ name: "" });

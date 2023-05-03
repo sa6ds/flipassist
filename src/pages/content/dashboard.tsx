@@ -1,5 +1,4 @@
-import { NextPage } from "next";
-import { signIn } from "next-auth/react";
+import { type NextPage } from "next";
 import { useEffect, useState } from "react";
 import Sidebar from "../../Components/Sidebar";
 import InventoryOutlinedIcon from "@mui/icons-material/InventoryOutlined";
@@ -10,18 +9,6 @@ import DiamondOutlinedIcon from "@mui/icons-material/DiamondOutlined";
 import { FaShoePrints } from "react-icons/fa";
 import Header from "~/Components/Header";
 import Footer from "~/Components/Footer";
-
-interface Monitor {
-  name: string;
-  twitter: string;
-}
-
-const defaultMonitors: Monitor[] = [
-  { name: "SNKR_TWITR", twitter: "snkr_twitr" },
-  { name: "SOLELINKS", twitter: "SOLELINKS" },
-  { name: "Personalz4U", twitter: "personalz4u" },
-  { name: "J23app", twitter: "J23app" },
-];
 
 const DashboardPage: NextPage = () => {
   const [users, setUsers] = useState({ name: "" });

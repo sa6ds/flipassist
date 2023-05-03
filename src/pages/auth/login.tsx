@@ -1,6 +1,5 @@
-import { NextPage } from "next";
+import { type NextPage } from "next";
 import Link from "next/link";
-import Footer from "~/Components/Footer";
 
 const LoginPage: NextPage = () => {
   const handleSignIn = () => {

@@ -1,13 +1,9 @@
-import { NextPage } from "next";
+import { type NextPage } from "next";
 import Sidebar from "../../Components/Sidebar";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Header from "~/Components/Header";
 import { TwitterTimelineEmbed } from "react-twitter-embed";
 import Footer from "~/Components/Footer";
-import WbSunnyOutlinedIcon from "@mui/icons-material/WbSunnyOutlined";
-import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
-import InstagramIcon from "@mui/icons-material/Instagram";
-import Link from "next/link";
 import CloseIcon from "@mui/icons-material/Close";
 
 interface Monitor {

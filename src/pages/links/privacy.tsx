@@ -1,5 +1,4 @@
-import { NextPage } from "next";
-import Link from "next/link";
+import { type NextPage } from "next";
 
 const PrivacyPage: NextPage = () => {
   return <div className="">privacy</div>;
