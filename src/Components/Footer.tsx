@@ -8,7 +8,7 @@ function Footer() {
   const [theme, setTheme] = useState<"light" | "dark">("dark");
 
   return (
-    <footer className="w-full bg-gray-100 py-6">
+    <footer className="z-40 w-full bg-gray-100 py-6">
       <div className="mx-4 p-6 font-light md:mx-16">
         <div className="flex gap-8">
           <div className="">

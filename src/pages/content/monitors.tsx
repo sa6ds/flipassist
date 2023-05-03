@@ -70,7 +70,7 @@ const Monitors: NextPage = () => {
 
           <div className="my-2 mb-10 flex justify-center gap-3">
             <input
-              className="mt-8 w-64 rounded-lg border border-gray-300 bg-gray-100 px-5 py-1.5"
+              className="mt-8 w-7/12 rounded-lg border border-gray-300 bg-gray-100 px-5 py-1.5 md:w-64"
               placeholder="Username"
               value={userEntry}
               onChange={handleInputChange}
@@ -83,11 +83,11 @@ const Monitors: NextPage = () => {
               add
             </button>
           </div>
-          <div className="justify-center px-10 sm:flex sm:flex-wrap sm:gap-1">
+          <div className="justify-center px-4 sm:flex sm:flex-wrap sm:gap-1">
             {monitors.map((val, index) => {
               return (
                 <div
-                  className="mb-8 w-11/12 justify-center px-4 md:w-[450px]"
+                  className="mb-8 w-full justify-center px-4 md:w-[450px]"
                   key={val.name}
                 >
                   <div className="mb-2 flex items-center justify-between">
@@ -114,7 +114,7 @@ const Monitors: NextPage = () => {
         </div>
       </div>
       {/* TODO: FIX RESPONSITIVITY WITH STICKY FOOTER */}
-      <div className="mb-24 mt-24 w-full md:mb-0 md:pl-[288px]">
+      <div className="w-full md:pl-[288px]">
         <Footer />
       </div>
     </div>

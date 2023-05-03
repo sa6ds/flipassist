@@ -11,6 +11,18 @@ import { FaShoePrints } from "react-icons/fa";
 import Header from "~/Components/Header";
 import Footer from "~/Components/Footer";
 
+interface Monitor {
+  name: string;
+  twitter: string;
+}
+
+const defaultMonitors: Monitor[] = [
+  { name: "SNKR_TWITR", twitter: "snkr_twitr" },
+  { name: "SOLELINKS", twitter: "SOLELINKS" },
+  { name: "Personalz4U", twitter: "personalz4u" },
+  { name: "J23app", twitter: "J23app" },
+];
+
 const DashboardPage: NextPage = () => {
   const [users, setUsers] = useState({ name: "" });
 
@@ -27,65 +39,64 @@ const DashboardPage: NextPage = () => {
 
   return (
     <div>
-      <div className="flex truncate">
-        {/* SIDE BAR */}
-        <Sidebar name={users.name} />
-
-        {/* CONTENT */}
-        <div className="ml-0 w-full md:ml-[300px]">
-          <Header pageTitle="Dashboard" />
-
-          <div className="mx-16">
-            <div className="mt-10 flex gap-[5%]">
-              <div className="h-32 w-80 rounded-md bg-gray-100 px-4 py-4 shadow-lg">
+      <Sidebar name={users.name} />
+      <div className="truncate font-light">
+        <div className="ml-0 md:ml-[300px]">
+          <Header pageTitle="Inventory" />
+          <div className="mx-8 my-16">
+            <div className="mt-10 xl:flex xl:justify-between xl:gap-[5%]">
+              {/* SUMMARY */}
+              <div className="mb-5 w-full rounded-md bg-gray-100 px-4 py-4 shadow-lg drop-shadow-2xl">
                 <div className="flex pt-1">
                   <InventoryOutlinedIcon sx={{ fontSize: 35 }} />
                   <p className="ml-auto text-3xl font-bold">
                     {totalProducts.toLocaleString()}
                   </p>
                 </div>
-                <h1 className="pt-8 text-xl">Total Inventory</h1>
+                <h1 className="mt-8 text-xl">Total Inventory</h1>
               </div>
 
-              <div className="h-32 w-80 rounded-md bg-gray-100 px-4 py-4 shadow-lg">
+              <div className="mb-5 w-full rounded-md bg-gray-100 px-4 py-4 shadow-lg drop-shadow-2xl">
                 <div className="flex pt-1">
                   <Inventory2OutlinedIcon sx={{ fontSize: 35 }} />
                   <p className="ml-auto text-3xl font-bold">
                     ${inventoryValue.toLocaleString()}
                   </p>
                 </div>
-                <h1 className="pt-8 text-xl">Inventory Value</h1>
+                <h1 className="mt-8 text-xl">Inventory Value</h1>
               </div>
 
-              <div className="h-32 w-80 rounded-md bg-gray-100 px-4 py-4 shadow-lg">
+              <div className="mb-5 w-full rounded-md bg-gray-100 px-4 py-4 shadow-lg drop-shadow-2xl">
                 <div className="flex pt-1">
                   <SellOutlinedIcon sx={{ fontSize: 35 }} />
                   <p className="ml-auto text-3xl font-bold">
                     ${totalSales.toLocaleString()}
                   </p>
                 </div>
-                <h1 className="pt-8 text-xl">Total Sales</h1>
+                <h1 className="mt-8 text-xl">Total Sales</h1>
               </div>
 
-              <div className="h-32 w-80 rounded-md bg-gray-100 px-4 py-4 shadow-lg">
+              <div className="mb-5 w-full rounded-md bg-gray-100 px-4 py-4 shadow-lg drop-shadow-2xl">
                 <div className="flex pt-1">
                   <SavingsOutlinedIcon sx={{ fontSize: 35 }} />
                   <p className="ml-auto text-3xl font-bold">
                     ${totalProfits.toLocaleString()}
                   </p>
                 </div>
-                <h1 className="pt-8 text-xl">Total Profit</h1>
+                <h1 className="mt-8 text-xl">Total Profit</h1>
               </div>
             </div>
 
-            <div className="mt-14 flex justify-between shadow-lg">
-              <div className="flex h-[450px] w-[1000px] items-center justify-center rounded-md bg-gray-100 shadow-lg">
-                <h1 className="text-center text-2xl font-bold ">
-                  Insert Line Chart Here
-                </h1>
+            {/* LINE CHART */}
+
+            <div className="mt-14 justify-between 2xl:flex ">
+              <div className="mb-24 h-[450px] w-full items-center rounded-md bg-gray-100 shadow-lg drop-shadow-2xl 2xl:mb-0 2xl:w-7/12">
+                <h1 className="text-center text-2xl">Insert Line Chart Here</h1>
               </div>
 
-              <div className="h-[450px] w-96 rounded-md bg-gray-100 shadow-lg">
+              {/* Recent Activity */}
+
+              <div className="h-[450px] w-full rounded-md bg-gray-100 shadow-lg drop-shadow-2xl 2xl:mx-auto 2xl:w-4/12">
                 <h1 className="pl-10 pt-6 text-2xl font-bold">
                   Recent Activity
                 </h1>
@@ -124,7 +135,7 @@ const DashboardPage: NextPage = () => {
           </div>
         </div>
       </div>
-      <div className="mb-24 mt-24 w-full md:mb-0 md:pl-[288px]">
+      <div className="w-full md:pl-[288px]">
         <Footer />
       </div>
     </div>
