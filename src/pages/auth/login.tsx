@@ -1,9 +1,14 @@
 import { type NextPage } from "next";
 import Link from "next/link";
+import Head from "next/head";
+import { signIn, signOut, useSession } from "next-auth/react";
+import { api } from "~/utils/api";
 
 const LoginPage: NextPage = () => {
+  const hello = api.example.hello.useQuery({ text: "from tRPC" });
+
   const handleSignIn = () => {
-    // Use NextAuth's signIn() function to initiate the authentication flow
+    signIn();
   };
 
   return (
@@ -42,19 +47,48 @@ const LoginPage: NextPage = () => {
                 </Link>
               </p>
             </div>
-            <button
-              onClick={handleSignIn}
-              className="duration-1500 mt-10 w-full rounded-[10px] border border-black bg-black px-7 py-1.5 text-white transition-all hover:bg-white hover:text-black"
-            >
+            <button className="duration-1500 mt-10 w-full rounded-[10px] border border-black bg-black px-7 py-1.5 text-white  transition-all hover:bg-white hover:text-black">
               Sign in
             </button>
           </form>
         </div>
         {/* RIGHT SIDE */}
-        <div className="mx-auto my-auto w-full min-w-min max-w-sm py-4"></div>
+        <div className="mx-auto my-auto w-full min-w-min max-w-sm py-4">
+          {" "}
+          <div className="flex flex-col items-center gap-2">
+            <p className="text-2xl ">
+              {hello.data ? hello.data.greeting : "Loading tRPC query..."}
+            </p>
+            <AuthShowcase />
+          </div>
+        </div>
       </div>
     </div>
   );
 };
 
 export default LoginPage;
+
+const AuthShowcase: React.FC = () => {
+  const { data: sessionData } = useSession();
+
+  const { data: secretMessage } = api.example.getSecretMessage.useQuery(
+    undefined, // no input
+    { enabled: sessionData?.user !== undefined }
+  );
+
+  return (
+    <div className="flex flex-col items-center justify-center gap-4">
+      <p className="text-center text-2xl ">
+        {sessionData && <span>Logged in as {sessionData.user?.name}</span>}
+        {secretMessage && <span> - {secretMessage}</span>}
+      </p>
+      <button
+        className="rounded-full bg-white/10 px-10 py-3 font-semibold  no-underline transition hover:bg-white/20"
+        onClick={sessionData ? () => void signOut() : () => void signIn()}
+      >
+        {sessionData ? "Sign out" : "Sign in"}
+      </button>
+    </div>
+  );
+};
