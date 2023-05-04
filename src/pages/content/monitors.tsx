@@ -1,13 +1,8 @@
-import { NextPage } from "next";
+import { type NextPage } from "next";
 import Sidebar from "../../Components/Sidebar";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Header from "~/Components/Header";
 import { TwitterTimelineEmbed } from "react-twitter-embed";
-import Footer from "~/Components/Footer";
-import WbSunnyOutlinedIcon from "@mui/icons-material/WbSunnyOutlined";
-import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
-import InstagramIcon from "@mui/icons-material/Instagram";
-import Link from "next/link";
 import CloseIcon from "@mui/icons-material/Close";
 
 interface Monitor {
@@ -67,55 +62,52 @@ const Monitors: NextPage = () => {
         <Sidebar name="saad" />
         <div className="ml-0 w-full md:ml-[300px]">
           <Header pageTitle="Monitors" />
-
-          <div className="my-2 mb-10 flex justify-center gap-3">
-            <input
-              className="mt-8 w-64 rounded-lg border border-gray-300 bg-gray-100 px-5 py-1.5"
-              placeholder="Username"
-              value={userEntry}
-              onChange={handleInputChange}
-              onKeyUp={handleKeyPress}
-            />
-            <button
-              className="duration-1500 mt-8 w-20 rounded-[10px] border border-black bg-black py-1.5 text-center text-white transition-all hover:bg-white hover:text-black"
-              onClick={handleAddMonitor}
-            >
-              add
-            </button>
-          </div>
-          <div className="justify-center px-10 sm:flex sm:flex-wrap sm:gap-1">
-            {monitors.map((val, index) => {
-              return (
-                <div
-                  className="mb-8 w-11/12 justify-center px-4 md:w-[450px]"
-                  key={val.name}
-                >
-                  <div className="mb-2 flex items-center justify-between">
-                    <h1 className="mb-2 text-center text-xl font-bold md:text-2xl">
-                      {val.name}
-                    </h1>
-                    <button
-                      className="rounded-full p-2 hover:bg-gray-100"
-                      onClick={() => removeMonitor(index)}
-                    >
-                      <CloseIcon />
-                    </button>
+          <div>
+            <div className="my-2 mb-10 flex justify-center gap-3">
+              <input
+                className="mt-8 w-7/12 rounded-lg border border-gray-300 bg-gray-100 px-5 py-1.5 md:w-64"
+                placeholder="Username"
+                value={userEntry}
+                onChange={handleInputChange}
+                onKeyUp={handleKeyPress}
+              />
+              <button
+                className="duration-1500 mt-8 w-20 rounded-[10px] border border-black bg-black py-1.5 text-center text-white transition-all hover:bg-white hover:text-black"
+                onClick={handleAddMonitor}
+              >
+                add
+              </button>
+            </div>
+            <div className="justify-center px-4 sm:flex sm:flex-wrap sm:gap-1">
+              {monitors.map((val, index) => {
+                return (
+                  <div
+                    className="mb-8 w-full justify-center px-4 md:w-[450px]"
+                    key={val.name}
+                  >
+                    <div className="mb-2 flex items-center justify-between">
+                      <h1 className="mb-2 text-center text-xl font-bold md:text-2xl">
+                        {val.name}
+                      </h1>
+                      <button
+                        className="rounded-full p-2 hover:bg-gray-100"
+                        onClick={() => removeMonitor(index)}
+                      >
+                        <CloseIcon />
+                      </button>
+                    </div>
+                    <TwitterTimelineEmbed
+                      sourceType="profile"
+                      screenName={val.twitter}
+                      options={{ height: 600 }}
+                      tweetLimit={5}
+                    />
                   </div>
-                  <TwitterTimelineEmbed
-                    sourceType="profile"
-                    screenName={val.twitter}
-                    options={{ height: 600 }}
-                    tweetLimit={5}
-                  />
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </div>
-      </div>
-      {/* TODO: FIX RESPONSITIVITY WITH STICKY FOOTER */}
-      <div className="mb-24 mt-24 w-full md:mb-0 md:pl-[288px]">
-        <Footer />
       </div>
     </div>
   );
