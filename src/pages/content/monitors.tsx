@@ -3,7 +3,6 @@ import Sidebar from "../../Components/Sidebar";
 import { useState } from "react";
 import Header from "~/Components/Header";
 import { TwitterTimelineEmbed } from "react-twitter-embed";
-import Footer from "~/Components/Footer";
 import CloseIcon from "@mui/icons-material/Close";
 
 interface Monitor {
