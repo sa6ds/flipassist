@@ -22,7 +22,7 @@ function Sidebar({ name }: { name: string }) {
       {/* SIDEBAR  */}
       <div
         className={`fixed z-50 h-screen w-auto min-w-[288px] bg-white shadow-xl md:block ${
-          isOpen ? "hidden" : ""
+          !isOpen ? "hidden" : ""
         }`}
       >
         <div className="relative">

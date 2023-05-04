@@ -18,11 +18,9 @@ const Calculators: NextPage = () => {
         <Sidebar name={users.name} />
         <div className="w-full md:ml-[300px]">
           <Header pageTitle="Calculators" />
+          <div></div>
         </div>
       </div>
-      {/* <div className="static bottom-0 mb-24 w-full md:relative md:mb-0 md:pl-[288px]">
-        <Footer />
-      </div> */}
     </div>
   );
 };

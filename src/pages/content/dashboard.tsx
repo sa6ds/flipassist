@@ -27,95 +27,89 @@ const DashboardPage: NextPage = () => {
   return (
     <div>
       <Sidebar name={users.name} />
-      <div className="truncate font-light">
-        <div className="ml-0 md:ml-[300px]">
-          <Header pageTitle="Inventory" />
-          <div className="mx-8 my-16">
-            <div className="mt-10 xl:flex xl:justify-between xl:gap-[5%]">
-              {/* SUMMARY */}
-              <div className="mb-5 w-full rounded-md bg-gray-100 px-4 py-4 shadow-lg drop-shadow-2xl">
-                <div className="flex pt-1">
-                  <InventoryOutlinedIcon sx={{ fontSize: 35 }} />
-                  <p className="ml-auto text-3xl font-bold">
-                    {totalProducts.toLocaleString()}
-                  </p>
-                </div>
-                <h1 className="mt-8 text-xl">Total Inventory</h1>
+      <div className="ml-0 truncate font-light md:ml-[300px]">
+        <Header pageTitle="Inventory" />
+        <div className="mx-8 my-10">
+          <div className="mb-14 mt-10 xl:flex xl:justify-between xl:gap-[5%]">
+            {/* SUMMARY */}
+            <div className="mb-5 w-full rounded-md bg-gray-100 px-4 py-4 shadow-lg drop-shadow-2xl">
+              <div className="flex pt-1">
+                <InventoryOutlinedIcon sx={{ fontSize: 35 }} />
+                <p className="ml-auto text-3xl font-bold">
+                  {totalProducts.toLocaleString()}
+                </p>
               </div>
-
-              <div className="mb-5 w-full rounded-md bg-gray-100 px-4 py-4 shadow-lg drop-shadow-2xl">
-                <div className="flex pt-1">
-                  <Inventory2OutlinedIcon sx={{ fontSize: 35 }} />
-                  <p className="ml-auto text-3xl font-bold">
-                    ${inventoryValue.toLocaleString()}
-                  </p>
-                </div>
-                <h1 className="mt-8 text-xl">Inventory Value</h1>
-              </div>
-
-              <div className="mb-5 w-full rounded-md bg-gray-100 px-4 py-4 shadow-lg drop-shadow-2xl">
-                <div className="flex pt-1">
-                  <SellOutlinedIcon sx={{ fontSize: 35 }} />
-                  <p className="ml-auto text-3xl font-bold">
-                    ${totalSales.toLocaleString()}
-                  </p>
-                </div>
-                <h1 className="mt-8 text-xl">Total Sales</h1>
-              </div>
-
-              <div className="mb-5 w-full rounded-md bg-gray-100 px-4 py-4 shadow-lg drop-shadow-2xl">
-                <div className="flex pt-1">
-                  <SavingsOutlinedIcon sx={{ fontSize: 35 }} />
-                  <p className="ml-auto text-3xl font-bold">
-                    ${totalProfits.toLocaleString()}
-                  </p>
-                </div>
-                <h1 className="mt-8 text-xl">Total Profit</h1>
-              </div>
+              <h1 className="mt-8 text-xl">Total Inventory</h1>
             </div>
 
-            {/* LINE CHART */}
-
-            <div className="mt-14 justify-between 2xl:flex ">
-              <div className="mb-24 h-[450px] w-full items-center rounded-md bg-gray-100 shadow-lg drop-shadow-2xl 2xl:mb-0 2xl:w-7/12">
-                <h1 className="text-center text-2xl">Insert Line Chart Here</h1>
+            <div className="mb-5 w-full rounded-md bg-gray-100 px-4 py-4 shadow-lg drop-shadow-2xl">
+              <div className="flex pt-1">
+                <Inventory2OutlinedIcon sx={{ fontSize: 35 }} />
+                <p className="ml-auto text-3xl font-bold">
+                  ${inventoryValue.toLocaleString()}
+                </p>
               </div>
+              <h1 className="mt-8 text-xl">Inventory Value</h1>
+            </div>
 
-              {/* Recent Activity */}
+            <div className="mb-5 w-full rounded-md bg-gray-100 px-4 py-4 shadow-lg drop-shadow-2xl">
+              <div className="flex pt-1">
+                <SellOutlinedIcon sx={{ fontSize: 35 }} />
+                <p className="ml-auto text-3xl font-bold">
+                  ${totalSales.toLocaleString()}
+                </p>
+              </div>
+              <h1 className="mt-8 text-xl">Total Sales</h1>
+            </div>
 
-              <div className="h-[450px] w-full rounded-md bg-gray-100 shadow-lg drop-shadow-2xl 2xl:mx-auto 2xl:w-4/12">
-                <h1 className="pl-10 pt-6 text-2xl font-bold">
-                  Recent Activity
-                </h1>
-                <div className="mx-8 mt-8 text-xl">
-                  <div className="flex pb-8">
-                    {/* TODO: FIX PADDING LEFT ON ICONS, INCONSISTENT!!! */}
-                    <FaShoePrints size={30} />
-                    <p className="max-w-[400px] truncate pl-8">
-                      shoshoeshoeshoee
-                    </p>
-                    <p className="ml-auto">4/13/23</p>
-                  </div>
-                  <div className="flex pb-8">
-                    <DiamondOutlinedIcon sx={{ fontSize: 35 }} />
-                    <p className="max-w-[400px] truncate pl-6">collectable</p>
-                    <p className="ml-auto">4/9/23</p>
-                  </div>
-                  <div className="flex pb-8">
-                    <FaShoePrints size={30} />
-                    <p className="max-w-[400px] truncate pl-8">shoe</p>
-                    <p className="ml-auto">4/4/23</p>
-                  </div>
-                  <div className="flex pb-8">
-                    <FaShoePrints size={30} />
-                    <p className="max-w-[400px] truncate pl-8">shoe</p>
-                    <p className="ml-auto">3/29/23</p>
-                  </div>
-                  <div className="flex pb-8">
-                    <DiamondOutlinedIcon sx={{ fontSize: 35 }} />
-                    <p className="max-w-[400px] truncate pl-6">collectable</p>
-                    <p className="ml-auto">3/21/23</p>
-                  </div>
+            <div className="mb-5 w-full rounded-md bg-gray-100 px-4 py-4 shadow-lg drop-shadow-2xl">
+              <div className="flex pt-1">
+                <SavingsOutlinedIcon sx={{ fontSize: 35 }} />
+                <p className="ml-auto text-3xl font-bold">
+                  ${totalProfits.toLocaleString()}
+                </p>
+              </div>
+              <h1 className="mt-8 text-xl">Total Profit</h1>
+            </div>
+          </div>
+
+          <div className="mt-14 xl:flex">
+            {/* LINE CHART */}
+            <div className="mb-16 h-[450px] w-full items-center rounded-md bg-gray-100 shadow-lg drop-shadow-2xl xl:mb-0 xl:w-7/12">
+              <h1 className="text-center text-2xl">Insert Line Chart Here</h1>
+            </div>
+
+            {/* Recent Activity */}
+            <div className="h-[450px] w-full rounded-md bg-gray-100 shadow-lg drop-shadow-2xl xl:mx-auto xl:w-4/12">
+              <h1 className="pl-10 pt-6 text-2xl font-bold">Recent Activity</h1>
+              <div className="mx-8 mt-8 text-xl">
+                <div className="flex pb-8">
+                  {/* TODO: FIX PADDING LEFT ON ICONS, INCONSISTENT!!! */}
+                  <FaShoePrints size={30} />
+                  <p className="max-w-[400px] truncate pl-8">
+                    shoshoeshoeshoee
+                  </p>
+                  <p className="ml-auto">4/13/23</p>
+                </div>
+                <div className="flex pb-8">
+                  <DiamondOutlinedIcon sx={{ fontSize: 35 }} />
+                  <p className="max-w-[400px] truncate pl-6">collectable</p>
+                  <p className="ml-auto">4/9/23</p>
+                </div>
+                <div className="flex pb-8">
+                  <FaShoePrints size={30} />
+                  <p className="max-w-[400px] truncate pl-8">shoe</p>
+                  <p className="ml-auto">4/4/23</p>
+                </div>
+                <div className="flex pb-8">
+                  <FaShoePrints size={30} />
+                  <p className="max-w-[400px] truncate pl-8">shoe</p>
+                  <p className="ml-auto">3/29/23</p>
+                </div>
+                <div className="flex pb-8">
+                  <DiamondOutlinedIcon sx={{ fontSize: 35 }} />
+                  <p className="max-w-[400px] truncate pl-6">collectable</p>
+                  <p className="ml-auto">3/21/23</p>
                 </div>
               </div>
             </div>

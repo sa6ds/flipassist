@@ -18,7 +18,7 @@ const Inventory: NextPage = () => {
         <Sidebar name={users.name} />
         <div className="w-full md:ml-[300px]">
           <Header pageTitle="Inventory" />
-          <div>yo</div>
+          <div></div>
         </div>
       </div>
     </div>
