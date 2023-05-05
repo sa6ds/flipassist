@@ -4,6 +4,7 @@ import { useState } from "react";
 import Header from "~/Components/Header";
 import { TwitterTimelineEmbed } from "react-twitter-embed";
 import CloseIcon from "@mui/icons-material/Close";
+import { requireAuthentication } from "~/utils/requireAuthentication";
 
 interface Monitor {
   name: string;
@@ -59,7 +60,7 @@ const Monitors: NextPage = () => {
   return (
     <div>
       <div className="flex truncate font-light">
-        <Sidebar name="saad" />
+        <Sidebar />
         <div className="ml-0 w-full md:ml-[300px]">
           <Header pageTitle="Monitors" />
           <div>
@@ -114,3 +115,18 @@ const Monitors: NextPage = () => {
 };
 
 export default Monitors;
+
+
+export async function getServerSideProps(context: any) {
+  interface Session {
+    email: string;
+    name: string;
+    image: string;
+  }
+
+  return requireAuthentication(context, (session: Session) => {
+    return {
+      props: { currentSession: session },
+    };
+  });
+}

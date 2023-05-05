@@ -1,21 +1,13 @@
 import { type NextPage } from "next";
 import Sidebar from "../../Components/Sidebar";
-import { useEffect, useState } from "react";
 import Header from "~/Components/Header";
+import { requireAuthentication } from "~/utils/requireAuthentication";
 
 const Inventory: NextPage = () => {
-  const [users, setUsers] = useState({ name: "" });
-
-  useEffect(() => {
-    setUsers({
-      name: "saad",
-    });
-  }, []);
-
   return (
     <div>
       <div className="flex truncate font-light">
-        <Sidebar name={users.name} />
+        <Sidebar />
         <div className="w-full md:ml-[300px]">
           <Header pageTitle="Inventory" />
           <div></div>
@@ -26,3 +18,17 @@ const Inventory: NextPage = () => {
 };
 
 export default Inventory;
+
+export async function getServerSideProps(context: any) {
+  interface Session {
+    email: string;
+    name: string;
+    image: string;
+  }
+
+  return requireAuthentication(context, (session: Session) => {
+    return {
+      props: { currentSession: session },
+    };
+  });
+}

@@ -1,13 +1,14 @@
 import Link from "next/link";
 import React, { useState } from "react";
 import ExitToAppOutlinedIcon from "@mui/icons-material/ExitToAppOutlined";
-import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
 import { SidebarData } from "./SidebarData";
 import { useRouter } from "next/router";
+import { signOut, useSession } from "next-auth/react";
+import Image from "next/image";
 
-function Sidebar({ name }: { name: string }) {
+function Sidebar() {
   const router = useRouter();
-
+  const { data: sessionData } = useSession();
   const [isOpen, setIsOpen] = useState(false); // Add this state variable
 
   return (
@@ -62,17 +63,26 @@ function Sidebar({ name }: { name: string }) {
 
               <div className="absolute bottom-0 flex h-16 w-full items-center bg-gray-300 text-sm">
                 <div className="ml-7 justify-center">
-                  <PersonOutlineOutlinedIcon sx={{ fontSize: 30 }} />
+                  <img
+                    src={sessionData?.user.image ?? ""}
+                    className="w-8 rounded-full"
+                  />
                 </div>
                 <div className="ml-5">
                   <div className="max-w-[160px] truncate">
-                    <h1 className="text-base">{name}</h1>
+                    <h1 className="text-base">{sessionData?.user.name}</h1>
                   </div>
                   <div className="text-muted">Account</div>
                 </div>
-                <Link href="/" className="my-auto ml-auto pr-8">
+
+                <button
+                  className=" my-auto ml-auto pr-8"
+                  onClick={async () => {
+                    await signOut({ callbackUrl: "/" });
+                  }}
+                >
                   <ExitToAppOutlinedIcon sx={{ fontSize: 20 }} />
-                </Link>
+                </button>
               </div>
             </div>
           </div>
