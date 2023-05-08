@@ -1,9 +1,10 @@
-import { type NextPage } from "next";
 import Sidebar from "../../Components/Sidebar";
 import { useState } from "react";
 import Header from "~/Components/Header";
 import { TwitterTimelineEmbed } from "react-twitter-embed";
 import CloseIcon from "@mui/icons-material/Close";
+import { requireAuthentication } from "~/utils/requireAuthentication";
+import type { GetServerSideProps, NextPage } from "next";
 
 interface Monitor {
   name: string;
@@ -59,7 +60,7 @@ const Monitors: NextPage = () => {
   return (
     <div>
       <div className="flex truncate font-light">
-        <Sidebar name="saad" />
+        <Sidebar />
         <div className="ml-0 w-full md:ml-[300px]">
           <Header pageTitle="Monitors" />
           <div>
@@ -114,3 +115,22 @@ const Monitors: NextPage = () => {
 };
 
 export default Monitors;
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await requireAuthentication(context);
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {
+      currentSession: session,
+    },
+  };
+};

@@ -1,21 +1,13 @@
-import { type NextPage } from "next";
+import type { GetServerSideProps, NextPage } from "next";
 import Sidebar from "../../Components/Sidebar";
-import { useEffect, useState } from "react";
 import Header from "~/Components/Header";
+import { requireAuthentication } from "~/utils/requireAuthentication";
 
 const Calculators: NextPage = () => {
-  const [users, setUsers] = useState({ name: "" });
-
-  useEffect(() => {
-    setUsers({
-      name: "saad",
-    });
-  }, []);
-
   return (
     <div>
       <div className="flex truncate font-light">
-        <Sidebar name={users.name} />
+        <Sidebar />
         <div className="w-full md:ml-[300px]">
           <Header pageTitle="Calculators" />
           <div></div>
@@ -26,3 +18,22 @@ const Calculators: NextPage = () => {
 };
 
 export default Calculators;
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await requireAuthentication(context);
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {
+      currentSession: session,
+    },
+  };
+};

@@ -1,5 +1,3 @@
-import { type NextPage } from "next";
-import { useEffect, useState } from "react";
 import Sidebar from "../../Components/Sidebar";
 import InventoryOutlinedIcon from "@mui/icons-material/InventoryOutlined";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
@@ -9,16 +7,10 @@ import DiamondOutlinedIcon from "@mui/icons-material/DiamondOutlined";
 import { FaShoePrints } from "react-icons/fa";
 import Header from "~/Components/Header";
 import Footer from "~/Components/Footer";
+import { requireAuthentication } from "~/utils/requireAuthentication";
+import type { GetServerSideProps, NextPage } from "next";
 
 const DashboardPage: NextPage = () => {
-  const [users, setUsers] = useState({ name: "" });
-
-  useEffect(() => {
-    setUsers({
-      name: "saad",
-    });
-  }, []);
-
   const totalProducts = 999;
   const inventoryValue = 2542;
   const totalSales = 5420;
@@ -26,7 +18,7 @@ const DashboardPage: NextPage = () => {
 
   return (
     <div>
-      <Sidebar name={users.name} />
+      <Sidebar />
       <div className="ml-0 truncate font-light md:ml-[300px]">
         <Header pageTitle="Inventory" />
         <div className="mx-8 my-10">
@@ -124,3 +116,22 @@ const DashboardPage: NextPage = () => {
 };
 
 export default DashboardPage;
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await requireAuthentication(context);
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {
+      currentSession: session,
+    },
+  };
+};

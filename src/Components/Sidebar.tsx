@@ -1,13 +1,14 @@
 import Link from "next/link";
 import React, { useState } from "react";
 import ExitToAppOutlinedIcon from "@mui/icons-material/ExitToAppOutlined";
-import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
 import { SidebarData } from "./SidebarData";
 import { useRouter } from "next/router";
+import { signOut, useSession } from "next-auth/react";
+import Image from "next/image";
 
-function Sidebar({ name }: { name: string }) {
+function Sidebar() {
   const router = useRouter();
-
+  const { data: sessionData } = useSession();
   const [isOpen, setIsOpen] = useState(false); // Add this state variable
 
   return (
@@ -27,8 +28,8 @@ function Sidebar({ name }: { name: string }) {
       >
         <div className="relative">
           <div className="fixed z-50 h-screen w-auto min-w-[288px] bg-white shadow-xl">
-            <h1 className="logo mt-7 text-center">
-              <Link href="/" className="font-bold">
+            <h1 className="mt-7 text-center">
+              <Link href="/" className="text-3xl font-medium">
                 flipassist
               </Link>
             </h1>
@@ -62,17 +63,31 @@ function Sidebar({ name }: { name: string }) {
 
               <div className="absolute bottom-0 flex h-16 w-full items-center bg-gray-300 text-sm">
                 <div className="ml-7 justify-center">
-                  <PersonOutlineOutlinedIcon sx={{ fontSize: 30 }} />
+                  <Image
+                    src={sessionData?.user.image ?? ""}
+                    className="w-8 rounded-full"
+                    width={40}
+                    height={40}
+                    alt="profile"
+                  ></Image>
                 </div>
                 <div className="ml-5">
                   <div className="max-w-[160px] truncate">
-                    <h1 className="text-base">{name}</h1>
+                    <h1 className="text-base">{sessionData?.user.name}</h1>
                   </div>
                   <div className="text-muted">Account</div>
                 </div>
-                <Link href="/" className="my-auto ml-auto pr-8">
+
+                <button
+                  className=" my-auto ml-auto mr-8"
+                  onClick={() => {
+                    signOut({ callbackUrl: "/" }).catch((e) => {
+                      console.error(e);
+                    });
+                  }}
+                >
                   <ExitToAppOutlinedIcon sx={{ fontSize: 20 }} />
-                </Link>
+                </button>
               </div>
             </div>
           </div>
