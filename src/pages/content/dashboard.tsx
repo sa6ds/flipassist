@@ -1,4 +1,3 @@
-import { type NextPage } from "next";
 import Sidebar from "../../Components/Sidebar";
 import InventoryOutlinedIcon from "@mui/icons-material/InventoryOutlined";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
@@ -9,6 +8,7 @@ import { FaShoePrints } from "react-icons/fa";
 import Header from "~/Components/Header";
 import Footer from "~/Components/Footer";
 import { requireAuthentication } from "~/utils/requireAuthentication";
+import type { GetServerSideProps, NextPage } from "next";
 
 const DashboardPage: NextPage = () => {
   const totalProducts = 999;
@@ -117,16 +117,21 @@ const DashboardPage: NextPage = () => {
 
 export default DashboardPage;
 
-export async function getServerSideProps(context: any) {
-  interface Session {
-    email: string;
-    name: string;
-    image: string;
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await requireAuthentication(context);
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
   }
 
-  return requireAuthentication(context, (session: Session) => {
-    return {
-      props: { currentSession: session },
-    };
-  });
-}
+  return {
+    props: {
+      currentSession: session,
+    },
+  };
+};

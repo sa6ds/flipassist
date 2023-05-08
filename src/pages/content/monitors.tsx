@@ -1,10 +1,10 @@
-import { type NextPage } from "next";
 import Sidebar from "../../Components/Sidebar";
 import { useState } from "react";
 import Header from "~/Components/Header";
 import { TwitterTimelineEmbed } from "react-twitter-embed";
 import CloseIcon from "@mui/icons-material/Close";
 import { requireAuthentication } from "~/utils/requireAuthentication";
+import type { GetServerSideProps, NextPage } from "next";
 
 interface Monitor {
   name: string;
@@ -116,17 +116,21 @@ const Monitors: NextPage = () => {
 
 export default Monitors;
 
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await requireAuthentication(context);
 
-export async function getServerSideProps(context: any) {
-  interface Session {
-    email: string;
-    name: string;
-    image: string;
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
   }
 
-  return requireAuthentication(context, (session: Session) => {
-    return {
-      props: { currentSession: session },
-    };
-  });
-}
+  return {
+    props: {
+      currentSession: session,
+    },
+  };
+};

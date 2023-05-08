@@ -2,46 +2,55 @@ import Link from "next/link";
 import React from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { requireAuthentication } from "~/utils/requireAuthentication";
+import type { GetServerSideProps } from "next";
+
 
 function Navbar() {
   const { data: sessionData } = useSession();
 
   return (
     <nav className="flex">
-      <h1 className="logo mt-4 text-5xl font-bold">
-        <Link href="/" className="font-bold">
+      <h1 className="mt-3">
+        <Link href="/" className="text-2xl font-medium sm:text-3xl lg:text-4xl">
           flipassist
         </Link>
       </h1>
+
       <div className="ml-auto flex py-2">
-        {sessionData && (
-          <Link
-            className={`duration-1500 rounded-lg border border-black px-6 py-2 transition-all hover:scale-110 hover:bg-black hover:text-white`}
-            href="/content/dashboard"
+        {sessionData ? (
+          // duration-1500 rounded-lg border border-black px-6 py-2 transition-all hover:scale-110 hover:bg-black hover:text-white
+          <div>
+            <Link
+              className={`duration-1500 rounded-lg border border-black px-2 py-2 transition-all hover:scale-110 hover:bg-black hover:text-white sm:px-6 sm:py-3`}
+              href="/content/dashboard"
+            >
+              Dashboard
+            </Link>
+            <button
+              onClick={() => {
+                signOut().catch((e) => {
+                  console.error(e);
+                });
+              }}
+              className="duration-1500 border-black px-2 py-2 sm:px-6 sm:py-3"
+            >
+              Sign out
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => {
+              signIn("google", {
+                callbackUrl: "/content/dashboard/",
+              }).catch((e) => {
+                console.error(e);
+              });
+            }}
+            className="duration-1500 rounded-lg border border-black px-6 py-2 transition-all hover:scale-110 hover:bg-black hover:text-white"
           >
-            Dashboard
-          </Link>
+            Sign In
+          </button>
         )}
-        <button
-          className={`duration-1500 rounded-lg border border-black px-8 py-2 ${
-            sessionData
-              ? "border-0 text-black"
-              : "transition-all hover:scale-110 hover:bg-black hover:text-white"
-          }`}
-          onClick={
-            sessionData
-              ? () => {
-                  signOut();
-                }
-              : () => {
-                  signIn("google", {
-                    callbackUrl: "/content/dashboard",
-                  });
-                }
-          }
-        >
-          {sessionData ? "Sign out" : "Sign in"}
-        </button>
       </div>
     </nav>
   );
@@ -49,16 +58,21 @@ function Navbar() {
 
 export default Navbar;
 
-export async function getServerSideProps(context: any) {
-  interface Session {
-    email: string;
-    name: string;
-    image: string;
-  }
-
+export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await requireAuthentication(context);
 
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
+
   return {
-    props: { currentSession: session as Session },
+    props: {
+      currentSession: session,
+    },
   };
-}
+};

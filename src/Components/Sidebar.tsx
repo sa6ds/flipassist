@@ -28,8 +28,8 @@ function Sidebar() {
       >
         <div className="relative">
           <div className="fixed z-50 h-screen w-auto min-w-[288px] bg-white shadow-xl">
-            <h1 className="logo mt-7 text-center">
-              <Link href="/" className="font-bold">
+            <h1 className="mt-7 text-center">
+              <Link href="/" className="text-3xl font-medium">
                 flipassist
               </Link>
             </h1>
@@ -63,10 +63,13 @@ function Sidebar() {
 
               <div className="absolute bottom-0 flex h-16 w-full items-center bg-gray-300 text-sm">
                 <div className="ml-7 justify-center">
-                  <img
+                  <Image
                     src={sessionData?.user.image ?? ""}
                     className="w-8 rounded-full"
-                  />
+                    width={40}
+                    height={40}
+                    alt="profile"
+                  ></Image>
                 </div>
                 <div className="ml-5">
                   <div className="max-w-[160px] truncate">
@@ -76,9 +79,11 @@ function Sidebar() {
                 </div>
 
                 <button
-                  className=" my-auto ml-auto pr-8"
-                  onClick={async () => {
-                    await signOut({ callbackUrl: "/" });
+                  className=" my-auto ml-auto mr-8"
+                  onClick={() => {
+                    signOut({ callbackUrl: "/" }).catch((e) => {
+                      console.error(e);
+                    });
                   }}
                 >
                   <ExitToAppOutlinedIcon sx={{ fontSize: 20 }} />

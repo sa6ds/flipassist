@@ -1,7 +1,9 @@
-import { type NextPage } from "next";
 import Sidebar from "../../Components/Sidebar";
 import Header from "~/Components/Header";
 import { requireAuthentication } from "~/utils/requireAuthentication";
+
+import type { GetServerSideProps, NextPage } from "next";
+
 
 const Inventory: NextPage = () => {
   return (
@@ -19,16 +21,21 @@ const Inventory: NextPage = () => {
 
 export default Inventory;
 
-export async function getServerSideProps(context: any) {
-  interface Session {
-    email: string;
-    name: string;
-    image: string;
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await requireAuthentication(context);
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
   }
 
-  return requireAuthentication(context, (session: Session) => {
-    return {
-      props: { currentSession: session },
-    };
-  });
-}
+  return {
+    props: {
+      currentSession: session,
+    },
+  };
+};
