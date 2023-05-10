@@ -4,7 +4,6 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import { requireAuthentication } from "~/utils/requireAuthentication";
 import type { GetServerSideProps } from "next";
 
-
 function Navbar() {
   const { data: sessionData } = useSession();
 
@@ -18,7 +17,6 @@ function Navbar() {
 
       <div className="ml-auto flex py-2">
         {sessionData ? (
-          // duration-1500 rounded-lg border border-black px-6 py-2 transition-all hover:scale-110 hover:bg-black hover:text-white
           <div>
             <Link
               className={`duration-1500 rounded-lg border border-black px-2 py-2 transition-all hover:scale-110 hover:bg-black hover:text-white sm:px-6 sm:py-3`}

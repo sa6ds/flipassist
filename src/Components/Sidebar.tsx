@@ -79,6 +79,7 @@ function Sidebar() {
                 </div>
 
                 <button
+                  title="Sign Out"
                   className=" my-auto ml-auto mr-8"
                   onClick={() => {
                     signOut({ callbackUrl: "/" }).catch((e) => {

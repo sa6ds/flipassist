@@ -66,14 +66,14 @@ const Monitors: NextPage = () => {
           <div>
             <div className="my-2 mb-10 flex justify-center gap-3">
               <input
-                className="mt-8 w-7/12 rounded-lg border border-gray-300 bg-gray-100 px-5 py-1.5 md:w-64"
+                className="mt-8 w-7/12 rounded-sm border border-gray-300 bg-gray-100 px-5 py-1.5 md:w-64"
                 placeholder="Username"
                 value={userEntry}
                 onChange={handleInputChange}
                 onKeyUp={handleKeyPress}
               />
               <button
-                className="duration-1500 mt-8 w-20 rounded-[10px] border border-black bg-black py-1.5 text-center text-white transition-all hover:bg-white hover:text-black"
+                className="duration-1500 mt-8 w-20 rounded-sm border border-black bg-black py-1.5 text-center text-white transition-all hover:bg-white hover:text-black"
                 onClick={handleAddMonitor}
               >
                 add
