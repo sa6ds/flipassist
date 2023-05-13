@@ -5,6 +5,7 @@ import { SidebarData } from "./SidebarData";
 import { useRouter } from "next/router";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
+import Hamburger from "hamburger-react";
 
 function Sidebar() {
   const router = useRouter();
@@ -14,10 +15,10 @@ function Sidebar() {
   return (
     <div>
       <button
-        className="absolute right-12 top-8 z-50 block text-2xl text-gray-700 md:hidden"
+        className="absolute right-10 top-8 z-50 block text-2xl text-gray-700 md:hidden"
         onClick={() => setIsOpen(!isOpen)} // Toggle the value of isOpen
       >
-        &#9776;
+        <Hamburger size={25} />
       </button>
 
       {/* SIDEBAR  */}

@@ -9,6 +9,7 @@ import Header from "~/Components/Header";
 import Footer from "~/Components/Footer";
 import { requireAuthentication } from "~/utils/requireAuthentication";
 import type { GetServerSideProps, NextPage } from "next";
+import PageHead from "~/utils/PageTitle";
 
 const DashboardPage: NextPage = () => {
   const totalProducts = 999;
@@ -17,14 +18,16 @@ const DashboardPage: NextPage = () => {
   const totalProfits = 8324;
 
   return (
-    <div>
+    <div className="min-h-[100vh]">
+      <PageHead title="flipassist | Dashboard" />
+
       <Sidebar />
       <div className="ml-0 truncate font-light md:ml-[300px]">
-        <Header pageTitle="Inventory" />
+        <Header pageTitle="Dashboard" />
         <div className="mx-8 my-10">
           <div className="mb-14 mt-10 xl:flex xl:justify-between xl:gap-[5%]">
             {/* SUMMARY */}
-            <div className="mb-5 w-full rounded-md bg-gray-100 px-4 py-4 shadow-lg drop-shadow-2xl">
+            <div className="mb-5 w-full rounded-md bg-gray-100 px-4 py-4 shadow-lg drop-shadow-xl">
               <div className="flex pt-1">
                 <InventoryOutlinedIcon sx={{ fontSize: 35 }} />
                 <p className="ml-auto text-3xl font-bold">
@@ -34,7 +37,7 @@ const DashboardPage: NextPage = () => {
               <h1 className="mt-8 text-xl">Total Inventory</h1>
             </div>
 
-            <div className="mb-5 w-full rounded-md bg-gray-100 px-4 py-4 shadow-lg drop-shadow-2xl">
+            <div className="mb-5 w-full rounded-md bg-gray-100 px-4 py-4 shadow-lg drop-shadow-xl">
               <div className="flex pt-1">
                 <Inventory2OutlinedIcon sx={{ fontSize: 35 }} />
                 <p className="ml-auto text-3xl font-bold">
@@ -44,7 +47,7 @@ const DashboardPage: NextPage = () => {
               <h1 className="mt-8 text-xl">Inventory Value</h1>
             </div>
 
-            <div className="mb-5 w-full rounded-md bg-gray-100 px-4 py-4 shadow-lg drop-shadow-2xl">
+            <div className="mb-5 w-full rounded-md bg-gray-100 px-4 py-4 shadow-lg drop-shadow-xl">
               <div className="flex pt-1">
                 <SellOutlinedIcon sx={{ fontSize: 35 }} />
                 <p className="ml-auto text-3xl font-bold">
@@ -54,7 +57,7 @@ const DashboardPage: NextPage = () => {
               <h1 className="mt-8 text-xl">Total Sales</h1>
             </div>
 
-            <div className="mb-5 w-full rounded-md bg-gray-100 px-4 py-4 shadow-lg drop-shadow-2xl">
+            <div className="mb-5 w-full rounded-md bg-gray-100 px-4 py-4 shadow-lg drop-shadow-xl">
               <div className="flex pt-1">
                 <SavingsOutlinedIcon sx={{ fontSize: 35 }} />
                 <p className="ml-auto text-3xl font-bold">
@@ -67,12 +70,12 @@ const DashboardPage: NextPage = () => {
 
           <div className="mt-14 xl:flex">
             {/* LINE CHART */}
-            <div className="mb-16 h-[450px] w-full items-center rounded-md bg-gray-100 shadow-lg drop-shadow-2xl xl:mb-0 xl:w-7/12">
+            <div className="mb-16 h-[450px] w-full items-center rounded-md bg-gray-100 shadow-lg drop-shadow-xl xl:mb-0 xl:w-7/12">
               <h1 className="text-center text-2xl">Insert Line Chart Here</h1>
             </div>
 
             {/* Recent Activity */}
-            <div className="h-[450px] w-full rounded-md bg-gray-100 shadow-lg drop-shadow-2xl xl:mx-auto xl:w-4/12">
+            <div className="h-[450px] w-full rounded-md bg-gray-100 shadow-lg drop-shadow-xl xl:mx-auto xl:w-4/12">
               <h1 className="pl-10 pt-6 text-2xl font-bold">Recent Activity</h1>
               <div className="mx-8 mt-8 text-xl">
                 <div className="flex pb-8">
@@ -108,7 +111,7 @@ const DashboardPage: NextPage = () => {
           </div>
         </div>
       </div>
-      <div className="w-full md:pl-[288px]">
+      <div className="sticky top-full md:ml-[288px]">
         <Footer />
       </div>
     </div>
