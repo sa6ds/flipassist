@@ -3,7 +3,7 @@ import Sidebar from "../../Components/Sidebar";
 import Header from "~/Components/Header";
 import { requireAuthentication } from "~/utils/requireAuthentication";
 import Footer from "~/Components/Footer";
-import PageHead from "~/utils/PageTitle";
+import PageHead from "~/utils/PageHead";
 
 const Tools: NextPage = () => {
   return (
@@ -11,12 +11,12 @@ const Tools: NextPage = () => {
       <PageHead title="flipassist | Tools" />
       <div className="flex truncate font-light">
         <Sidebar />
-        <div className="w-full md:ml-[300px]">
+        <div className="w-full md:ml-[250px]">
           <Header pageTitle="Tools" />
           <div></div>
         </div>
       </div>
-      <div className="sticky top-full md:ml-[288px]">
+      <div className="sticky top-full md:ml-[250px]">
         <Footer />
       </div>
     </div>

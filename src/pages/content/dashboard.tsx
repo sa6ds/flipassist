@@ -4,44 +4,92 @@ import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import SavingsOutlinedIcon from "@mui/icons-material/SavingsOutlined";
 import SellOutlinedIcon from "@mui/icons-material/SellOutlined";
 import DiamondOutlinedIcon from "@mui/icons-material/DiamondOutlined";
-import { FaShoePrints } from "react-icons/fa";
 import Header from "~/Components/Header";
 import Footer from "~/Components/Footer";
 import { requireAuthentication } from "~/utils/requireAuthentication";
 import type { GetServerSideProps, NextPage } from "next";
-import PageHead from "~/utils/PageTitle";
+import PageHead from "~/utils/PageHead";
+import { listofproducts } from "../../Components/dummyData";
+import { useEffect, useState } from "react";
+import { faGem, faSocks, faTshirt } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const DashboardPage: NextPage = () => {
-  const totalProducts = 999;
-  const inventoryValue = 2542;
-  const totalSales = 5420;
-  const totalProfits = 8324;
+  const [totalProfits, setTotalProfits] = useState(0);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [totalInventoryValue, settotalInventoryValue] = useState(0);
+  const [totalSales, setTotalSales] = useState(0);
+
+  useEffect(() => {
+    // Takes
+    const totalProducts = listofproducts.reduce((curr) => curr + 1, 0);
+    setTotalProducts(totalProducts);
+
+    // Represents sum of profits and current, including sold shoes
+    // if profit > 0 then add sale price. otherwise add purchase price
+    const totalInventoryValue = listofproducts.reduce((sum, product) => {
+      const profit = (product.salePrice ?? 0) - product.purchasePrice;
+      return profit > 0
+        ? sum + (product.salePrice ?? 0)
+        : sum + product.purchasePrice;
+    }, 0);
+    settotalInventoryValue(totalInventoryValue);
+
+    // Represents how much made from sales
+    // Make sum variable and loops over listofproducts, for each product adds product.salePrice to the sum, initialized sum at 0
+    const totalSales = listofproducts.reduce((sum, product) => {
+      return sum + (product.salePrice ?? 0);
+    }, 0);
+    setTotalSales(totalSales);
+
+    const totalProfits = listofproducts.reduce((sum, product) => {
+      // if no salePrice, skip item... if salePrice subtract from purchasePrice
+      return product.salePrice == null || product.salePrice == 0
+        ? sum
+        : sum + product.salePrice - product.purchasePrice;
+    }, 0);
+    setTotalProfits(totalProfits);
+  }, []);
+
+  const sortedList = listofproducts.sort((a, b) => {
+    const dateA = new Date(a.dateAdded).getTime();
+    const dateB = new Date(b.dateAdded).getTime();
+    return dateB - dateA;
+  });
 
   return (
     <div className="min-h-[100vh]">
       <PageHead title="flipassist | Dashboard" />
 
       <Sidebar />
-      <div className="ml-0 truncate font-light md:ml-[300px]">
+      <div className="ml-0 truncate font-light md:ml-[250px]">
         <Header pageTitle="Dashboard" />
         <div className="mx-8 my-10">
           <div className="mb-14 mt-10 xl:flex xl:justify-between xl:gap-[5%]">
             {/* SUMMARY */}
             <div className="mb-5 w-full rounded-md bg-gray-100 px-4 py-4 shadow-lg drop-shadow-xl">
               <div className="flex pt-1">
-                <InventoryOutlinedIcon sx={{ fontSize: 35 }} />
-                <p className="ml-auto text-3xl font-bold">
-                  {totalProducts.toLocaleString()}
-                </p>
+                <InventoryOutlinedIcon
+                  sx={{ fontSize: 32 }}
+                  className="mt-0.5"
+                />
+                <p className="ml-auto text-3xl font-bold">{totalProducts}</p>
               </div>
               <h1 className="mt-8 text-xl">Total Inventory</h1>
             </div>
 
             <div className="mb-5 w-full rounded-md bg-gray-100 px-4 py-4 shadow-lg drop-shadow-xl">
               <div className="flex pt-1">
-                <Inventory2OutlinedIcon sx={{ fontSize: 35 }} />
+                <Inventory2OutlinedIcon
+                  sx={{ fontSize: 32 }}
+                  className="mt-0.5"
+                />
                 <p className="ml-auto text-3xl font-bold">
-                  ${inventoryValue.toLocaleString()}
+                  {totalInventoryValue.toLocaleString("en-US", {
+                    style: "currency",
+                    currency: "USD",
+                    minimumFractionDigits: 2,
+                  })}
                 </p>
               </div>
               <h1 className="mt-8 text-xl">Inventory Value</h1>
@@ -49,9 +97,13 @@ const DashboardPage: NextPage = () => {
 
             <div className="mb-5 w-full rounded-md bg-gray-100 px-4 py-4 shadow-lg drop-shadow-xl">
               <div className="flex pt-1">
-                <SellOutlinedIcon sx={{ fontSize: 35 }} />
+                <SellOutlinedIcon sx={{ fontSize: 32 }} className="mt-0.5" />
                 <p className="ml-auto text-3xl font-bold">
-                  ${totalSales.toLocaleString()}
+                  {totalSales.toLocaleString("en-US", {
+                    style: "currency",
+                    currency: "USD",
+                    minimumFractionDigits: 2,
+                  })}
                 </p>
               </div>
               <h1 className="mt-8 text-xl">Total Sales</h1>
@@ -59,9 +111,13 @@ const DashboardPage: NextPage = () => {
 
             <div className="mb-5 w-full rounded-md bg-gray-100 px-4 py-4 shadow-lg drop-shadow-xl">
               <div className="flex pt-1">
-                <SavingsOutlinedIcon sx={{ fontSize: 35 }} />
+                <SavingsOutlinedIcon sx={{ fontSize: 32 }} className="mt-0.5" />
                 <p className="ml-auto text-3xl font-bold">
-                  ${totalProfits.toLocaleString()}
+                  {totalProfits.toLocaleString("en-US", {
+                    style: "currency",
+                    currency: "USD",
+                    minimumFractionDigits: 2,
+                  })}
                 </p>
               </div>
               <h1 className="mt-8 text-xl">Total Profit</h1>
@@ -75,43 +131,47 @@ const DashboardPage: NextPage = () => {
             </div>
 
             {/* Recent Activity */}
-            <div className="h-[450px] w-full rounded-md bg-gray-100 shadow-lg drop-shadow-xl xl:mx-auto xl:w-4/12">
-              <h1 className="pl-10 pt-6 text-2xl font-bold">Recent Activity</h1>
-              <div className="mx-8 mt-8 text-xl">
-                <div className="flex pb-8">
-                  {/* TODO: FIX PADDING LEFT ON ICONS, INCONSISTENT!!! */}
-                  <FaShoePrints size={30} />
-                  <p className="max-w-[400px] truncate pl-8">
-                    shoshoeshoeshoee
-                  </p>
-                  <p className="ml-auto">4/13/23</p>
-                </div>
-                <div className="flex pb-8">
-                  <DiamondOutlinedIcon sx={{ fontSize: 35 }} />
-                  <p className="max-w-[400px] truncate pl-6">collectable</p>
-                  <p className="ml-auto">4/9/23</p>
-                </div>
-                <div className="flex pb-8">
-                  <FaShoePrints size={30} />
-                  <p className="max-w-[400px] truncate pl-8">shoe</p>
-                  <p className="ml-auto">4/4/23</p>
-                </div>
-                <div className="flex pb-8">
-                  <FaShoePrints size={30} />
-                  <p className="max-w-[400px] truncate pl-8">shoe</p>
-                  <p className="ml-auto">3/29/23</p>
-                </div>
-                <div className="flex pb-8">
-                  <DiamondOutlinedIcon sx={{ fontSize: 35 }} />
-                  <p className="max-w-[400px] truncate pl-6">collectable</p>
-                  <p className="ml-auto">3/21/23</p>
-                </div>
-              </div>
+            <div className="h-[450px] w-full rounded-md bg-gray-100 shadow-lg drop-shadow-xl xl:ml-auto xl:w-4/12">
+              <h1 className="ml-10 pt-6 text-2xl font-bold">Recent Activity</h1>
+
+              {sortedList.slice(0, 6).map((product, index) => {
+                return (
+                  <div key={index} className="mx-8 my-8 text-xl">
+                    <div className="flex">
+                      {product.category === "Sneaker" ? (
+                        <FontAwesomeIcon
+                          className="ml-1 mt-1.5"
+                          icon={faSocks}
+                          size="sm"
+                        />
+                      ) : product.category === "Clothing" ? (
+                        <FontAwesomeIcon
+                          className="ml-1 mt-1.5"
+                          icon={faTshirt}
+                          size="sm"
+                        />
+                      ) : (
+                        product.category === "Collectible" && (
+                          <FontAwesomeIcon
+                            className="ml-1 mt-1.5"
+                            icon={faGem}
+                            size="sm"
+                          />
+                        )
+                      )}
+                      <p className="ml-3 max-w-[50%] truncate">
+                        {product.name}
+                      </p>
+                      <p className="ml-auto">{product.dateAdded}</p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
       </div>
-      <div className="sticky top-full md:ml-[288px]">
+      <div className="sticky top-full md:ml-[250px]">
         <Footer />
       </div>
     </div>
