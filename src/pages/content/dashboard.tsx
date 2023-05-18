@@ -3,7 +3,6 @@ import InventoryOutlinedIcon from "@mui/icons-material/InventoryOutlined";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import SavingsOutlinedIcon from "@mui/icons-material/SavingsOutlined";
 import SellOutlinedIcon from "@mui/icons-material/SellOutlined";
-import DiamondOutlinedIcon from "@mui/icons-material/DiamondOutlined";
 import Header from "~/Components/Header";
 import Footer from "~/Components/Footer";
 import { requireAuthentication } from "~/utils/requireAuthentication";
@@ -21,7 +20,7 @@ const DashboardPage: NextPage = () => {
   const [totalSales, setTotalSales] = useState(0);
 
   useEffect(() => {
-    // Takes
+    // Increments curr by 1 for each item in listofproducts
     const totalProducts = listofproducts.reduce((curr) => curr + 1, 0);
     setTotalProducts(totalProducts);
 
@@ -62,8 +61,10 @@ const DashboardPage: NextPage = () => {
       <PageHead title="flipassist | Dashboard" />
 
       <Sidebar />
+
       <div className="ml-0 truncate font-light md:ml-[250px]">
         <Header pageTitle="Dashboard" />
+
         <div className="mx-8 my-10">
           <div className="mb-14 mt-10 xl:flex xl:justify-between xl:gap-[5%]">
             {/* SUMMARY */}

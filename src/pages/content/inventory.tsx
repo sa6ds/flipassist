@@ -10,10 +10,21 @@ import { useState } from "react";
 import { listofproducts } from "~/Components/dummyData";
 
 const Inventory: NextPage = () => {
-  const [searchWord, setsearchWord] = useState("");
+  const [searchWord, setSearchWord] = useState("");
+  const [status, setStatus] = useState("");
+  const [platform, setPlatform] = useState("");
+  const [category, setCategory] = useState("");
 
-  const filteredShoes = listofproducts.filter((shoe) => {
-    return shoe.name.toLowerCase().includes(searchWord.toLowerCase());
+  const filteredProducts = listofproducts.filter((product) => {
+    const nameMatch = product.name
+      .toLowerCase()
+      .includes(searchWord.toLowerCase());
+
+    const statusMatch = status === "" || product.status === status;
+    const platformMatch = platform === "" || product.platform === platform;
+    const categoryMatch = category === "" || product.category === category;
+
+    return nameMatch && statusMatch && platformMatch && categoryMatch;
   });
 
   return (
@@ -30,7 +41,7 @@ const Inventory: NextPage = () => {
               className="w-full rounded-md border border-gray-300 bg-gray-100 px-5 py-1.5 xl:w-4/12"
               placeholder="Search"
               onChange={(event) => {
-                setsearchWord(event.target.value);
+                setSearchWord(event.target.value);
               }}
             />
 
@@ -41,38 +52,37 @@ const Inventory: NextPage = () => {
                 </button>
               </div>
               <div className="flex">
-                {/* <p>Status</p> */}
                 <select
-                  id="status"
                   name="status"
                   className="duration-1500 rounded-md border border-black bg-gray-200 p-6 py-1.5 text-center transition-all hover:bg-white hover:text-black"
-                  required
                   placeholder="Status"
+                  onChange={(event) => setStatus(event.target.value)}
+                  defaultValue={"Status"}
                 >
-                  <option disabled selected value="">
+                  <option disabled value="Status">
                     Status
                   </option>
-                  <option value="Shipping">All</option>
-                  <option value="Shipping">Shipping</option>
+                  <option value="">All</option>
                   <option value="Listed">Listed</option>
                   <option value="Sold">Sold</option>
                 </select>
               </div>
               <div>
                 <select
-                  id="platform"
                   name="platform"
                   className="duration-1500 rounded-md border border-black bg-gray-200 p-6 py-1.5 text-center transition-all hover:bg-white hover:text-black"
-                  required
+                  onChange={(event) => setPlatform(event.target.value)}
+                  defaultValue={"Platform"}
                 >
-                  <option disabled selected value="">
+                  <option disabled value="Platform">
                     Platform
                   </option>
-                  <option value="Shipping">All</option>
+                  <option value="">All</option>
                   <option value="StockX">StockX</option>
                   <option value="Goat">Goat</option>
-                  <option value="Depop">Depop</option>
                   <option value="eBay">eBay</option>
+                  <option value="Grailed">Grailed</option>
+                  <option value="Depop">Depop</option>
                   <option value="OfferUp">OfferUp</option>
                   <option value="Mercari">Mercari</option>
                 </select>
@@ -82,15 +92,16 @@ const Inventory: NextPage = () => {
                   id="category"
                   name="category"
                   className="duration-1500 rounded-md border border-black bg-gray-200 p-6 py-1.5 text-center transition-all hover:bg-white hover:text-black"
-                  required
+                  onChange={(event) => setCategory(event.target.value)}
+                  defaultValue={"Category"}
                 >
-                  <option disabled selected value="">
+                  <option disabled value="Category">
                     Category
                   </option>
-                  <option value="Shipping">All</option>
+                  <option value="">All</option>
                   <option value="Sneaker">Sneaker</option>
                   <option value="Clothing">Clothing</option>
-                  <option value="Collectable">Collectable</option>
+                  <option value="Collectible">Collectible</option>
                 </select>
               </div>
             </div>
@@ -100,16 +111,13 @@ const Inventory: NextPage = () => {
           <div className="mb-24 mt-12 overflow-x-auto">
             <table className="w-full overflow-x-auto truncate">
               <thead className="border-b-2">
-                <tr className="text-left font-extrabold tracking-wide">
+                <tr className="text-left font-extrabold">
                   <th className="p-3 pr-72 hover:bg-gray-100">Name</th>
                   <th className="p-3 pr-10 hover:bg-gray-100">Size</th>
-                  <th className="p-3 pr-24 hover:bg-gray-100">SKU</th>
-                  <th className="p-3 pr-14 hover:bg-gray-100">Status</th>
-
-                  <th className="p-3 pr-12 hover:bg-gray-100">
-                    Purchase Price
-                  </th>
-                  <th className="p-3 pr-16 hover:bg-gray-100">Sale Price</th>
+                  <th className="p-3 pr-16 hover:bg-gray-100">SKU</th>
+                  <th className="p-3 pr-6 hover:bg-gray-100">Status</th>
+                  <th className="p-3 pr-5 hover:bg-gray-100">Purchase Price</th>
+                  <th className="p-3 pr-5 hover:bg-gray-100">Sale Price</th>
                   <th className="p-3 pr-16 hover:bg-gray-100">Profit</th>
                   <th className="p-3 pr-8 hover:bg-gray-100">Platform</th>
                   <th className="p-3 pr-8 hover:bg-gray-100">Category</th>
@@ -119,8 +127,8 @@ const Inventory: NextPage = () => {
                   <th className="p-3 hover:bg-gray-100">Notes</th>
                 </tr>
               </thead>
-              <tbody className="truncate">
-                {filteredShoes.map((product, index) => {
+              <tbody>
+                {filteredProducts.map((product, index) => {
                   return (
                     <tr
                       className={`h-10 hover:bg-gray-200 ${
@@ -128,8 +136,13 @@ const Inventory: NextPage = () => {
                       }`}
                       key={index}
                     >
-                      <td className="p-3 text-blue-400 hover:underline">
-                        {product.name}
+                      <td className="max-w-[350px] truncate p-3 text-blue-500 hover:underline">
+                        <a
+                          target="_blank"
+                          href={`https://stockx.com/search?s=${product.name}`}
+                        >
+                          {product.name}
+                        </a>
                       </td>
 
                       <td className="p-3 text-sm">{product.size}</td>
