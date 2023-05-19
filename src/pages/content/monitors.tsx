@@ -5,8 +5,6 @@ import { TwitterTimelineEmbed } from "react-twitter-embed";
 import CloseIcon from "@mui/icons-material/Close";
 import { requireAuthentication } from "~/utils/requireAuthentication";
 import type { GetServerSideProps, NextPage } from "next";
-import Footer from "~/Components/Footer";
-import PageHead from "~/utils/PageHead";
 
 interface Monitor {
   name: string;
@@ -60,24 +58,22 @@ const Monitors: NextPage = () => {
   };
 
   return (
-    <div className="min-h-[100vh]">
-      <PageHead title="flipassist | Monitors" />
-
+    <div>
       <div className="flex truncate font-light">
         <Sidebar />
-        <div className="ml-0 w-full md:ml-[250px]">
+        <div className="ml-0 w-full md:ml-[300px]">
           <Header pageTitle="Monitors" />
           <div>
             <div className="my-2 mb-10 flex justify-center gap-3">
               <input
-                className="mt-8 w-7/12 rounded-md border border-gray-300 bg-gray-100 px-5 py-1.5 md:w-64"
+                className="mt-8 w-7/12 rounded-lg border border-gray-300 bg-gray-100 px-5 py-1.5 md:w-64"
                 placeholder="Username"
                 value={userEntry}
                 onChange={handleInputChange}
                 onKeyUp={handleKeyPress}
               />
               <button
-                className="duration-1500 mt-8 w-20 rounded-md border border-black bg-black py-1.5 text-center text-white transition-all hover:bg-white hover:text-black"
+                className="duration-1500 mt-8 w-20 rounded-[10px] border border-black bg-black py-1.5 text-center text-white transition-all hover:bg-white hover:text-black"
                 onClick={handleAddMonitor}
               >
                 add
@@ -113,9 +109,6 @@ const Monitors: NextPage = () => {
             </div>
           </div>
         </div>
-      </div>
-      <div className="sticky top-full md:ml-[250px]">
-        <Footer />
       </div>
     </div>
   );
