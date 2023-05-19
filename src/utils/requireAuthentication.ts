@@ -29,3 +29,24 @@ export const requireAuthentication = async (
   // Otherwise, just return the session object
   return session;
 };
+
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext
+) => {
+  const session = await requireAuthentication(context);
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {
+      currentSession: session,
+    },
+  };
+};
