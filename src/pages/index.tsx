@@ -6,9 +6,9 @@ import Navbar from "~/Components/Navbar";
 
 const Home: NextPage = () => {
   return (
-    <div>
+    <div className="min-h-[100vh]">
+      <Navbar />
       <div className="container mx-auto max-w-7xl p-6 pb-48 font-light">
-        <Navbar />
         <div className="mt-12 inline text-center lg:mt-28 lg:flex lg:text-left">
           <div className="mb-12 mt-12 flex flex-col lg:mt-48 lg:flex lg:text-left">
             <h1 className="mb-2 mt-12 text-4xl lg:mt-36 lg:text-5xl">
@@ -26,7 +26,9 @@ const Home: NextPage = () => {
           />
         </div>
       </div>
-      <Footer />
+      <div className="sticky top-full">
+        <Footer />
+      </div>
     </div>
   );
 };

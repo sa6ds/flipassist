@@ -15,7 +15,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
   return (
     <SessionProvider session={session}>
       <Head>
-        <title>flipassist</title>
+        <title>flipassist | Reselling Tools</title>
         <meta
           name="description"
           content="Elevate your reselling game with advanced tools, inventory tracking, and more."

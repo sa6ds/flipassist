@@ -7,10 +7,6 @@
   font-weight: lighter;
 }
 
-.text-muted {
-  color: #757575;
-}
-
 .active {
   --tw-border-opacity: 1;
   border-right-color: rgb(31 41 55 / var(--tw-border-opacity));
