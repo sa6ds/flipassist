@@ -6,6 +6,7 @@ import { useRouter } from "next/router";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import Hamburger from "hamburger-react";
+import { Tooltip } from "@mui/material";
 
 function Sidebar() {
   const router = useRouter();
@@ -79,17 +80,18 @@ function Sidebar() {
                   <div className="text-[#757575]">Account</div>
                 </div>
 
-                <button
-                  title="Sign Out"
-                  className=" my-auto ml-auto mr-8"
-                  onClick={() => {
-                    signOut({ callbackUrl: "/" }).catch((e) => {
-                      console.error(e);
-                    });
-                  }}
-                >
-                  <ExitToAppOutlinedIcon sx={{ fontSize: 20 }} />
-                </button>
+                <Tooltip title="Sign Out">
+                  <button
+                    className=" my-auto ml-auto mr-8"
+                    onClick={() => {
+                      signOut({ callbackUrl: "/" }).catch((e) => {
+                        console.error(e);
+                      });
+                    }}
+                  >
+                    <ExitToAppOutlinedIcon sx={{ fontSize: 20 }} />
+                  </button>
+                </Tooltip>
               </div>
             </div>
           </div>

@@ -2,12 +2,11 @@ import Sidebar from "../../Components/Sidebar";
 import Header from "~/Components/Header";
 import { requireAuthentication } from "~/utils/requireAuthentication";
 import AddIcon from "@mui/icons-material/Add";
-
 import type { GetServerSideProps, NextPage } from "next";
 import Footer from "~/Components/Footer";
 import PageHead from "~/utils/PageHead";
 import { useState } from "react";
-import { listofproducts } from "~/Components/dummyData";
+import { listofproducts } from "~/utils/dummyData";
 
 const Inventory: NextPage = () => {
   const [searchWord, setSearchWord] = useState("");
@@ -108,9 +107,10 @@ const Inventory: NextPage = () => {
           </div>
 
           {/* TABLE */}
-          <div className="mb-24 mt-12 overflow-x-auto">
+          <div className="mb-24 mt-12 hidden overflow-x-auto xl:block">
             <table className="w-full overflow-x-auto truncate">
               <thead className="border-b-2">
+                {/* TODO: Add Sort Functionality */}
                 <tr className="text-left font-extrabold">
                   <th className="p-3 pr-72 hover:bg-gray-100">Name</th>
                   <th className="p-3 pr-10 hover:bg-gray-100">Size</th>
@@ -208,6 +208,88 @@ const Inventory: NextPage = () => {
                 })}
               </tbody>
             </table>
+          </div>
+
+          {/* MOBILE VIEW */}
+          <div className="justify-center sm:flex sm:flex-wrap sm:gap-5 xl:hidden">
+            {filteredProducts.map((product, index) => {
+              return (
+                <div key={index}>
+                  <div className="">
+                    <div className="mt-8 h-fit rounded-md bg-gray-100 px-5 py-5 shadow-lg drop-shadow-xl sm:w-[450px]">
+                      <div className="flex">
+                        <p className="max-w-[300px] truncate text-lg font-extrabold text-blue-500">
+                          <a
+                            target="_blank"
+                            href={`https://stockx.com/search?s=${product.name}`}
+                          >
+                            {product.name}
+                          </a>
+                        </p>
+                        <p className="ml-auto mt-0.5">{product.purchaseDate}</p>
+                      </div>
+                      <div className="xsm:flex">
+                        <div className="">
+                          <p className="mt-4">{product.size}</p>
+                          <p className="mt-4">{product.platform}</p>
+                          <p className="mt-4">
+                            Purchase Price:{" "}
+                            {product.purchasePrice.toLocaleString("en-US", {
+                              style: "currency",
+                              currency: "USD",
+                            })}
+                          </p>
+                        </div>
+                        <div className="ml-auto">
+                          <p className="mt-4">SKU: {product.sku}</p>
+                          <p className="mt-4">
+                            Sale Date:{" "}
+                            {product.saleDate ? product.saleDate : "N/A"}
+                          </p>
+                          <p className="mt-4">
+                            Sale Date:{" "}
+                            {product.salePrice ? product.salePrice : "N/A"}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="mt-5 flex">
+                        <div
+                          className={`flex items-center rounded-2xl ${
+                            product.status == "Listed"
+                              ? "bg-yellow-300"
+                              : "bg-green-300"
+                          } px-8 py-1`}
+                        >
+                          <p>{product.status}</p>
+                        </div>
+
+                        {product.salePrice && (
+                          <div className="ml-auto flex items-center rounded-md bg-gray-300 px-4 py-2">
+                            <p>
+                              Profit:{" "}
+                              <span
+                                className={
+                                  product.salePrice - product.purchasePrice > 0
+                                    ? "text-green-500"
+                                    : "text-red-500"
+                                }
+                              >
+                                {(
+                                  product.salePrice - product.purchasePrice
+                                ).toLocaleString("en-US", {
+                                  style: "currency",
+                                  currency: "USD",
+                                })}
+                              </span>
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>

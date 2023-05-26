@@ -9,8 +9,8 @@ function Footer() {
 
   return (
     <div className="z-40 bg-gray-100 py-6">
-      <footer className="container mx-auto bg-gray-100 font-light">
-        <div className="mx-4 p-6 font-light xl:mx-48">
+      <footer className="bg-gray-100 font-light">
+        <div className="p-6 font-light lg:mx-32">
           <div className="flex gap-8">
             <div className="">
               <Link href="/links/contact" target="">

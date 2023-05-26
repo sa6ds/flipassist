@@ -8,10 +8,14 @@ import Footer from "~/Components/Footer";
 import { requireAuthentication } from "~/utils/requireAuthentication";
 import type { GetServerSideProps, NextPage } from "next";
 import PageHead from "~/utils/PageHead";
-import { listofproducts } from "../../Components/dummyData";
-import { useEffect, useState } from "react";
+import { listofproducts } from "../../utils/dummyData";
+import { useEffect, useRef, useState } from "react";
 import { faGem, faSocks, faTshirt } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+// TODO: YEESH THATS ALOT
+import { Chart } from "chart.js";
+import { Tooltip } from "@mui/material";
+import { generateChartData } from "~/utils/chartUtils";
 
 const DashboardPage: NextPage = () => {
   const [totalProfits, setTotalProfits] = useState(0);
@@ -24,37 +28,60 @@ const DashboardPage: NextPage = () => {
     const totalProducts = listofproducts.reduce((curr) => curr + 1, 0);
     setTotalProducts(totalProducts);
 
-    // Represents sum of profits and current, including sold shoes
-    // if profit > 0 then add sale price. otherwise add purchase price
+    // Represents sum of all unsold items is worth
     const totalInventoryValue = listofproducts.reduce((sum, product) => {
-      const profit = (product.salePrice ?? 0) - product.purchasePrice;
-      return profit > 0
-        ? sum + (product.salePrice ?? 0)
-        : sum + product.purchasePrice;
+      return !product.salePrice ? sum + product.purchasePrice : sum;
     }, 0);
     settotalInventoryValue(totalInventoryValue);
 
     // Represents how much made from sales
-    // Make sum variable and loops over listofproducts, for each product adds product.salePrice to the sum, initialized sum at 0
     const totalSales = listofproducts.reduce((sum, product) => {
       return sum + (product.salePrice ?? 0);
     }, 0);
     setTotalSales(totalSales);
 
+    // Represents profits made from only shoes that have been sold
     const totalProfits = listofproducts.reduce((sum, product) => {
-      // if no salePrice, skip item... if salePrice subtract from purchasePrice
-      return product.salePrice == null || product.salePrice == 0
-        ? sum
-        : sum + product.salePrice - product.purchasePrice;
+      return product.salePrice
+        ? sum + product.salePrice - product.purchasePrice
+        : sum;
     }, 0);
     setTotalProfits(totalProfits);
   }, []);
 
-  const sortedList = listofproducts.sort((a, b) => {
-    const dateA = new Date(a.dateAdded).getTime();
-    const dateB = new Date(b.dateAdded).getTime();
-    return dateB - dateA;
+  const sortedRecentActivity = listofproducts.sort((a, b) => {
+    return new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime();
   });
+
+  const chartRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    if (chartRef.current) {
+      const ctx = chartRef.current.getContext("2d");
+      if (ctx) {
+        const chartData = generateChartData();
+
+        const chartConfig = {
+          type: "line",
+          data: chartData,
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                labels: {
+                  usePointStyle: true,
+                  pointStyle: "rectRounded",
+                },
+              },
+            },
+          },
+        };
+
+        new Chart(ctx, chartConfig);
+      }
+    }
+  }, []);
 
   return (
     <div className="min-h-[100vh]">
@@ -81,10 +108,16 @@ const DashboardPage: NextPage = () => {
 
             <div className="mb-5 w-full rounded-md bg-gray-100 px-4 py-4 shadow-lg drop-shadow-xl">
               <div className="flex pt-1">
-                <Inventory2OutlinedIcon
-                  sx={{ fontSize: 32 }}
-                  className="mt-0.5"
-                />
+                {/* TODO: ADD TOOL TIP TO REST OF ICONS BROOO, OR MAYBE NAME OF DIV? OR VALUE? */}
+                <Tooltip title="Your Inventory Value is exactly how much your inventory (all unsold items) is worth">
+                  <div>
+                    <Inventory2OutlinedIcon
+                      sx={{ fontSize: 32 }}
+                      className="mt-0.5"
+                    />
+                  </div>
+                </Tooltip>
+
                 <p className="ml-auto text-3xl font-bold">
                   {totalInventoryValue.toLocaleString("en-US", {
                     style: "currency",
@@ -127,47 +160,52 @@ const DashboardPage: NextPage = () => {
 
           <div className="mt-14 xl:flex">
             {/* LINE CHART */}
-            <div className="mb-16 h-[450px] w-full items-center rounded-md bg-gray-100 shadow-lg drop-shadow-xl xl:mb-0 xl:w-7/12">
-              <h1 className="text-center text-2xl">Insert Line Chart Here</h1>
+            <div className="mb-16 flex items-center justify-center rounded-md bg-gray-100 p-4 shadow-lg drop-shadow-xl xl:mb-0 xl:h-auto xl:w-7/12">
+              <canvas aria-label="Chart" role="img" id="myChart" ref={chartRef}>
+                <h1>Line Chart Here</h1>
+              </canvas>
             </div>
 
             {/* Recent Activity */}
-            <div className="h-[450px] w-full rounded-md bg-gray-100 shadow-lg drop-shadow-xl xl:ml-auto xl:w-4/12">
-              <h1 className="ml-10 pt-6 text-2xl font-bold">Recent Activity</h1>
+            <div className="w-full rounded-md bg-gray-100 py-2 shadow-lg drop-shadow-xl xl:ml-auto xl:w-4/12">
+              <h1 className="mx-8 my-5  text-2xl font-bold">Recent Activity</h1>
 
-              {sortedList.slice(0, 6).map((product, index) => {
-                return (
-                  <div key={index} className="mx-8 my-8 text-xl">
-                    <div className="flex">
-                      {product.category === "Sneaker" ? (
-                        <FontAwesomeIcon
-                          className="ml-1 mt-1.5"
-                          icon={faSocks}
-                          size="sm"
-                        />
-                      ) : product.category === "Clothing" ? (
-                        <FontAwesomeIcon
-                          className="ml-1 mt-1.5"
-                          icon={faTshirt}
-                          size="sm"
-                        />
-                      ) : (
-                        product.category === "Collectible" && (
+              <div className="mx-8 text-xl">
+                {sortedRecentActivity.slice(0, 7).map((product, index) => {
+                  return (
+                    <div key={index} className="my-8">
+                      <div className="flex">
+                        {product.category === "Sneaker" ? (
+                          // TODO: FIX BIG SOCKS ON FIRST LOAD
                           <FontAwesomeIcon
-                            className="ml-1 mt-1.5"
-                            icon={faGem}
+                            className="mt-1.5"
+                            icon={faSocks}
                             size="sm"
                           />
-                        )
-                      )}
-                      <p className="ml-3 max-w-[50%] truncate">
-                        {product.name}
-                      </p>
-                      <p className="ml-auto">{product.dateAdded}</p>
+                        ) : product.category === "Clothing" ? (
+                          <FontAwesomeIcon
+                            className="mt-1.5"
+                            icon={faTshirt}
+                            size="sm"
+                          />
+                        ) : (
+                          product.category === "Collectible" && (
+                            <FontAwesomeIcon
+                              className="mt-1.5"
+                              icon={faGem}
+                              size="sm"
+                            />
+                          )
+                        )}
+                        <p className="ml-3 max-w-[50%] truncate">
+                          {product.name}
+                        </p>
+                        <p className="ml-auto">{product.dateAdded}</p>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
