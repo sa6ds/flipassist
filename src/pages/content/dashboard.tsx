@@ -12,10 +12,9 @@ import { listofproducts } from "../../utils/dummyData";
 import { useEffect, useRef, useState } from "react";
 import { faGem, faSocks, faTshirt } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-// TODO: YEESH THATS ALOT
-import { Chart } from "chart.js";
 import { Tooltip } from "@mui/material";
 import { generateChartData } from "~/utils/chartUtils";
+import { Chart } from "chart.js";
 
 const DashboardPage: NextPage = () => {
   const [totalProfits, setTotalProfits] = useState(0);
@@ -101,30 +100,28 @@ const DashboardPage: NextPage = () => {
                   sx={{ fontSize: 32 }}
                   className="mt-0.5"
                 />
-                <p className="ml-auto text-3xl font-bold">{totalProducts}</p>
+                <Tooltip title="The Total Inventory refers to the overall quantity of items in your inventory.">
+                  <p className="ml-auto text-3xl font-bold">{totalProducts}</p>
+                </Tooltip>
               </div>
               <h1 className="mt-8 text-xl">Total Inventory</h1>
             </div>
 
             <div className="mb-5 w-full rounded-md bg-gray-100 px-4 py-4 shadow-lg drop-shadow-xl">
               <div className="flex pt-1">
-                {/* TODO: ADD TOOL TIP TO REST OF ICONS BROOO, OR MAYBE NAME OF DIV? OR VALUE? */}
-                <Tooltip title="Your Inventory Value is exactly how much your inventory (all unsold items) is worth">
-                  <div>
-                    <Inventory2OutlinedIcon
-                      sx={{ fontSize: 32 }}
-                      className="mt-0.5"
-                    />
-                  </div>
+                <Inventory2OutlinedIcon
+                  sx={{ fontSize: 32 }}
+                  className="mt-0.5"
+                />
+                <Tooltip title="The Inventory Value is the total worth of unsold items in your inventory.">
+                  <p className="ml-auto text-3xl font-bold">
+                    {totalInventoryValue.toLocaleString("en-US", {
+                      style: "currency",
+                      currency: "USD",
+                      minimumFractionDigits: 2,
+                    })}
+                  </p>
                 </Tooltip>
-
-                <p className="ml-auto text-3xl font-bold">
-                  {totalInventoryValue.toLocaleString("en-US", {
-                    style: "currency",
-                    currency: "USD",
-                    minimumFractionDigits: 2,
-                  })}
-                </p>
               </div>
               <h1 className="mt-8 text-xl">Inventory Value</h1>
             </div>
@@ -132,13 +129,15 @@ const DashboardPage: NextPage = () => {
             <div className="mb-5 w-full rounded-md bg-gray-100 px-4 py-4 shadow-lg drop-shadow-xl">
               <div className="flex pt-1">
                 <SellOutlinedIcon sx={{ fontSize: 32 }} className="mt-0.5" />
-                <p className="ml-auto text-3xl font-bold">
-                  {totalSales.toLocaleString("en-US", {
-                    style: "currency",
-                    currency: "USD",
-                    minimumFractionDigits: 2,
-                  })}
-                </p>
+                <Tooltip title="The Total Sales represents the cumulative amount earned from all sales, including the product cost.">
+                  <p className="ml-auto text-3xl font-bold">
+                    {totalSales.toLocaleString("en-US", {
+                      style: "currency",
+                      currency: "USD",
+                      minimumFractionDigits: 2,
+                    })}
+                  </p>
+                </Tooltip>
               </div>
               <h1 className="mt-8 text-xl">Total Sales</h1>
             </div>
@@ -146,13 +145,15 @@ const DashboardPage: NextPage = () => {
             <div className="mb-5 w-full rounded-md bg-gray-100 px-4 py-4 shadow-lg drop-shadow-xl">
               <div className="flex pt-1">
                 <SavingsOutlinedIcon sx={{ fontSize: 32 }} className="mt-0.5" />
-                <p className="ml-auto text-3xl font-bold">
-                  {totalProfits.toLocaleString("en-US", {
-                    style: "currency",
-                    currency: "USD",
-                    minimumFractionDigits: 2,
-                  })}
-                </p>
+                <Tooltip title="The Total Profit is the amount earned from from sales minus the product cost.">
+                  <p className="ml-auto text-3xl font-bold">
+                    {totalProfits.toLocaleString("en-US", {
+                      style: "currency",
+                      currency: "USD",
+                      minimumFractionDigits: 2,
+                    })}
+                  </p>
+                </Tooltip>
               </div>
               <h1 className="mt-8 text-xl">Total Profit</h1>
             </div>
@@ -176,7 +177,7 @@ const DashboardPage: NextPage = () => {
                     <div key={index} className="my-8">
                       <div className="flex">
                         {product.category === "Sneaker" ? (
-                          // TODO: FIX BIG SOCKS ON FIRST LOAD
+                          // TODO: Fix big socks on first load
                           <FontAwesomeIcon
                             className="mt-1.5"
                             icon={faSocks}
