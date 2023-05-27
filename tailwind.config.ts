@@ -7,6 +7,7 @@ const config: Config = {
       sans: ["Poppins", "sans-serif"],
     },
     screens: {
+      xsm: "480px",
       sm: "640px",
       md: "768px",
       lg: "1024px",
