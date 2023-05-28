@@ -31,7 +31,7 @@ function Sidebar() {
         <div className="relative">
           <div className="fixed z-50 h-screen w-auto min-w-[250px] bg-white shadow-xl">
             <h1 className="mt-7 text-center">
-              <Link href="/" className="text-3xl font-medium">
+              <Link href="/" className="text-3xl font-bold">
                 flipassist
               </Link>
             </h1>

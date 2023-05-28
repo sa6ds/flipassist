@@ -30,11 +30,11 @@ const Inventory: NextPage = () => {
     <div className="min-h-[100vh]">
       <PageHead title="flipassist | Inventory" />
       <Sidebar />
-      <div className="truncate font-light md:ml-[250px]">
+      <div className="ml-0 truncate md:ml-[250px]">
         <Header pageTitle="Inventory" />
-        <div className="mx-8 my-8 ">
-          {/* UPPER PART */}
 
+        <div className="mx-8 my-8">
+          {/* UPPER PART */}
           <div className="xl:flex">
             <input
               className="w-full rounded-md border border-gray-300 bg-gray-100 px-5 py-1.5 xl:w-4/12"

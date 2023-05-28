@@ -9,8 +9,8 @@ function Footer() {
 
   return (
     <div className="z-40 bg-gray-100 py-6">
-      <footer className="bg-gray-100 font-light">
-        <div className="p-6 font-light lg:mx-32">
+      <footer className="bg-gray-100">
+        <div className="p-6 lg:mx-32">
           <div className="flex gap-8">
             <div className="">
               <Link href="/links/contact" target="">

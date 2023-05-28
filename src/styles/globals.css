@@ -18,3 +18,11 @@
   --tw-border-opacity: 1;
   background-color: rgb(229 231 240 / var(--tw-border-opacity));
 }
+
+.top-rounded-button {
+  border-radius: 8px 8px 0 0;
+}
+
+.bottom-rounded-button {
+  border-radius: 0 0 8px 8px;
+}

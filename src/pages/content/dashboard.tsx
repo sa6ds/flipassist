@@ -85,13 +85,11 @@ const DashboardPage: NextPage = () => {
   return (
     <div className="min-h-[100vh]">
       <PageHead title="flipassist | Dashboard" />
-
       <Sidebar />
-
-      <div className="ml-0 truncate font-light md:ml-[250px]">
+      <div className="ml-0 truncate md:ml-[250px]">
         <Header pageTitle="Dashboard" />
 
-        <div className="mx-8 my-10">
+        <div className="mx-8 my-8">
           <div className="mb-14 mt-10 xl:flex xl:justify-between xl:gap-[5%]">
             {/* SUMMARY */}
             <div className="mb-5 w-full rounded-md bg-gray-100 px-4 py-4 shadow-lg drop-shadow-xl">

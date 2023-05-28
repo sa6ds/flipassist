@@ -7,7 +7,7 @@ import Navbar from "~/Components/Navbar";
 const Home: NextPage = () => {
   return (
     <div>
-      <div className="container mx-auto max-w-7xl p-6 pb-48 font-light">
+      <div className="container mx-auto max-w-7xl p-6 pb-48">
         <Navbar />
         <div className="mt-12 inline text-center lg:mt-28 lg:flex lg:text-left">
           <div className="mb-12 mt-12 flex flex-col lg:mt-48 lg:flex lg:text-left">

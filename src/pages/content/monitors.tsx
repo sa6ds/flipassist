@@ -5,6 +5,8 @@ import { TwitterTimelineEmbed } from "react-twitter-embed";
 import CloseIcon from "@mui/icons-material/Close";
 import { requireAuthentication } from "~/utils/requireAuthentication";
 import type { GetServerSideProps, NextPage } from "next";
+import Footer from "~/Components/Footer";
+import PageHead from "~/utils/PageHead";
 
 interface Monitor {
   name: string;
@@ -58,11 +60,13 @@ const Monitors: NextPage = () => {
   };
 
   return (
-    <div>
-      <div className="flex truncate font-light">
+    <div className="min-h-[100vh]">
+      <div className="flex">
+        <PageHead title="flipassist | Monitors" />
         <Sidebar />
-        <div className="ml-0 w-full md:ml-[300px]">
+        <div className="ml-0 truncate md:ml-[250px]">
           <Header pageTitle="Monitors" />
+          
           <div>
             <div className="my-2 mb-10 flex justify-center gap-3">
               <input
@@ -109,6 +113,9 @@ const Monitors: NextPage = () => {
             </div>
           </div>
         </div>
+      </div>
+      <div className="sticky top-full md:ml-[250px]">
+        <Footer />
       </div>
     </div>
   );

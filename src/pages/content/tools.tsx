@@ -2,16 +2,24 @@ import type { GetServerSideProps, NextPage } from "next";
 import Sidebar from "../../Components/Sidebar";
 import Header from "~/Components/Header";
 import { requireAuthentication } from "~/utils/requireAuthentication";
+import Footer from "~/Components/Footer";
+import Construction from "~/Components/WorkInProgress";
+import PageHead from "~/utils/PageHead";
 
 const Tools: NextPage = () => {
   return (
-    <div>
-      <div className="flex truncate font-light">
-        <Sidebar />
-        <div className="w-full md:ml-[300px]">
-          <Header pageTitle="Tools" />
-          <div></div>
+    <div className="min-h-[100vh]">
+      <PageHead title="flipassist | Tools" />
+      <Sidebar />
+      <div className="ml-0 truncate md:ml-[250px]">
+        <Header pageTitle="Tools" />
+
+        <div className="mx-8 my-8">
+          <Construction />
         </div>
+      </div>
+      <div className="sticky top-full md:ml-[250px]">
+        <Footer />
       </div>
     </div>
   );
