@@ -4,9 +4,9 @@ import { requireAuthentication } from "~/utils/requireAuthentication";
 import AddIcon from "@mui/icons-material/Add";
 import type { GetServerSideProps, NextPage } from "next";
 import Footer from "~/Components/Footer";
-import PageHead from "~/utils/PageHead";
 import { useState } from "react";
 import { listofproducts } from "~/utils/dummyData";
+import Head from "next/head";
 
 const Inventory: NextPage = () => {
   const [searchWord, setSearchWord] = useState("");
@@ -28,13 +28,19 @@ const Inventory: NextPage = () => {
 
   return (
     <div className="min-h-[100vh]">
-      <PageHead title="flipassist | Inventory" />
+      <Head>
+        <title>Inventory | flipassist</title>
+        <meta
+          name="description"
+          content="Efficiently manage your products with our user-friendly inventory page. Keep track of essential details such as product name, size, SKU, and purchase price, ensuring easy organization."
+        />
+      </Head>
       <Sidebar />
-      <div className="truncate font-light md:ml-[250px]">
+      <div className="ml-0 truncate md:ml-[250px]">
         <Header pageTitle="Inventory" />
-        <div className="mx-8 my-8 ">
-          {/* UPPER PART */}
 
+        <div className="mx-8 my-8">
+          {/* UPPER PART */}
           <div className="xl:flex">
             <input
               className="w-full rounded-md border border-gray-300 bg-gray-100 px-5 py-1.5 xl:w-4/12"

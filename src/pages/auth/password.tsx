@@ -10,7 +10,7 @@ const PasswordPage: NextPage = () => {
   //   router.push("/");
   // }, []);
 
-  return <div className="font-light md:flex"></div>;
+  return <div className="md:flex"></div>;
 };
 
 export default PasswordPage;

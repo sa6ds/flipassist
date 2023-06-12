@@ -10,7 +10,7 @@ const LoginPage: NextPage = () => {
   //   router.push("/");
   // }, []);
 
-  return <div className="font-light"></div>;
+  return <div className=""></div>;
 };
 
 export default LoginPage;

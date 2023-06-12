@@ -7,14 +7,16 @@ import Header from "~/Components/Header";
 import Footer from "~/Components/Footer";
 import { requireAuthentication } from "~/utils/requireAuthentication";
 import type { GetServerSideProps, NextPage } from "next";
-import PageHead from "~/utils/PageHead";
 import { listofproducts } from "../../utils/dummyData";
 import { useEffect, useRef, useState } from "react";
-import { faGem, faSocks, faTshirt } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Tooltip } from "@mui/material";
 import { generateChartData } from "~/utils/chartUtils";
 import { Chart } from "chart.js";
+import Head from "next/head";
+import sneakerIcon from "../../assets/icons/recentActivity/shoe.svg";
+import clothingIcon from "../../assets/icons/recentActivity/shirt.svg";
+import collectibleIcon from "../../assets/icons/recentActivity/diamond.svg";
+import Image from "next/image";
 
 const DashboardPage: NextPage = () => {
   const [totalProfits, setTotalProfits] = useState(0);
@@ -84,14 +86,18 @@ const DashboardPage: NextPage = () => {
 
   return (
     <div className="min-h-[100vh]">
-      <PageHead title="flipassist | Dashboard" />
-
+      <Head>
+        <title>Dashboard | flipassist</title>
+        <meta
+          name="description"
+          content="Get a comprehensive overview of your inventory's statistics, including a detailed chart and recent activity updates. Stay on top of your business with our all-in-one dashboard."
+        />
+      </Head>
       <Sidebar />
-
-      <div className="ml-0 truncate font-light md:ml-[250px]">
+      <div className="ml-0 truncate md:ml-[250px]">
         <Header pageTitle="Dashboard" />
 
-        <div className="mx-8 my-10">
+        <div className="mx-8 my-8">
           <div className="mb-14 mt-10 xl:flex xl:justify-between xl:gap-[5%]">
             {/* SUMMARY */}
             <div className="mb-5 w-full rounded-md bg-gray-100 px-4 py-4 shadow-lg drop-shadow-xl">
@@ -104,7 +110,7 @@ const DashboardPage: NextPage = () => {
                   <p className="ml-auto text-3xl font-bold">{totalProducts}</p>
                 </Tooltip>
               </div>
-              <h1 className="mt-8 text-xl">Total Inventory</h1>
+              <h2 className="mt-8 text-xl">Total Inventory</h2>
             </div>
 
             <div className="mb-5 w-full rounded-md bg-gray-100 px-4 py-4 shadow-lg drop-shadow-xl">
@@ -123,7 +129,7 @@ const DashboardPage: NextPage = () => {
                   </p>
                 </Tooltip>
               </div>
-              <h1 className="mt-8 text-xl">Inventory Value</h1>
+              <h2 className="mt-8 text-xl">Inventory Value</h2>
             </div>
 
             <div className="mb-5 w-full rounded-md bg-gray-100 px-4 py-4 shadow-lg drop-shadow-xl">
@@ -139,7 +145,7 @@ const DashboardPage: NextPage = () => {
                   </p>
                 </Tooltip>
               </div>
-              <h1 className="mt-8 text-xl">Total Sales</h1>
+              <h2 className="mt-8 text-xl">Total Sales</h2>
             </div>
 
             <div className="mb-5 w-full rounded-md bg-gray-100 px-4 py-4 shadow-lg drop-shadow-xl">
@@ -155,50 +161,49 @@ const DashboardPage: NextPage = () => {
                   </p>
                 </Tooltip>
               </div>
-              <h1 className="mt-8 text-xl">Total Profit</h1>
+              <h2 className="mt-8 text-xl">Total Profit</h2>
             </div>
           </div>
 
           <div className="mt-14 xl:flex">
             {/* LINE CHART */}
-            <div className="mb-16 flex items-center justify-center rounded-md bg-gray-100 p-4 shadow-lg drop-shadow-xl xl:mb-0 xl:h-auto xl:w-7/12">
+            <div className="mb-16 flex h-96 items-center justify-center rounded-md bg-gray-100 p-4 shadow-lg drop-shadow-xl md:h-[525px] xl:mb-0 xl:w-7/12">
               <canvas aria-label="Chart" role="img" id="myChart" ref={chartRef}>
-                <h1>Line Chart Here</h1>
+                <h2>Line Chart Here</h2>
               </canvas>
             </div>
 
             {/* Recent Activity */}
             <div className="w-full rounded-md bg-gray-100 py-2 shadow-lg drop-shadow-xl xl:ml-auto xl:w-4/12">
-              <h1 className="mx-8 my-5  text-2xl font-bold">Recent Activity</h1>
+              <h2 className="mx-8 my-5  text-2xl font-bold">Recent Activity</h2>
 
               <div className="mx-8 text-xl">
                 {sortedRecentActivity.slice(0, 7).map((product, index) => {
                   return (
                     <div key={index} className="my-8">
-                      <div className="flex">
+                      <div className="mt-1 flex">
                         {product.category === "Sneaker" ? (
-                          // TODO: Fix big socks on first load
-                          <FontAwesomeIcon
-                            className="mt-1.5"
-                            icon={faSocks}
-                            size="sm"
+                          <Image
+                            src={sneakerIcon as string}
+                            alt="Shoe Icon"
+                            className="not-highlightable w-6"
                           />
                         ) : product.category === "Clothing" ? (
-                          <FontAwesomeIcon
-                            className="mt-1.5"
-                            icon={faTshirt}
-                            size="sm"
+                          <Image
+                            src={clothingIcon as string}
+                            alt="Shirt Icon"
+                            className="not-highlightable w-6"
                           />
                         ) : (
                           product.category === "Collectible" && (
-                            <FontAwesomeIcon
-                              className="mt-1.5"
-                              icon={faGem}
-                              size="sm"
+                            <Image
+                              src={collectibleIcon as string}
+                              alt="Collectible Icon"
+                              className="not-highlightable w-6"
                             />
                           )
                         )}
-                        <p className="ml-3 max-w-[50%] truncate">
+                        <p className="ml-4 max-w-[50%] truncate">
                           {product.name}
                         </p>
                         <p className="ml-auto">{product.dateAdded}</p>
