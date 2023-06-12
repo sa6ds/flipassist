@@ -3,19 +3,26 @@ import Sidebar from "../../Components/Sidebar";
 import Header from "~/Components/Header";
 import { requireAuthentication } from "~/utils/requireAuthentication";
 import Footer from "~/Components/Footer";
-import Construction from "~/Components/WorkInProgress";
-import PageHead from "~/utils/PageHead";
+import WorkInProgress from "~/Components/WorkInProgress";
+import Head from "next/head";
 
 const Tools: NextPage = () => {
   return (
     <div className="min-h-[100vh]">
-      <PageHead title="flipassist | Tools" />
+      <Head>
+        <title>Tools | flipassist</title>
+        <meta
+          name="description"
+          content="Enhance your productivity with our versatile tools page. Access useful utilities like address jigger, size converter, and Gmail dot trick to simplify your daily tasks."
+        />
+      </Head>
+      {/* <PageHead title="flipassist | Tools" /> */}
       <Sidebar />
       <div className="ml-0 truncate md:ml-[250px]">
         <Header pageTitle="Tools" />
 
         <div className="mx-8 my-8">
-          <Construction />
+          <WorkInProgress />
         </div>
       </div>
       <div className="sticky top-full md:ml-[250px]">

@@ -8,9 +8,9 @@ function Navbar() {
   const { data: sessionData } = useSession();
 
   return (
-    <nav className="flex">
-      <h1 className="mt-3">
-        <Link href="/" className="text-2xl font-bold sm:text-3xl lg:text-4xl">
+    <nav className="mt-9 flex p-6">
+      <h1 className="">
+        <Link href="/" className="text-3xl font-bold ">
           flipassist
         </Link>
       </h1>
@@ -21,14 +21,14 @@ function Navbar() {
             onClick={() => {
               setIsOpen(!isOpen);
             }}
-            className="absolute right-5 top-8 z-50 block text-gray-700 md:hidden"
+            className="absolute right-5 top-14 z-50 block text-gray-700 md:hidden"
           >
             <Hamburger size={25} toggled={isOpen} toggle={setIsOpen} />
           </button>
         </div>
 
         {sessionData ? (
-          <div>
+          <div className="">
             {/* DESKTOP SIGNED IN */}
             <div className="hidden md:block">
               <button>
@@ -38,22 +38,22 @@ function Navbar() {
                 >
                   Dashboard
                 </Link>
-                <button
-                  onClick={() => {
-                    signOut().catch((e) => {
-                      console.error(e);
-                    });
-                  }}
-                  className="duration-1500 border-black px-2 py-2 sm:px-6 sm:py-3"
-                >
-                  Sign out
-                </button>
+              </button>
+              <button
+                onClick={() => {
+                  signOut().catch((e) => {
+                    console.error(e);
+                  });
+                }}
+                className="duration-1500 border-black px-2 py-2 sm:px-6 sm:py-3"
+              >
+                Sign out
               </button>
             </div>
 
             {/* MOBILE SIGNED IN */}
             <div
-              className={`absolute right-2 top-20 block rounded-lg shadow-lg md:hidden ${
+              className={`absolute right-2 top-[110px] block rounded-lg bg-white shadow-lg md:hidden ${
                 isOpen ? "block" : "hidden"
               }`}
             >
@@ -95,7 +95,7 @@ function Navbar() {
 
             {/* MOBILE SIGNED OUT */}
             <div
-              className={`absolute right-4 top-20 block w-28 rounded-lg shadow-lg md:hidden ${
+              className={`absolute right-4 top-[110px] block w-28 rounded-lg bg-white shadow-lg md:hidden ${
                 isOpen ? "block" : "hidden"
               }`}
             >

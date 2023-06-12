@@ -10,6 +10,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@emailjs/browser": "^3.11.0",
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
     "@fortawesome/fontawesome-svg-core": "^6.4.0",
@@ -36,6 +37,7 @@
     "react-dom": "18.2.0",
     "react-icons": "^4.8.0",
     "react-twitter-embed": "^4.0.4",
+    "sharp": "^0.32.1",
     "superjson": "1.12.2",
     "zod": "^3.21.4"
   },

@@ -26,3 +26,14 @@
 .bottom-rounded-button {
   border-radius: 0 0 8px 8px;
 }
+
+.not-highlightable {
+  user-select: none; /* Disable text selection */
+  -webkit-user-drag: none; /* Disable dragging on iOS Safari */
+  -khtml-user-drag: none; /* Disable dragging on older versions of Safari */
+  -moz-user-select: none; /* Disable text selection on Firefox */
+  -moz-user-drag: none; /* Disable dragging on Firefox */
+  -ms-user-select: none; /* Disable text selection on Internet Explorer/Edge */
+  -ms-user-drag: none; /* Disable dragging on Internet Explorer/Edge */
+  -webkit-touch-callout: none; /* Disable callout on iOS Safari */
+}
