@@ -1,28 +1,81 @@
-# Create T3 App
+# flipassist
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+flipassist is a full-stack web application tailored for resellers, streamlining inventory management and maximizing profitability. It provides a comprehensive dashboard, inventory management system, advanced calculators, reseller tools, and real-time monitors for Twitter pages. With flipassist, resellers can gain real-time insights into their business performance, optimize pricing strategies, and enhance profitability.
 
-## What's next? How do I make an app with this?
+View the live demo at [flipassist.app](https://www.flipassist.app/).
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+## Features
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+- **Dashboard:** The dashboard presents a summary of inventory, product count, inventory value, sales, and profits. It also displays recent activity, showing recently added items, and a line chart depicting the selling history for business growth analysis.
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+- **Inventory Management:** The inventory tab comes with search, filtering, and CRUD functionalities. Users can filter items by product type, listing status (listed, sold, or unlisted), and manage their inventory with ease.
 
-## Learn More
+- **Calculators:** flipassist includes advanced calculators tailored for popular platforms like GOAT, StockX, Grailed, and eBay. These calculators enable resellers to perform precise profit calculations and account for expected fees, assisting in optimizing pricing strategies and enhancing profitability.
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+- **Reseller Tools:** The tools tab provides reseller tools such as Address Jigger, Gmail Dot trick, and proxy delay calculator. These tools empower users to optimize their workflow and maximize efficiency in their reselling operations.
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+- **Real-Time Monitors:** The monitors tab offers real-time monitors for reseller Twitter pages. Users receive instant notifications on new product releases, giving them a competitive edge in securing high-demand items.
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+## Tech Stack
 
-## How do I deploy this?
+- **Frontend:** flipassist is built with Next.js, a React framework for server-side rendering and static site generation. TypeScript is used for type safety and a better development experience. Tailwind CSS is employed for styling the user interface.
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+- **Backend:** The backend utilizes tRPC for API handling and Prisma for database access. NextAuth provides authentication functionality to ensure secure access to the application.
+
+## Installation and Usage
+
+To run flipassist locally, follow these steps:
+
+1. Clone the repository:
+
+   ```shell
+   git clone https://github.com/sa6ds/flipassist.git
+   ```
+
+2. Navigate to the project directory:
+
+   ```shell
+   cd flipassist
+   ```
+
+3. Install the dependencies:
+
+   ```shell
+   npm install
+   ```
+
+4. Set up the required environment variables. Refer to the configuration section below.
+
+5. Start the development server:
+
+   ```shell
+   npm run dev
+   ```
+
+6. Access flipassist in your browser at `http://localhost:3000`.
+
+## Configuration
+
+To configure flipassist, you need to set up the following environment variables:
+
+- `DATABASE_URL`: Set this variable to the URL of your database. This is required for the connection to your database.
+
+- `NEXTAUTH_SECRET`: Set this variable to a secure secret key for NextAuth. You can generate a new secret using a command-line tool like `openssl rand -base64 32`. This secret is used to sign and encrypt session tokens.
+
+- `NEXTAUTH_URL`: Set this variable to the URL of your flipassist application. In this case, it should be set to `http://localhost:3000` for local development.
+
+- `GOOGLE_CLIENT_ID`: Set this variable to the client ID of your Google OAuth application. This is required for authentication with Google.
+
+- `GOOGLE_CLIENT_SECRET`: Set this variable to the client secret of your Google OAuth application. This is also required for authentication with Google.
+
+Make sure to obtain the necessary values for these variables and set them in your environment configuration before running flipassist.
+
+## License
+
+The code for flipassist is available under the [MIT License](https://opensource.org/licenses/MIT). You are free to use, modify, and distribute the code as per the terms of the license.
+
+## Contact
+
+For any questions or inquiries, please contact me [here](saad.sadouk7@gmail.com).
+
+Thank you for using flipassist! I hope it simplifies your reselling operations and enhances your profitability. Happy flipping!
