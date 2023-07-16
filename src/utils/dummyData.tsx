@@ -1,10 +1,10 @@
 type Product = {
   name: string;
-  size?: string | number | null;
+  size?: string | number;
   sku?: string;
-  status: "In Transit" | "Unlisted" | "Listed" | "Unsold" | "Sold" | "Personal";
+  status: "All" | "Listed" | "Sold";
   purchasePrice: number;
-  salePrice: number | null;
+  salePrice?: number | null;
   platform?:
     | "StockX"
     | "Goat"
@@ -12,11 +12,10 @@ type Product = {
     | "eBay"
     | "OfferUp"
     | "Mercari"
-    | "Grailed"
-    | null;
+    | "Grailed";
   category?: "Sneaker" | "Clothing" | "Collectible";
   purchaseDate: string;
-  saleDate: string | null;
+  saleDate?: string | null;
   dateAdded: string;
   notes?: string | null;
 };
@@ -36,7 +35,6 @@ export const listofproducts: Product[] = [
     dateAdded: "05/16/2023",
     notes: "Purchased from A Ma Maniere site drop.",
   },
-
   {
     name: "Nike Air Jordan 1 Retro High OG",
     size: "9.5",
@@ -97,7 +95,6 @@ export const listofproducts: Product[] = [
     notes:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ac fermentum lorem, eu mollis nulla. Fusce hendrerit diam a justo eleifend, quis fringilla tellus elementum. Nam quis orci ut risus ullamcorper bibendum.",
   },
-
   {
     name: "Jordan 2 Retro SP Union Grey Fog",
     size: "10.5",
@@ -224,7 +221,6 @@ export const listofproducts: Product[] = [
     dateAdded: "05/06/2023",
     notes: "Purchased on SNKRS",
   },
-
   {
     name: "Nike Air Jordan 1 Lost and Found",
     size: "7Y",
@@ -239,7 +235,6 @@ export const listofproducts: Product[] = [
     dateAdded: "05/21/2023",
     notes: "",
   },
-
   {
     name: "Nike Air Jordan 1 Lost and Found",
     size: "7Y",
@@ -457,7 +452,6 @@ export const listofproducts: Product[] = [
     dateAdded: "12/15/2021",
     notes: "Limited edition of 2000 pieces worldwide",
   },
-
   {
     name: "Takashi Murakami Flower Cushion",
     size: "18 inches",
@@ -472,10 +466,8 @@ export const listofproducts: Product[] = [
     dateAdded: "04/22/2022",
     notes: "Brand new in original packaging",
   },
-
   {
     name: "Supreme Oreo Cookies",
-    size: null,
     sku: "SUPREMEO",
     status: "Sold",
     purchasePrice: 10,

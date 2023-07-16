@@ -18,7 +18,7 @@ const Home: NextPage = () => {
       <div className="container mx-auto max-w-7xl pb-48">
         <Navbar />
         <div className="mt-12 inline text-center lg:flex lg:text-left">
-          <div className="mx-10 mt-10 lg:mt-auto lg:text-left xl:mx-0">
+          <div className="mt-10 px-10 lg:mt-auto lg:text-left xl:mx-0">
             <h1 className="mb-2 text-4xl lg:text-5xl">Reselling Simplified</h1>
             <p className="mt-5 text-xl md:text-2xl lg:w-[650px]">
               Elevate your reselling game with advanced tools, inventory

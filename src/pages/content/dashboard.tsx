@@ -174,8 +174,8 @@ const DashboardPage: NextPage = () => {
             </div>
 
             {/* Recent Activity */}
-            <div className="w-full rounded-md bg-gray-100 py-2 shadow-lg drop-shadow-xl xl:ml-auto xl:w-4/12">
-              <h2 className="mx-8 my-5  text-2xl font-bold">Recent Activity</h2>
+            <div className="h-[500px] w-full rounded-md bg-gray-100 py-2 shadow-lg drop-shadow-xl xl:ml-auto xl:h-auto xl:w-4/12">
+              <h2 className="mx-8 my-5 text-2xl font-bold">Recent Activity</h2>
 
               <div className="mx-8 text-xl">
                 {sortedRecentActivity.slice(0, 7).map((product, index) => {

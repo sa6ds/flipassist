@@ -7,6 +7,7 @@ import Footer from "~/Components/Footer";
 import { useState } from "react";
 import { listofproducts } from "~/utils/dummyData";
 import Head from "next/head";
+import AuthShowcase from "~/Components/AuthShowcase";
 
 const Inventory: NextPage = () => {
   const [searchWord, setSearchWord] = useState("");
@@ -25,6 +26,28 @@ const Inventory: NextPage = () => {
 
     return nameMatch && statusMatch && platformMatch && categoryMatch;
   });
+
+  type Product = {
+    name: string;
+    size?: string | number;
+    sku?: string;
+    status: "All" | "Listed" | "Sold";
+    purchasePrice: number;
+    salePrice?: number;
+    platform?:
+      | "StockX"
+      | "Goat"
+      | "Depop"
+      | "eBay"
+      | "OfferUp"
+      | "Mercari"
+      | "Grailed";
+    category?: "Sneaker" | "Clothing" | "Collectible";
+    purchaseDate: string;
+    saleDate?: string | null;
+    dateAdded: string;
+    notes?: string | null;
+  };
 
   return (
     <div className="min-h-[100vh]">
@@ -112,6 +135,8 @@ const Inventory: NextPage = () => {
             </div>
           </div>
 
+          <AuthShowcase />
+
           {/* TABLE */}
           <div className="mb-24 mt-12 hidden overflow-x-auto xl:block">
             <table className="w-full overflow-x-auto truncate">
@@ -162,7 +187,8 @@ const Inventory: NextPage = () => {
                         })}
                       </td>
 
-                      {product.salePrice !== null ? (
+                      {product.salePrice !== null &&
+                      product.salePrice !== undefined ? (
                         <td className="p-3 text-sm">
                           {product.salePrice.toLocaleString("en-US", {
                             style: "currency",
@@ -174,7 +200,8 @@ const Inventory: NextPage = () => {
                         <td className="p-3 text-sm"></td>
                       )}
 
-                      {product.salePrice !== null ? (
+                      {product.salePrice !== null &&
+                      product.salePrice !== undefined ? (
                         <td
                           className={`p-3 text-sm ${
                             product.salePrice - product.purchasePrice < 0

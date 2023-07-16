@@ -31,18 +31,6 @@ const authOptions: NextAuthOptions = {
     newUser: "/content/dashboard",
     error: "/error",
   },
-  callbacks: {
-    session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.sub as string;
-      }
-      return session;
-    },
-  },
-  secret: googleClientSecret,
-  session: {
-    strategy: "jwt",
-  },
 };
 
 export default NextAuth(authOptions);
