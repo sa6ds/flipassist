@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Satoshi";
+  src: url("./assets/fonts/satoshi-regular-webfont.woff2") format("woff2"),
+    url("./assets/fonts/satoshi-regular-webfont.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Satoshi";
+  src: url("./assets/fonts/satoshi-medium-webfont.woff2") format("woff2"),
+    url("./assets/fonts/satoshi-medium-webfont.woff") format("woff");
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Satoshi";
+  src: url("./assets/fonts/satoshi-bold-webfont.woff2") format("woff2"),
+    url("./assets/fonts/satoshi-bold-webfont.woff") format("woff");
+  font-weight: bold;
+  font-style: normal;
+}
+
+.animate-background-shine {
+  animation: background-shine 2s linear infinite;
+  animation-duration: 2s;
+  animation-timing-function: linear;
+  animation-delay: 0s;
+  animation-iteration-count: infinite;
+  animation-direction: normal;
+  animation-fill-mode: none;
+  animation-play-state: running;
+  animation-name: background-shine;
+}
+
+@keyframes background-shine {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+.active {
+  --tw-border-opacity: 1;
+  border-right-color: rgb(31 41 55 / var(--tw-border-opacity));
+  border-right-width: 4px;
+  --tw-border-opacity: 1;
+  background-color: rgb(229 231 240 / var(--tw-border-opacity));
+}
+
+.not-highlightable {
+  user-select: none; /* Disable text selection */
+  -webkit-user-drag: none; /* Disable dragging on iOS Safari */
+  -khtml-user-drag: none; /* Disable dragging on older versions of Safari */
+  -moz-user-select: none; /* Disable text selection on Firefox */
+  -moz-user-drag: none; /* Disable dragging on Firefox */
+  -ms-user-select: none; /* Disable text selection on Internet Explorer/Edge */
+  -ms-user-drag: none; /* Disable dragging on Internet Explorer/Edge */
+  -webkit-touch-callout: none; /* Disable callout on iOS Safari */
+}
