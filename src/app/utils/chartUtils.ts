@@ -50,12 +50,12 @@ export const generateChartData = () => {
       {
         label: "Sales",
         data: salesData,
-        borderColor: "purple",
+        borderColor: "#8B5CF6",
       },
       {
         label: "Profits",
         data: profitData,
-        borderColor: "black",
+        borderColor: "#111827",
       },
     ],
   };

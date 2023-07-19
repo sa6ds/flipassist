@@ -4,6 +4,7 @@ import { useState } from "react";
 import Header from "@/app/components/Header";
 import { TwitterTimelineEmbed } from "react-twitter-embed";
 import CloseIcon from "@mui/icons-material/Close";
+import Footer from "@/app/components/Footer";
 
 interface Monitor {
   name: string;
@@ -58,7 +59,7 @@ export default function Monitors() {
   };
 
   return (
-    <div>
+    <div className="min-h-screen">
       <Sidebar />
       <div className="ml-0 truncate md:ml-[250px]">
         <Header pageTitle="Monitors" />
@@ -106,6 +107,9 @@ export default function Monitors() {
             );
           })}
         </div>
+      </div>
+      <div className="sticky top-full md:ml-[250px]">
+        <Footer />
       </div>
     </div>
   );

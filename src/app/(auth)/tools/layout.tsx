@@ -1,4 +1,3 @@
-import Footer from "@/app/components/Footer";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -14,12 +13,7 @@ export default function RootLayout({
 }) {
   return (
     <section>
-      <div className="min-h-[100vh]">
-        {children}
-        <div className="sticky top-full md:ml-[250px]">
-          <Footer />
-        </div>
-      </div>
+      <div>{children}</div>
     </section>
   );
 }

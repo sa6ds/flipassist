@@ -14,6 +14,7 @@ import clothingIcon from "../../assets/icons/recentActivity/shirt.svg";
 import collectibleIcon from "../../assets/icons/recentActivity/diamond.svg";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import Footer from "@/app/components/Footer";
 
 export default function Dashboard() {
   const [totalProfits, setTotalProfits] = useState(0);
@@ -82,7 +83,7 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div>
+    <div className="min-h-screen">
       <Sidebar />
       <div className="ml-0 truncate md:ml-[250px]">
         <Header pageTitle="Dashboard" />
@@ -208,6 +209,9 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+      </div>
+      <div className="sticky top-full md:ml-[250px]">
+        <Footer />
       </div>
     </div>
   );

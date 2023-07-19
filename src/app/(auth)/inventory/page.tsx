@@ -4,6 +4,7 @@ import Header from "@/app/components/Header";
 import AddIcon from "@mui/icons-material/Add";
 import { useState } from "react";
 import { listofproducts } from "@/app/utils/dummyData";
+import Footer from "@/app/components/Footer";
 
 export default function Inventory() {
   const [searchWord, setSearchWord] = useState("");
@@ -24,7 +25,7 @@ export default function Inventory() {
   });
 
   return (
-    <div>
+    <div className="min-h-screen">
       <Sidebar />
       <div className="ml-0 truncate md:ml-[250px]">
         <Header pageTitle="Inventory" />
@@ -33,12 +34,14 @@ export default function Inventory() {
           {/* UPPER PART */}
           <div className="xl:flex">
             <input
-              className="w-full rounded-md border border-gray-300 bg-gray-100 px-5 py-1.5 xl:w-4/12"
+              type="text"
               placeholder="Search"
               onChange={(event) => {
                 setSearchWord(event.target.value);
               }}
-            />
+              name="search"
+              className="border px-5 py-1.5 xl:w-4/12 border-gray-200 w-full rounded-lg flex"
+            ></input>
 
             <div className="ml-auto mt-4 flex flex-wrap gap-3 xl:mt-0">
               <div className="gap-5">
@@ -103,7 +106,7 @@ export default function Inventory() {
           </div>
 
           {/* TABLE */}
-          <div className="mb-24 mt-12 hidden overflow-x-auto xl:block">
+          <div className="mb-24 rounded-md mt-12 hidden overflow-x-auto xl:block">
             <table className="w-full overflow-x-auto truncate">
               <thead className="border-b-2">
                 {/* TODO: Add Sort Functionality */}
@@ -153,8 +156,8 @@ export default function Inventory() {
                 {filteredProducts.map((product, index) => {
                   return (
                     <tr
-                      className={`h-10 hover:bg-gray-200 ${
-                        index % 2 === 0 ? "" : "bg-gray-100"
+                      className={`h-10 hover:bg-slate-200 ${
+                        index % 2 === 0 ? "" : "bg-slate-100"
                       }`}
                       key={index}
                     >
@@ -314,6 +317,9 @@ export default function Inventory() {
             })}
           </div>
         </div>
+      </div>
+      <div className="sticky top-full md:ml-[250px]">
+        <Footer />
       </div>
     </div>
   );

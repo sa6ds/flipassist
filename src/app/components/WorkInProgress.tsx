@@ -7,7 +7,7 @@ function WorkInProgress() {
         <div className="flex h-[450px]">
           <div className="m-auto">
             <div className="whitespace-normal text-center">
-              <h1 className="mb-8 text-3xl font-bold">Oops!</h1>
+              <h1 className="mb-8 text-slate-900 text-3xl font-bold">Oops!</h1>
               <p className="text-lg">
                 We&apos;re sorry! This page is still under construction.
                 <br />

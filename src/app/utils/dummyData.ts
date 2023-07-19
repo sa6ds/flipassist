@@ -22,6 +22,20 @@ type Product = {
 
 export const listofproducts: Product[] = [
   {
+    name: "Jordan 1 UNC Toe",
+    size: "11",
+    sku: "DZ5485 400",
+    status: "Sold",
+    purchasePrice: 190,
+    salePrice: 270,
+    platform: "Goat",
+    category: "Sneaker",
+    purchaseDate: "07/06/2023",
+    saleDate: "07/08/23",
+    dateAdded: "07/12/2023",
+    notes: "Purchased off Shock Drop on SNKRS.",
+  },
+  {
     name: "Test Bad Profit Product",
     size: "10.5",
     sku: "SKU-456",

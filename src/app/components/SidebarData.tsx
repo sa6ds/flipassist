@@ -16,16 +16,17 @@ export const SidebarData = [
     icon: <Inventory2OutlinedIcon className="mr-5 w-8" />,
     path: "/inventory",
   },
-  {
-    title: "Calculators",
-    icon: <CalculateOutlinedIcon className="mr-5 w-8" />,
-    path: "/calculators",
-  },
-  {
-    title: "Tools",
-    icon: <HandymanOutlinedIcon className="mr-5 w-8" />,
-    path: "/tools",
-  },
+  // Work in Progress
+  // {
+  //   title: "Calculators",
+  //   icon: <CalculateOutlinedIcon className="mr-5 w-8" />,
+  //   path: "/calculators",
+  // },
+  // {
+  //   title: "Tools",
+  //   icon: <HandymanOutlinedIcon className="mr-5 w-8" />,
+  //   path: "/tools",
+  // },
   {
     title: "Monitors",
     icon: <MonitorHeartOutlinedIcon className="mr-5 w-8" />,
