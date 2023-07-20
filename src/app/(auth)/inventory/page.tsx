@@ -2,9 +2,9 @@
 import Sidebar from "../../components/Sidebar";
 import Header from "@/app/components/Header";
 import AddIcon from "@mui/icons-material/Add";
-import { useState } from "react";
 import { listofproducts } from "@/app/utils/dummyData";
 import Footer from "@/app/components/Footer";
+import { useState } from "react";
 
 export default function Inventory() {
   const [searchWord, setSearchWord] = useState("");

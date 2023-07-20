@@ -1,8 +1,49 @@
-import Image from "next/image";
+"use client";
+import {
+  onAuthStateChanged,
+  signInWithPopup,
+  signOut,
+  User,
+} from "firebase/auth";
 import Link from "next/link";
-import React from "react";
+import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import { auth, provider } from "../Firebase";
+
 
 function Navbar() {
+  const router = useRouter();
+
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+    });
+    return () => unsubscribe();
+  }, [user]);
+
+  const signInWithGoogle = async () => {
+    try {
+      await signInWithPopup(auth, provider);
+      // Redirect to the "/inventory" page after successful sign-in
+      router.push("/dashboard");
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleLogout = () => {
+    signOut(auth)
+      .then(() => {
+        localStorage.removeItem("user");
+        router.push("/");
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+
   return (
     <div className="container mx-auto px-8 py-12">
       <header className="flex w-full">
@@ -28,12 +69,29 @@ function Navbar() {
           </h1>
         </div>
         <div className="my-auto ml-auto">
-          <Link
-            href="/dashboard"
-            className="text-slate-900 font-medium hover:text-purple-500 hover:bg-purple-50 px-3 py-2 hover:rounded-xl"
-          >
-            Login
-          </Link>
+          {user ? (
+            <div>
+              <Link
+                href="dashboard"
+                className="font-medium text-purple-500 hover:bg-purple-50 px-3 py-2 hover:rounded-xl"
+              >
+                Dashboard
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="text-slate-900 font-medium hover:text-purple-500 hover:bg-purple-50 px-3 py-2 hover:rounded-xl"
+              >
+                Log out
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={signInWithGoogle}
+              className="text-slate-900 font-medium hover:text-purple-500 hover:bg-purple-50 px-3 py-2 hover:rounded-xl"
+            >
+              Login
+            </button>
+          )}
         </div>
       </header>
     </div>

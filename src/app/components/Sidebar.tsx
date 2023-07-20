@@ -1,11 +1,18 @@
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SidebarData } from "./SidebarData";
 import { useRouter, usePathname } from "next/navigation";
 // import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import Hamburger from "hamburger-react";
 import { Tooltip } from "@mui/material";
+import {
+  onAuthStateChanged,
+  signInWithPopup,
+  signOut,
+  User,
+} from "firebase/auth";
+import { auth, provider } from "../Firebase";
 
 function Sidebar() {
   const router = useRouter();
@@ -13,6 +20,37 @@ function Sidebar() {
 
   //   const { data: sessionData } = useSession();
   const [isOpen, setIsOpen] = useState(false); // Add this state variable
+
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+    });
+    return () => unsubscribe();
+  }, [user]);
+
+  const signInWithGoogle = async () => {
+    try {
+      await signInWithPopup(auth, provider);
+      // Redirect to the "/inventory" page after successful sign-in
+      localStorage.getItem("user");
+      router.push("/dashboard");
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleLogout = () => {
+    signOut(auth)
+      .then(() => {
+        router.push("/");
+        localStorage.removeItem("user");
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
 
   return (
     <div className="text-sm">
@@ -80,8 +118,7 @@ function Sidebar() {
               <div className="absolute bottom-0 flex h-16 w-full items-center bg-gray-300 text-sm">
                 <div className="ml-6 justify-center">
                   <Image
-                    src=""
-                    //   src={sessionData?.user.image ?? ""}
+                    src={user?.photoURL ?? ""}
                     className="w-8 rounded-full"
                     width={40}
                     height={40}
@@ -90,7 +127,7 @@ function Sidebar() {
                 </div>
                 <div className="ml-5">
                   <div className="max-w-[160px] truncate">
-                    {/* <h1>{sessionData?.user.name}</h1> */}
+                    <h1>{user?.displayName}</h1>
                   </div>
                   <div className="text-[#757575]">Account</div>
                 </div>
@@ -98,11 +135,7 @@ function Sidebar() {
                 <Tooltip title="Sign Out">
                   <button
                     className=" my-auto ml-auto mr-8"
-                    //   onClick={() => {
-                    //     signOut({ callbackUrl: "/" }).catch((e) => {
-                    //       console.error(e);
-                    //     });
-                    //   }}
+                    onClick={handleLogout}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"

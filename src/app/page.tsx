@@ -1,8 +1,50 @@
+"use client";
 import Link from "next/link";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import { useRouter } from "next/navigation";
+import {
+  User,
+  onAuthStateChanged,
+  signInWithPopup,
+  signOut,
+} from "firebase/auth";
+import { auth, provider } from "./Firebase";
+import { useEffect, useState } from "react";
 
 export default function Home() {
+  const router = useRouter();
+
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+    });
+    return () => unsubscribe();
+  }, [user]);
+
+  const signInWithGoogle = async () => {
+    try {
+      await signInWithPopup(auth, provider);
+      // Redirect to the "/inventory" page after successful sign-in
+      router.push("/inventory");
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleLogout = () => {
+    signOut(auth)
+      .then(() => {
+        localStorage.removeItem("user");
+        router.push("/");
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+
   return (
     <div className="bg-grid-gray-200 min-h-screen">
       <div className="bg-gradient-to-b from-transparent to-slate-50 min-h-screen">
@@ -18,19 +60,35 @@ export default function Home() {
                 Effortlessly manage inventory and simplify operations for
                 efficient reselling success.
               </p>
-              <Link href="/dashboard">
+
+              {user ? (
+                <Link href="/inventory">
+                  <button
+                    id="cta-button"
+                    className="w-fit px-6 py-3 border-2 animate-background-shine border-purple-600 bg-[linear-gradient(110deg,#9533F5,45%,#B468E3,55%,#9533F5)] bg-[length:200%_100%] shadow-3xl shadow-purple-500/30 hover:shadow-purple-500/60 rounded-2xl"
+                  >
+                    <h3 className="text-lg font-medium text-white text-center">
+                      Try flipassist for Lifetime deal $19
+                    </h3>
+                    <p className="text-sm font-normal text-white/80 text-center">
+                      20% off for the first 100 users
+                    </p>
+                  </button>
+                </Link>
+              ) : (
                 <button
+                  onClick={signInWithGoogle}
                   id="cta-button"
                   className="w-fit px-6 py-3 border-2 animate-background-shine border-purple-600 bg-[linear-gradient(110deg,#9533F5,45%,#B468E3,55%,#9533F5)] bg-[length:200%_100%] shadow-3xl shadow-purple-500/30 hover:shadow-purple-500/60 rounded-2xl"
                 >
                   <h3 className="text-lg font-medium text-white text-center">
                     Try flipassist for Lifetime deal $19
-                  </h3>{" "}
+                  </h3>
                   <p className="text-sm font-normal text-white/80 text-center">
                     20% off for the first 100 users
                   </p>
                 </button>
-              </Link>
+              )}
 
               {/* Background elements */}
               {/* <div className="-z-10 absolute -top-24 left-1/2 transform -translate-x-1/2 w-96 h-96 md:w-[650px] md:h-[400px] bg-gradient-to-r dark:from-indigo-500 dark:via-purple-500 dark:to-pink-500 from-yellow-500 via-orange-500 to-pink-500 rounded-full mix-blend-multiply blur-3xl filter opacity-40" />
