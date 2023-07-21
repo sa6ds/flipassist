@@ -36,6 +36,7 @@
   },
   "devDependencies": {
     "@types/chart.js": "^2.9.37",
-    "@types/uuid": "^9.0.2"
+    "@types/uuid": "^9.0.2",
+    "encoding": "^0.1.13"
   }
 }

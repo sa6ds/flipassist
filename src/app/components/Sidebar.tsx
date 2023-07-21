@@ -2,25 +2,17 @@ import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { SidebarData } from "./SidebarData";
 import { useRouter, usePathname } from "next/navigation";
-// import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import Hamburger from "hamburger-react";
 import { Tooltip } from "@mui/material";
-import {
-  onAuthStateChanged,
-  signInWithPopup,
-  signOut,
-  User,
-} from "firebase/auth";
-import { auth, provider } from "../Firebase";
+import { onAuthStateChanged, signOut, User } from "firebase/auth";
+import { auth } from "../Firebase";
 
 function Sidebar() {
   const router = useRouter();
   const pathname = usePathname();
 
-  //   const { data: sessionData } = useSession();
-  const [isOpen, setIsOpen] = useState(false); // Add this state variable
-
+  const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
@@ -29,17 +21,6 @@ function Sidebar() {
     });
     return () => unsubscribe();
   }, [user]);
-
-  const signInWithGoogle = async () => {
-    try {
-      await signInWithPopup(auth, provider);
-      // Redirect to the "/inventory" page after successful sign-in
-      localStorage.getItem("user");
-      router.push("/dashboard");
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   const handleLogout = () => {
     signOut(auth)
@@ -107,7 +88,7 @@ function Sidebar() {
                       }}
                     >
                       <i className="ml-8">{val.icon}</i>
-                      <p className="">{val.title}</p>
+                      <p>{val.title}</p>
                     </div>
                   );
                 })}

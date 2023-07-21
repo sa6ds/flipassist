@@ -27,22 +27,10 @@ export default function Home() {
   const signInWithGoogle = async () => {
     try {
       await signInWithPopup(auth, provider);
-      // Redirect to the "/inventory" page after successful sign-in
       router.push("/inventory");
     } catch (error) {
       console.error(error);
     }
-  };
-
-  const handleLogout = () => {
-    signOut(auth)
-      .then(() => {
-        localStorage.removeItem("user");
-        router.push("/");
-      })
-      .catch((error) => {
-        console.error(error);
-      });
   };
 
   return (

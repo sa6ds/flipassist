@@ -10,7 +10,6 @@ import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { auth, provider } from "../Firebase";
 
-
 function Navbar() {
   const router = useRouter();
 
@@ -26,7 +25,6 @@ function Navbar() {
   const signInWithGoogle = async () => {
     try {
       await signInWithPopup(auth, provider);
-      // Redirect to the "/inventory" page after successful sign-in
       router.push("/dashboard");
     } catch (error) {
       console.error(error);
