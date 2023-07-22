@@ -18,6 +18,12 @@ export default function Inventory() {
   const [platform, setPlatform] = useState("");
   const [category, setCategory] = useState("");
 
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const toggleModal = () => {
+    setModalVisible((prevState) => !prevState);
+  };
+
   interface Product {
     id: string;
     name: string;
@@ -122,7 +128,7 @@ export default function Inventory() {
       });
 
       setProducts(updatedProducts);
-
+      setModalVisible(false);
       reset();
     }
   };
@@ -254,7 +260,7 @@ export default function Inventory() {
         <Header pageTitle="Inventory" />
 
         <div className="mx-8 my-8">
-          {/* UPPER PART */}
+          {/* BOOKMARK 1 FILTERS */}
           <div className="xl:flex">
             <input
               type="text"
@@ -268,7 +274,10 @@ export default function Inventory() {
 
             <div className="ml-auto mt-4 flex flex-wrap gap-3 xl:mt-0">
               <div className="gap-5">
-                <button className="border bg-white duration-100 hover:cursor-pointer hover:bg-purple-50 hover:text-purple-500 border-gray-200 duration-1500 rounded-md p-6 py-1.5 text-center transition-all">
+                <button
+                  onClick={toggleModal}
+                  className="border bg-white duration-100 hover:cursor-pointer hover:bg-purple-50 hover:text-purple-500 border-gray-200 duration-1500 rounded-md p-6 py-1.5 text-center transition-all"
+                >
                   <AddIcon />
                 </button>
               </div>
@@ -341,147 +350,291 @@ export default function Inventory() {
             </div>
           </div>
 
-          {/* ADDPRODUCTFORM START */}
-
-          <div className="w-[500px] mx-auto">
-            {user && (
-              <div>
-                <form
-                  className="flex mb-8 flex-col gap-4"
-                  onSubmit={handleSubmit(onSubmit)}
+          {/* BOOKMARK 2 ADD PROTECT MODAL */}
+          {modalVisible && (
+            <div
+              id="authentication-modal"
+              tabIndex={-1}
+              aria-hidden="true"
+              className="fixed top-0 left-0 right-0 z-50 w-full h-screen flex justify-center items-center bg-black bg-opacity-50"
+            >
+              <div className="relative mx-4 md:mx-14  w-full sm:w-[500px] bg-white rounded-lg shadow ">
+                <button
+                  type="button"
+                  className="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center"
+                  onClick={toggleModal}
                 >
-                  <div>
-                    <label htmlFor="name">Item Name</label>
-                    <input
-                      id="name"
-                      {...register("name", {
-                        required: "Item name is required",
-                      })}
-                    />
-                    {errors.name && <span>{errors.name.message}</span>}
-                  </div>
-
-                  <div>
-                    <label htmlFor="size">Size</label>
-                    <input type="text" id="size" {...register("size")} />
-                  </div>
-
-                  <div>
-                    <label htmlFor="sku">SKU</label>
-                    <input type="text" id="sku" {...register("sku")} />
-                  </div>
-
-                  <div>
-                    <label htmlFor="status">Status</label>
-                    <select
-                      id="status"
-                      {...register("status", {
-                        required: "Status is required",
-                      })}
-                    >
-                      <option value="Unlisted">Unlisted</option>
-                      <option value="Listed">Listed</option>
-                      <option value="Sold">Sold</option>
-                    </select>
-                    {errors.status && <span>{errors.status.message}</span>}
-                  </div>
-
-                  <div>
-                    <label htmlFor="purchasePrice">Purchase Price</label>
-                    <input
-                      step={0.01}
-                      type="number"
-                      id="purchasePrice"
-                      {...register("purchasePrice", {
-                        required: "Purchase price is required",
-                        valueAsNumber: true,
-                      })}
-                    />
-                    {errors.purchasePrice && (
-                      <span>{errors.purchasePrice.message}</span>
-                    )}
-                  </div>
-
-                  <div>
-                    <label htmlFor="salePrice">Sale Price</label>
-                    <input
-                      type="number"
-                      id="salePrice"
-                      {...register("salePrice", { valueAsNumber: true })}
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="platform">Platform</label>
-                    <select id="platform" {...register("platform")}>
-                      <option value="">Select Platform</option>
-                      <option value="StockX">StockX</option>
-                      <option value="Goat">Goat</option>
-                      <option value="Depop">Depop</option>
-                      <option value="eBay">eBay</option>
-                      <option value="OfferUp">OfferUp</option>
-                      <option value="Mercari">Mercari</option>
-                      <option value="Grailed">Grailed</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label htmlFor="category">Category</label>
-                    <select id="category" {...register("category")}>
-                      <option value="">Select Category</option>
-                      <option value="Sneaker">Sneaker</option>
-                      <option value="Clothing">Clothing</option>
-                      <option value="Collectible">Collectible</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label htmlFor="purchaseDate">Purchase Date</label>
-                    <input
-                      type="date"
-                      id="purchaseDate"
-                      {...register("purchaseDate", {
-                        required: "Purchase date is required",
-                      })}
-                    />
-                    {errors.purchaseDate && (
-                      <span>{errors.purchaseDate.message}</span>
-                    )}
-                  </div>
-
-                  <div>
-                    <label htmlFor="saleDate">Sale Date</label>
-                    <input
-                      type="date"
-                      id="saleDate"
-                      {...register("saleDate")}
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="notes">Notes</label>
-                    <textarea
-                      maxLength={32}
-                      id="notes"
-                      {...register("notes")}
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="w-full mr-2 rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                  <svg
+                    className="w-3 h-3"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 14 14"
                   >
-                    Create
-                  </button>
-                </form>
+                    <path
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                    />
+                  </svg>
+                  <span className="sr-only">Close modal</span>
+                </button>
+                <div className="px-6 py-6 ">
+                  <h3 className="mb-4 text-xl font-medium text-gray-900">
+                    Add Product
+                  </h3>
+                  <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+                    {/* Product Name */}
+                    <div className="mb-4">
+                      <div className="my-0">
+                        {errors.name && (
+                          <p className="text-purple-500 mb-2 px-4 py-2 bg-purple-50 rounded-lg font-bold text-sm">
+                            • {errors.name.message}
+                          </p>
+                        )}
+                        {errors.purchasePrice && (
+                          <p className="text-purple-500 mb-2 px-4 py-2 bg-purple-50 rounded-lg font-bold text-sm">
+                            • {errors.purchasePrice.message}
+                          </p>
+                        )}
+                        {errors.purchaseDate && (
+                          <p className="text-purple-500 mb-2 px-4 py-2 bg-purple-50 rounded-lg font-bold text-sm">
+                            • {errors.purchaseDate.message}
+                          </p>
+                        )}
+
+                        <label
+                          htmlFor="name"
+                          className="block text-sm mb-2 font-medium text-gray-900 "
+                        >
+                          Product Name
+                        </label>
+                      </div>
+
+                      <input
+                        id="name"
+                        {...register("name", {
+                          required: "Product name is required",
+                        })}
+                        className="w-full p-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 "
+                      />
+                      {/* <input type="text" className="border px-5 py-1.5 xl:w-4/12 border-gray-200 w-full rounded-lg flex" /> */}
+                    </div>
+
+                    <div className="flex justify-between">
+                      {/* Size */}
+                      <div className="mb-4">
+                        <label
+                          htmlFor="size"
+                          className="block mb-2 text-sm font-medium text-gray-900"
+                        >
+                          Size
+                        </label>
+                        <input
+                          type="text"
+                          id="size"
+                          {...register("size")}
+                          className="p-2 sm:w-32 w-24  text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+
+                      {/* SKU */}
+                      <div className="mb-4">
+                        <label
+                          htmlFor="sku"
+                          className="block mb-2 text-sm font-medium text-gray-900"
+                        >
+                          SKU
+                        </label>
+                        <input
+                          type="text"
+                          id="sku"
+                          {...register("sku")}
+                          className="sm:w-32 w-24  p-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+
+                      {/* Status */}
+                      <div className="mb-4">
+                        <div className="flex gap-2">
+                          <label
+                            htmlFor="status"
+                            className="block mb-2 text-sm font-medium text-gray-900"
+                          >
+                            Status
+                          </label>
+                        </div>
+                        <select
+                          id="status"
+                          {...register("status", {
+                            required: "Status is required",
+                          })}
+                          className="sm:w-32 w-24  p-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                        >
+                          <option value="Unlisted">Unlisted</option>
+                          <option value="Listed">Listed</option>
+                          <option value="Sold">Sold</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between">
+                      {/* Purchase Price */}
+                      <div className="mb-4">
+                        <div>
+                          <label
+                            htmlFor="status"
+                            className="block mb-2 text-sm font-medium text-gray-900"
+                          >
+                            Purchase Price
+                          </label>
+                        </div>
+                        <input
+                          step={0.01}
+                          type="number"
+                          id="purchasePrice"
+                          {...register("purchasePrice", {
+                            required: "Purchase price is required",
+                            valueAsNumber: true,
+                          })}
+                          className="sm:w-32 w-24  p-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+
+                      {/* Sale Price */}
+                      <div className="mb-4">
+                        <label
+                          htmlFor="salePrice"
+                          className="block mb-2 text-sm font-medium text-gray-900"
+                        >
+                          Sale Price
+                        </label>
+                        <input
+                          type="number"
+                          id="salePrice"
+                          {...register("salePrice", {
+                            valueAsNumber: true,
+                          })}
+                          className="sm:w-32 w-24  p-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+
+                      {/* Platform */}
+                      <div className="mb-4">
+                        <label
+                          htmlFor="platform"
+                          className="block mb-2 text-sm font-medium text-gray-900"
+                        >
+                          Platform
+                        </label>
+                        <select
+                          id="platform"
+                          {...register("platform")}
+                          className="sm:w-32 w-24  p-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                        >
+                          <option value="">Select Platform</option>
+                          <option value="StockX">StockX</option>
+                          <option value="Goat">Goat</option>
+                          <option value="Depop">Depop</option>
+                          <option value="eBay">eBay</option>
+                          <option value="OfferUp">OfferUp</option>
+                          <option value="Mercari">Mercari</option>
+                          <option value="Grailed">Grailed</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3 justify-between">
+                      {/* Category */}
+                      <div className="mb-4">
+                        <label
+                          htmlFor="category"
+                          className="block mb-2 text-sm font-medium text-gray-900"
+                        >
+                          Category
+                        </label>
+                        <select
+                          id="category"
+                          {...register("category")}
+                          className="sm:w-32 w-24  p-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                        >
+                          <option value="">Select Category</option>
+                          <option value="Sneaker">Sneaker</option>
+                          <option value="Clothing">Clothing</option>
+                          <option value="Collectible">Collectible</option>
+                        </select>
+                      </div>
+
+                      {/* Purchase Date */}
+                      <div className="mb-4">
+                        <div className="flex gap-2">
+                          <label
+                            htmlFor="status"
+                            className="block mb-2 text-sm font-medium text-gray-900"
+                          >
+                            Purchase Date
+                          </label>
+                        </div>
+                        <input
+                          type="date"
+                          id="purchaseDate"
+                          {...register("purchaseDate", {
+                            required: "Purchase date is required",
+                          })}
+                          className="sm:w-32 w-24  p-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+
+                      {/* Sale Date */}
+                      <div className="mb-4">
+                        <label
+                          htmlFor="saleDate"
+                          className="block mb-2 text-sm font-medium text-gray-900"
+                        >
+                          Sale Date
+                        </label>
+                        <input
+                          type="date"
+                          id="saleDate"
+                          {...register("saleDate")}
+                          className="sm:w-32 w-24  p-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Notes */}
+                    <div className="mb-4">
+                      <label
+                        htmlFor="notes"
+                        className="block mb-2 text-sm font-medium text-gray-900"
+                      >
+                        Notes
+                      </label>
+                      <textarea
+                        maxLength={32}
+                        id="notes"
+                        {...register("notes")}
+                        className="w-full p-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500"
+                      />
+                    </div>
+
+                    {/* Submit Button */}
+                    <button
+                      type="submit"
+                      className="w-full duration-1500 rounded-lg bg-green-500 hover:bg-green-600 border border-green-600 py-1.5 text-center text-white transition-all"
+                    >
+                      Create
+                    </button>
+                  </form>
+                </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
-          {/* ADDPRODUCTFORM END */}
-
-          {/* TABLE */}
-          <div className="mb-24 rounded-md mt-12 hidden overflow-x-auto xl:block">
+          {/* BOOKMARK 3 TABLE */}
+          <div className="mb-24 rounded-md mt-6 hidden overflow-x-auto xl:block">
             <table className="w-full overflow-x-auto truncate">
               <thead className="border-b-2">
                 {/* TODO: Add Sort Functionality */}
@@ -816,7 +969,7 @@ export default function Inventory() {
             </table>
           </div>
 
-          {/* MOBILE VIEW */}
+          {/* BOOKMARK 4 MOBILE TABLE */}
           <div className="justify-center sm:flex sm:flex-wrap sm:gap-5 xl:hidden">
             {filteredProducts.map((product, index) => {
               return (
@@ -907,13 +1060,18 @@ export default function Inventory() {
                     </div>
                     <div className="xsm:flex">
                       <div>
-                        <>
-                          <p className="mt-4 font-bold">Size:</p> {product.size}
-                        </>
-                        <>
-                          <p className="mt-4 font-bold">Platform:</p>
-                          {product.platform}
-                        </>
+                        {product.size && (
+                          <>
+                            <p className="mt-4 font-bold">Size:</p>{" "}
+                            {product.size}
+                          </>
+                        )}
+                        {product.platform && (
+                          <>
+                            <p className="mt-4 font-bold">Platform:</p>
+                            {product.platform}
+                          </>
+                        )}
                         <p className="mt-4 font-bold">Purchase Price: </p>
                         {product.purchasePrice.toLocaleString("en-US", {
                           style: "currency",
@@ -921,10 +1079,12 @@ export default function Inventory() {
                         })}
                       </div>
                       <div className="ml-auto">
-                        <>
-                          <p className="mt-4 font-bold">SKU:</p>
-                          {product.sku}
-                        </>
+                        {product.sku && (
+                          <>
+                            <p className="mt-4 font-bold">SKU:</p>
+                            {product.sku}
+                          </>
+                        )}
                         {product.saleDate && (
                           <>
                             <p className="mt-4 font-bold">Sale Date:</p>

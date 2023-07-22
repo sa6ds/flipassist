@@ -43,7 +43,7 @@ function Navbar() {
   };
 
   return (
-    <div className="container mx-auto px-8 py-12">
+    <div className="container mx-auto px-2 sm:px-8 py-12">
       <header className="flex w-full">
         <div className="flex flex-row items-center">
           <Link href="/" className="bg-purple-500 p-3 rounded-2xl">
