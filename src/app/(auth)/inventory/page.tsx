@@ -3,14 +3,17 @@ import Sidebar from "../../components/Sidebar";
 import Header from "@/app/components/Header";
 import AddIcon from "@mui/icons-material/Add";
 import Footer from "@/app/components/Footer";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm, SubmitHandler, set } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import { onAuthStateChanged } from "firebase/auth";
 import { collection, doc, getDoc, setDoc } from "firebase/firestore";
 import { auth, db } from "../../Firebase";
 import { User } from "@firebase/auth";
+import AddModal from "@/app/components/inventoryComponents/AddModal";
+import Table from "@/app/components/inventoryComponents/Table";
+import MobileTable from "@/app/components/inventoryComponents/MobileTable";
 
 export default function Inventory() {
   const [searchWord, setSearchWord] = useState("");
@@ -18,10 +21,16 @@ export default function Inventory() {
   const [platform, setPlatform] = useState("");
   const [category, setCategory] = useState("");
 
-  const [modalVisible, setModalVisible] = useState(false);
+  const [addModalVisible, setAddModalVisible] = useState(false);
+
+  const [editProductModalVisible, setEditProductModalVisible] = useState(false);
+
+  const toggleEditProductModal = () => {
+    setEditProductModalVisible(!editProductModalVisible);
+  };
 
   const toggleModal = () => {
-    setModalVisible((prevState) => !prevState);
+    setAddModalVisible((prevState) => !prevState);
   };
 
   interface Product {
@@ -51,8 +60,9 @@ export default function Inventory() {
     "Unlisted" | "Listed" | "Sold"
   >("Unlisted");
   const [editedProductPrice, setEditedProductPrice] = useState<number>(0);
-  const [editedProductSalePrice, setEditedProductSalePrice] =
-    useState<number>(0);
+  const [editedProductSalePrice, setEditedProductSalePrice] = useState<
+    number | null
+  >(null);
   const [editedProductPlatform, setEditedProductPlatform] =
     useState<string>("");
   const [editedProductCategory, setEditedProductCategory] =
@@ -96,12 +106,21 @@ export default function Inventory() {
   }, [user]);
 
   const onSubmit: SubmitHandler<Product> = async (data) => {
+    console.log("data", data);
     if (user) {
       const userRef = doc(db, "users", user.uid);
       const userSnapshot = await getDoc(userRef);
       const existingProducts = userSnapshot.data()?.products || [];
 
       const updatedProducts = existingProducts ? existingProducts : [];
+
+      // Check if data.salePrice is not undefined, not null, and is a valid number, otherwise set it to null
+      const salePrice =
+        data.salePrice !== undefined &&
+        data.salePrice !== null &&
+        !isNaN(data.salePrice)
+          ? Number(data.salePrice)
+          : null;
 
       const newProduct: Product = {
         id: uuidv4(),
@@ -110,12 +129,12 @@ export default function Inventory() {
         sku: data.sku,
         status: data.status,
         purchasePrice: data.purchasePrice,
-        salePrice: data.salePrice || null,
+        salePrice: salePrice,
         platform: data.platform || null,
         category: data.category || null,
         purchaseDate: data.purchaseDate,
         saleDate: data.saleDate || null,
-        dateAdded: new Date().toISOString().split("T")[0], // Get the current date in the format "YYYY-MM-DD"
+        dateAdded: new Date().toISOString().split("T")[0],
         notes: data.notes || null,
       };
 
@@ -128,7 +147,7 @@ export default function Inventory() {
       });
 
       setProducts(updatedProducts);
-      setModalVisible(false);
+      setAddModalVisible(false);
       reset();
     }
   };
@@ -169,17 +188,18 @@ export default function Inventory() {
   };
   const handleStartEditing = (product: Product) => {
     setEditingProductId(product.id);
-    setEditedProductName(product.name);
+    setEditedProductName(product.name || "");
     setEditedProductSize(product.size || "");
     setEditedProductSku(product.sku || "");
     setEditedProductStatus(product.status as "Unlisted" | "Listed" | "Sold");
     setEditedProductPrice(product.purchasePrice);
-    setEditedProductSalePrice(product.salePrice || 0);
+    setEditedProductSalePrice(product.salePrice || null);
     setEditedProductPlatform(product.platform || "");
     setEditedProductCategory(product.category || "");
     setEditedProductPurchaseDate(product.purchaseDate);
     setEditedProductSaleDate(product.saleDate || "");
     setEditedProductNotes(product.notes || "");
+    toggleEditProductModal();
   };
 
   const handleUpdateProduct = async (e: React.FormEvent, productId: string) => {
@@ -187,11 +207,10 @@ export default function Inventory() {
 
     if (
       !editedProductName ||
-      editedProductPrice <= 0 ||
-      isNaN(editedProductPrice) ||
-      isNaN(editedProductSalePrice)
+      editedProductPrice < 0 ||
+      isNaN(editedProductPrice)
     ) {
-      return;
+      return alert("Please fill out all required fields");
     }
 
     if (user) {
@@ -208,7 +227,8 @@ export default function Inventory() {
               sku: editedProductSku,
               status: editedProductStatus,
               purchasePrice: editedProductPrice,
-              salePrice: editedProductSalePrice,
+              salePrice:
+                editedProductSalePrice === null ? null : editedProductSalePrice, // Handle the case where editedProductSalePrice is null
               platform: editedProductPlatform,
               category: editedProductCategory,
               purchaseDate: editedProductPurchaseDate,
@@ -232,26 +252,30 @@ export default function Inventory() {
       setEditedProductSku("");
       setEditedProductStatus("Unlisted");
       setEditedProductPrice(0);
-      setEditedProductSalePrice(0);
+      setEditedProductSalePrice(null); // Set the editedProductSalePrice to null after update
       setEditedProductPlatform("");
       setEditedProductCategory("");
       setEditedProductPurchaseDate("");
       setEditedProductSaleDate("");
       setEditedProductNotes("");
+      toggleEditProductModal();
     }
   };
 
-  const filteredProducts = products.filter((product) => {
-    const nameMatch = product.name
-      .toLowerCase()
-      .includes(searchWord.toLowerCase());
+  // Use memo to filter products only when either the search word or the filters change
+  const filteredProducts = useMemo(() => {
+    return products.filter((product) => {
+      const nameMatch = product.name
+        .toLowerCase()
+        .includes(searchWord.toLowerCase());
 
-    const statusMatch = status === "" || product.status === status;
-    const platformMatch = platform === "" || product.platform === platform;
-    const categoryMatch = category === "" || product.category === category;
+      const statusMatch = status === "" || product.status === status;
+      const platformMatch = platform === "" || product.platform === platform;
+      const categoryMatch = category === "" || product.category === category;
 
-    return nameMatch && statusMatch && platformMatch && categoryMatch;
-  });
+      return nameMatch && statusMatch && platformMatch && categoryMatch;
+    });
+  }, [products, searchWord, status, platform, category]);
 
   return (
     <div className="min-h-screen">
@@ -276,7 +300,7 @@ export default function Inventory() {
               <div className="gap-5">
                 <button
                   onClick={toggleModal}
-                  className="border bg-white duration-100 hover:cursor-pointer hover:bg-purple-50 hover:text-purple-500 border-gray-200 duration-1500 rounded-md p-6 py-1.5 text-center transition-all"
+                  className="border bg-white duration-100 hover:cursor-pointer hover:bg-purple-50 hover:text-purple-500 border-gray-200 duration-1500 rounded-md px-3 py-1.5 text-center transition-all"
                 >
                   <AddIcon />
                 </button>
@@ -350,8 +374,18 @@ export default function Inventory() {
             </div>
           </div>
 
-          {/* BOOKMARK 2 ADD PROTECT MODAL */}
-          {modalVisible && (
+          {/* BOOKMARK 2 ADD PRODUCT MODAL */}
+          <AddModal
+            isVisible={addModalVisible}
+            toggleModal={toggleModal}
+            handleSubmit={handleSubmit}
+            onSubmit={onSubmit}
+            register={register}
+            errors={errors}
+          />
+
+          {/* BOOKMARK 3 EDIT PRODUCT MODAL */}
+          {editProductModalVisible && editingProductId && (
             <div
               id="authentication-modal"
               tabIndex={-1}
@@ -362,7 +396,10 @@ export default function Inventory() {
                 <button
                   type="button"
                   className="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center"
-                  onClick={toggleModal}
+                  onClick={() => {
+                    setEditingProductId(null);
+                    toggleEditProductModal();
+                  }}
                 >
                   <svg
                     className="w-3 h-3"
@@ -383,28 +420,15 @@ export default function Inventory() {
                 </button>
                 <div className="px-6 py-6 ">
                   <h3 className="mb-4 text-xl font-medium text-gray-900">
-                    Add Product
+                    Edit {products.find((p) => p.id === editingProductId)?.name}
                   </h3>
-                  <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+                  <form
+                    className="space-y-6"
+                    onSubmit={(e) => handleUpdateProduct(e, editingProductId)}
+                  >
                     {/* Product Name */}
                     <div className="mb-4">
                       <div className="my-0">
-                        {errors.name && (
-                          <p className="text-purple-500 mb-2 px-4 py-2 bg-purple-50 rounded-lg font-bold text-sm">
-                            • {errors.name.message}
-                          </p>
-                        )}
-                        {errors.purchasePrice && (
-                          <p className="text-purple-500 mb-2 px-4 py-2 bg-purple-50 rounded-lg font-bold text-sm">
-                            • {errors.purchasePrice.message}
-                          </p>
-                        )}
-                        {errors.purchaseDate && (
-                          <p className="text-purple-500 mb-2 px-4 py-2 bg-purple-50 rounded-lg font-bold text-sm">
-                            • {errors.purchaseDate.message}
-                          </p>
-                        )}
-
                         <label
                           htmlFor="name"
                           className="block text-sm mb-2 font-medium text-gray-900 "
@@ -414,13 +438,10 @@ export default function Inventory() {
                       </div>
 
                       <input
-                        id="name"
-                        {...register("name", {
-                          required: "Product name is required",
-                        })}
+                        value={editedProductName}
+                        onChange={(e) => setEditedProductName(e.target.value)}
                         className="w-full p-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 "
                       />
-                      {/* <input type="text" className="border px-5 py-1.5 xl:w-4/12 border-gray-200 w-full rounded-lg flex" /> */}
                     </div>
 
                     <div className="flex justify-between">
@@ -434,8 +455,8 @@ export default function Inventory() {
                         </label>
                         <input
                           type="text"
-                          id="size"
-                          {...register("size")}
+                          value={editedProductSize}
+                          onChange={(e) => setEditedProductSize(e.target.value)}
                           className="p-2 sm:w-32 w-24  text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                         />
                       </div>
@@ -450,8 +471,8 @@ export default function Inventory() {
                         </label>
                         <input
                           type="text"
-                          id="sku"
-                          {...register("sku")}
+                          value={editedProductSku}
+                          onChange={(e) => setEditedProductSku(e.target.value)}
                           className="sm:w-32 w-24  p-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                         />
                       </div>
@@ -467,10 +488,12 @@ export default function Inventory() {
                           </label>
                         </div>
                         <select
-                          id="status"
-                          {...register("status", {
-                            required: "Status is required",
-                          })}
+                          value={editedProductStatus}
+                          onChange={(e) =>
+                            setEditedProductStatus(
+                              e.target.value as "Unlisted" | "Listed" | "Sold"
+                            )
+                          }
                           className="sm:w-32 w-24  p-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                         >
                           <option value="Unlisted">Unlisted</option>
@@ -494,15 +517,13 @@ export default function Inventory() {
                         <input
                           step={0.01}
                           type="number"
-                          id="purchasePrice"
-                          {...register("purchasePrice", {
-                            required: "Purchase price is required",
-                            valueAsNumber: true,
-                          })}
+                          value={editedProductPrice}
+                          onChange={(e) =>
+                            setEditedProductPrice(parseFloat(e.target.value))
+                          }
                           className="sm:w-32 w-24  p-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                         />
                       </div>
-
                       {/* Sale Price */}
                       <div className="mb-4">
                         <label
@@ -513,10 +534,14 @@ export default function Inventory() {
                         </label>
                         <input
                           type="number"
-                          id="salePrice"
-                          {...register("salePrice", {
-                            valueAsNumber: true,
-                          })}
+                          value={editedProductSalePrice ?? ""}
+                          onChange={(e) =>
+                            setEditedProductSalePrice(
+                              e.target.value === ""
+                                ? null
+                                : parseFloat(e.target.value)
+                            )
+                          }
                           className="sm:w-32 w-24  p-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                         />
                       </div>
@@ -530,8 +555,10 @@ export default function Inventory() {
                           Platform
                         </label>
                         <select
-                          id="platform"
-                          {...register("platform")}
+                          value={editedProductPlatform}
+                          onChange={(e) =>
+                            setEditedProductPlatform(e.target.value)
+                          }
                           className="sm:w-32 w-24  p-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                         >
                           <option value="">Select Platform</option>
@@ -556,8 +583,10 @@ export default function Inventory() {
                           Category
                         </label>
                         <select
-                          id="category"
-                          {...register("category")}
+                          value={editedProductCategory}
+                          onChange={(e) =>
+                            setEditedProductCategory(e.target.value)
+                          }
                           className="sm:w-32 w-24  p-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                         >
                           <option value="">Select Category</option>
@@ -579,10 +608,10 @@ export default function Inventory() {
                         </div>
                         <input
                           type="date"
-                          id="purchaseDate"
-                          {...register("purchaseDate", {
-                            required: "Purchase date is required",
-                          })}
+                          value={editedProductPurchaseDate}
+                          onChange={(e) =>
+                            setEditedProductPurchaseDate(e.target.value)
+                          }
                           className="sm:w-32 w-24  p-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                         />
                       </div>
@@ -597,8 +626,10 @@ export default function Inventory() {
                         </label>
                         <input
                           type="date"
-                          id="saleDate"
-                          {...register("saleDate")}
+                          value={editedProductSaleDate}
+                          onChange={(e) =>
+                            setEditedProductSaleDate(e.target.value)
+                          }
                           className="sm:w-32 w-24  p-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                         />
                       </div>
@@ -614,8 +645,8 @@ export default function Inventory() {
                       </label>
                       <textarea
                         maxLength={32}
-                        id="notes"
-                        {...register("notes")}
+                        value={editedProductNotes}
+                        onChange={(e) => setEditedProductNotes(e.target.value)}
                         className="w-full p-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500"
                       />
                     </div>
@@ -625,7 +656,7 @@ export default function Inventory() {
                       type="submit"
                       className="w-full duration-1500 rounded-lg bg-green-500 hover:bg-green-600 border border-green-600 py-1.5 text-center text-white transition-all"
                     >
-                      Create
+                      Edit Product
                     </button>
                   </form>
                 </div>
@@ -633,521 +664,22 @@ export default function Inventory() {
             </div>
           )}
 
-          {/* BOOKMARK 3 TABLE */}
-          <div className="mb-24 rounded-md mt-6 hidden overflow-x-auto xl:block">
-            <table className="w-full overflow-x-auto truncate">
-              <thead className="border-b-2">
-                {/* TODO: Add Sort Functionality */}
-                <tr className="text-left font-extrabold">
-                  <th className="p-3 pr-64 text-slate-900 hover:bg-gray-100">
-                    Name
-                  </th>
-                  <th className="p-3 pr-10 text-slate-900 hover:bg-gray-100">
-                    Size
-                  </th>
-                  <th className="p-3 pr-16 text-slate-900 hover:bg-gray-100">
-                    SKU
-                  </th>
-                  <th className="p-3 pr-6 text-slate-900 hover:bg-gray-100">
-                    Status
-                  </th>
-                  <th className="p-3 pr-5 text-slate-900 hover:bg-gray-100">
-                    Purchase Price
-                  </th>
-                  <th className="p-3 pr-5 text-slate-900 hover:bg-gray-100">
-                    Sale Price
-                  </th>
-                  <th className="p-3 pr-16 text-slate-900 hover:bg-gray-100">
-                    Profit
-                  </th>
-                  <th className="p-3 pr-8 text-slate-900 hover:bg-gray-100">
-                    Platform
-                  </th>
-                  <th className="p-3 pr-8 text-slate-900 hover:bg-gray-100">
-                    Category
-                  </th>
-                  <th className="p-3 pr-6 text-slate-900 hover:bg-gray-100">
-                    Purchase Date
-                  </th>
-                  <th className="p-3 pr-10 text-slate-900 hover:bg-gray-100">
-                    Sale Date
-                  </th>
-                  <th className="p-3 pr-10 text-slate-900 hover:bg-gray-100">
-                    Date Added
-                  </th>
-                  <th className="p-3 text-slate-900 hover:bg-gray-100">
-                    Notes
-                  </th>
-                  <th className="p-3 text-slate-900 hover:bg-gray-100">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredProducts.map((product, index) => (
-                  <tr
-                    className={`hover:bg-slate-200 ${
-                      index % 2 === 0 ? "" : "bg-slate-100"
-                    }`}
-                    key={product.id}
-                  >
-                    <td className="max-w-[350px] truncate text-sm p-3 text-blue-500 hover:underline">
-                      {editingProductId === product.id ? (
-                        <input
-                          className="w-full text-slate-700"
-                          type="text"
-                          value={editedProductName}
-                          onChange={(e) => setEditedProductName(e.target.value)}
-                        />
-                      ) : (
-                        <a
-                          target="_blank"
-                          href={`https://stockx.com/search?s=${product.name}`}
-                        >
-                          {product.name}
-                        </a>
-                      )}
-                    </td>
+          {/* BOOKMARK 4 TABLE */}
+          <Table
+            filteredProducts={filteredProducts}
+            handleStartEditing={handleStartEditing}
+            deleteProduct={deleteProduct}
+          />
 
-                    <td className="p-3 text-sm">
-                      {editingProductId === product.id ? (
-                        <input
-                          type="text"
-                          value={editedProductSize}
-                          onChange={(e) => setEditedProductSize(e.target.value)}
-                        />
-                      ) : (
-                        product.size || ""
-                      )}
-                    </td>
-                    <td className="p-3 text-sm">
-                      {editingProductId === product.id ? (
-                        <input
-                          type="text"
-                          value={editedProductSku}
-                          onChange={(e) => setEditedProductSku(e.target.value)}
-                        />
-                      ) : (
-                        product.sku || ""
-                      )}
-                    </td>
-
-                    <td className="p-3 text-sm">
-                      {editingProductId === product.id ? (
-                        <select
-                          value={editedProductStatus}
-                          onChange={(e) =>
-                            setEditedProductStatus(
-                              e.target.value as "Unlisted" | "Listed" | "Sold"
-                            )
-                          }
-                        >
-                          <option value="Unlisted">Unlisted</option>
-                          <option value="Listed">Listed</option>
-                          <option value="Sold">Sold</option>
-                        </select>
-                      ) : (
-                        <p>{product.status}</p>
-                      )}
-                    </td>
-
-                    <td className="p-3 text-sm">
-                      {editingProductId === product.id ? (
-                        <input
-                          type="number"
-                          value={editedProductPrice}
-                          onChange={(e) =>
-                            setEditedProductPrice(parseFloat(e.target.value))
-                          }
-                        />
-                      ) : (
-                        product.purchasePrice.toLocaleString("en-US", {
-                          style: "currency",
-                          currency: "USD",
-                          minimumFractionDigits: 2,
-                        })
-                      )}
-                    </td>
-                    <td className="p-3 text-sm">
-                      {editingProductId === product.id ? (
-                        <input
-                          type="number"
-                          value={editedProductSalePrice}
-                          onChange={(e) =>
-                            setEditedProductSalePrice(
-                              parseFloat(e.target.value)
-                            )
-                          }
-                        />
-                      ) : (
-                        product.salePrice?.toLocaleString("en-US", {
-                          style: "currency",
-                          currency: "USD",
-                          minimumFractionDigits: 2,
-                        }) || ""
-                      )}
-                    </td>
-
-                    {product.salePrice ? (
-                      <td
-                        className={`p-3 text-sm ${
-                          product.salePrice - product.purchasePrice < 0
-                            ? "text-red-500"
-                            : "text-green-500"
-                        }`}
-                      >
-                        {(
-                          product.salePrice - product.purchasePrice
-                        ).toLocaleString("en-US", {
-                          style: "currency",
-                          currency: "USD",
-                          minimumFractionDigits: 2,
-                        })}
-                      </td>
-                    ) : (
-                      <td className="p-3 text-sm text-red-500">
-                        -
-                        {product.purchasePrice.toLocaleString("en-US", {
-                          style: "currency",
-                          currency: "USD",
-                          minimumFractionDigits: 2,
-                        })}
-                      </td>
-                    )}
-
-                    <td className="p-3 text-sm">
-                      {editingProductId === product.id ? (
-                        <select
-                          value={editedProductPlatform}
-                          onChange={(e) =>
-                            setEditedProductPlatform(e.target.value)
-                          }
-                        >
-                          <option value="">Select Platform</option>
-                          <option value="StockX">StockX</option>
-                          <option value="Goat">Goat</option>
-                          <option value="Depop">Depop</option>
-                          <option value="eBay">eBay</option>
-                          <option value="OfferUp">OfferUp</option>
-                          <option value="Mercari">Mercari</option>
-                          <option value="Grailed">Grailed</option>
-                        </select>
-                      ) : (
-                        product.platform || ""
-                      )}
-                    </td>
-                    <td className="p-3 text-sm">
-                      {editingProductId === product.id ? (
-                        <select
-                          value={editedProductCategory}
-                          onChange={(e) =>
-                            setEditedProductCategory(e.target.value)
-                          }
-                        >
-                          <option value="">Select Category</option>
-                          <option value="Sneaker">Sneaker</option>
-                          <option value="Clothing">Clothing</option>
-                          <option value="Collectible">Collectible</option>
-                        </select>
-                      ) : (
-                        product.category || ""
-                      )}
-                    </td>
-                    <td className="p-3 text-sm">
-                      {editingProductId === product.id ? (
-                        <input
-                          type="date"
-                          value={editedProductPurchaseDate}
-                          onChange={(e) =>
-                            setEditedProductPurchaseDate(e.target.value)
-                          }
-                        />
-                      ) : (
-                        product.purchaseDate
-                      )}
-                    </td>
-                    <td className="p-3 text-sm">
-                      {editingProductId === product.id ? (
-                        <input
-                          type="date"
-                          value={editedProductSaleDate}
-                          onChange={(e) =>
-                            setEditedProductSaleDate(e.target.value)
-                          }
-                        />
-                      ) : (
-                        product.saleDate || ""
-                      )}
-                    </td>
-                    <td className="p-3 text-sm">{product.dateAdded}</td>
-                    <td className="p-3 text-sm max-w-[400px] truncate">
-                      {editingProductId === product.id ? (
-                        <textarea
-                          className="w-full"
-                          value={editedProductNotes}
-                          onChange={(e) =>
-                            setEditedProductNotes(e.target.value)
-                          }
-                        />
-                      ) : (
-                        product.notes || ""
-                      )}
-                    </td>
-                    <td className="flex justify-center items-center gap-3 p-2.5 ">
-                      {editingProductId === product.id ? (
-                        <form
-                          className="flex gap-2"
-                          onSubmit={(e) => handleUpdateProduct(e, product.id)}
-                        >
-                          <button type="submit">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="16"
-                              height="16"
-                              fill="currentColor"
-                              className="bi bi-check-square"
-                              viewBox="0 0 16 16"
-                            >
-                              <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z" />
-                              <path d="M10.97 4.97a.75.75 0 0 1 1.071 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.235.235 0 0 1 .02-.022z" />
-                            </svg>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setEditingProductId(null)}
-                          >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="16"
-                              height="16"
-                              fill="currentColor"
-                              className="bi bi-x-square"
-                              viewBox="0 0 16 16"
-                            >
-                              <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z" />
-                              <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
-                            </svg>
-                          </button>
-                        </form>
-                      ) : (
-                        <button onClick={() => handleStartEditing(product)}>
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="16"
-                            height="16"
-                            fill="currentColor"
-                            className="bi bi-pencil-square"
-                            viewBox="0 0 16 16"
-                          >
-                            <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-                            <path
-                              fillRule="evenodd"
-                              d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"
-                            />
-                          </svg>
-                        </button>
-                      )}
-
-                      <div className="">
-                        <button onClick={() => deleteProduct(product.id)}>
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="16"
-                            height="16"
-                            fill="currentColor"
-                            className="bi bi-trash3 mt-1"
-                            viewBox="0 0 16 16"
-                          >
-                            <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5Z" />
-                          </svg>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* BOOKMARK 4 MOBILE TABLE */}
-          <div className="justify-center sm:flex sm:flex-wrap sm:gap-5 xl:hidden">
-            {filteredProducts.map((product, index) => {
-              return (
-                <div key={index}>
-                  <div className="mt-8 h-fit rounded-md bg-gray-100 px-5 py-5 shadow-lg drop-shadow-xl sm:w-[450px]">
-                    <div className="flex gap-2">
-                      <p className="max-w-[300px] truncate text-lg font-extrabold text-blue-500">
-                        <a
-                          target="_blank"
-                          href={`https://stockx.com/search?s=${product.name}`}
-                        >
-                          {product.name}
-                        </a>
-                      </p>
-                      {/* <p className="ml-auto mt-0.5">{product.purchaseDate}</p> */}
-                      <div className="mt-1.5 ml-auto flex gap-3">
-                        <div>
-                          {editingProductId === product.id ? (
-                            <form
-                              onSubmit={(e) =>
-                                handleUpdateProduct(e, product.id)
-                              }
-                            >
-                              <button type="submit">
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="16"
-                                  height="16"
-                                  fill="currentColor"
-                                  className="bi bi-check-square mr-3"
-                                  viewBox="0 0 16 16"
-                                >
-                                  <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z" />
-                                  <path d="M10.97 4.97a.75.75 0 0 1 1.071 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.235.235 0 0 1 .02-.022z" />
-                                </svg>
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => setEditingProductId(null)}
-                              >
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="16"
-                                  height="16"
-                                  fill="currentColor"
-                                  className="bi bi-x-square"
-                                  viewBox="0 0 16 16"
-                                >
-                                  <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z" />
-                                  <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
-                                </svg>
-                              </button>
-                            </form>
-                          ) : (
-                            <button onClick={() => handleStartEditing(product)}>
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="16"
-                                height="16"
-                                fill="currentColor"
-                                className="bi bi-pencil-square"
-                                viewBox="0 0 16 16"
-                              >
-                                <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-                                <path
-                                  fillRule="evenodd"
-                                  d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"
-                                />
-                              </svg>
-                            </button>
-                          )}
-                        </div>
-                        <div>
-                          <button onClick={() => deleteProduct(product.id)}>
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="16"
-                              height="16"
-                              fill="currentColor"
-                              className="bi bi-trash3"
-                              viewBox="0 0 16 16"
-                            >
-                              <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5Z" />
-                            </svg>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="xsm:flex">
-                      <div>
-                        {product.size && (
-                          <>
-                            <p className="mt-4 font-bold">Size:</p>{" "}
-                            {product.size}
-                          </>
-                        )}
-                        {product.platform && (
-                          <>
-                            <p className="mt-4 font-bold">Platform:</p>
-                            {product.platform}
-                          </>
-                        )}
-                        <p className="mt-4 font-bold">Purchase Price: </p>
-                        {product.purchasePrice.toLocaleString("en-US", {
-                          style: "currency",
-                          currency: "USD",
-                        })}
-                      </div>
-                      <div className="ml-auto">
-                        {product.sku && (
-                          <>
-                            <p className="mt-4 font-bold">SKU:</p>
-                            {product.sku}
-                          </>
-                        )}
-                        {product.saleDate && (
-                          <>
-                            <p className="mt-4 font-bold">Sale Date:</p>
-                            {product.saleDate}
-                          </>
-                        )}
-                        {product.salePrice && (
-                          <>
-                            <p className="mt-4 font-bold">Sale Price:</p>
-                            {product.salePrice}
-                          </>
-                        )}
-                      </div>
-                    </div>
-                    {product.notes && (
-                      <div className="mt-8">
-                        <p className="font-bold">Notes:</p>
-                        <p className="whitespace-break-spaces">
-                          {product.notes}
-                        </p>
-                      </div>
-                    )}
-
-                    <div className="mt-5 flex">
-                      <div
-                        className={`flex items-center rounded-2xl ${
-                          product.status === "Listed"
-                            ? "bg-yellow-200"
-                            : product.status === "Unlisted"
-                            ? "bg-gray-200"
-                            : "bg-green-200"
-                        } px-8 py-1`}
-                      >
-                        <p>{product.status}</p>
-                      </div>
-
-                      {product.salePrice && (
-                        <div className="ml-auto flex items-center rounded-md bg-gray-200 px-4 py-2">
-                          <p>
-                            Profit:{" "}
-                            <span
-                              className={
-                                product.salePrice - product.purchasePrice > 0
-                                  ? "text-green-500"
-                                  : "text-red-500"
-                              }
-                            >
-                              {(
-                                product.salePrice - product.purchasePrice
-                              ).toLocaleString("en-US", {
-                                style: "currency",
-                                currency: "USD",
-                              })}
-                            </span>
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          {/* BOOKMARK 5 MOBILE TABLE */}
+          <MobileTable
+            filteredProducts={filteredProducts}
+            deleteProduct={deleteProduct}
+            handleStartEditing={handleStartEditing}
+            handleUpdateProduct={handleUpdateProduct}
+            editingProductId={editingProductId}
+            setEditingProductId={setEditingProductId}
+          />
         </div>
       </div>
       <div className="sticky top-full md:ml-[250px]">

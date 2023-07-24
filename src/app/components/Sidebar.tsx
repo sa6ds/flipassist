@@ -96,7 +96,7 @@ function Sidebar() {
 
               {/* SIDE BAR FOOTER */}
 
-              <div className="absolute bottom-0 flex h-16 w-full items-center bg-gray-300 text-sm">
+              <div className="absolute bottom-0 flex h-16 w-full items-center  text-sm">
                 <div className="ml-6 justify-center">
                   <Image
                     src={user?.photoURL ?? ""}
@@ -108,9 +108,9 @@ function Sidebar() {
                 </div>
                 <div className="ml-5">
                   <div className="max-w-[160px] truncate">
-                    <h1>{user?.displayName}</h1>
+                    <h2 className="text-[#757575]">Signed in as</h2>
+                    <h1 className="font-bold">{user?.displayName}</h1>
                   </div>
-                  <div className="text-[#757575]">Account</div>
                 </div>
 
                 <Tooltip title="Sign Out">

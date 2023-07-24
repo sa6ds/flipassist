@@ -13,14 +13,15 @@ import { auth, provider } from "../Firebase";
 function Navbar() {
   const router = useRouter();
 
-  const [user, setUser] = useState<User | null>(null);
+  // Initialize user state with the current user from Firebase auth
+  const [user, setUser] = useState<User | null>(auth.currentUser);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
     });
     return () => unsubscribe();
-  }, [user]);
+  }, []);
 
   const signInWithGoogle = async () => {
     try {
