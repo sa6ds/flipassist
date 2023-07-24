@@ -17,7 +17,7 @@ interface Product {
 }
 
 interface Props {
-  filteredProducts: Product[]; // Explicitly define the type of filteredProducts
+  filteredProducts: Product[];
   deleteProduct: (productId: string) => void;
   handleStartEditing: (product: Product) => void;
   handleUpdateProduct: (e: React.FormEvent, productId: string) => void;

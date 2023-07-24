@@ -24,8 +24,8 @@ interface AddModalProps {
     onSubmit: SubmitHandler<Product>
   ) => (e: BaseSyntheticEvent) => Promise<void>;
   onSubmit: SubmitHandler<Product>;
-  register: any; // update this with the correct type
-  errors: any; // update this with the correct type
+  register: any; 
+  errors: any; 
 }
 
 const AddModal: React.FC<AddModalProps> = ({

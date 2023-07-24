@@ -114,7 +114,7 @@ export default function Inventory() {
 
       const updatedProducts = existingProducts ? existingProducts : [];
 
-      // Check if data.salePrice is not undefined, not null, and is a valid number, otherwise set it to null
+    
       const salePrice =
         data.salePrice !== undefined &&
         data.salePrice !== null &&
@@ -228,7 +228,7 @@ export default function Inventory() {
               status: editedProductStatus,
               purchasePrice: editedProductPrice,
               salePrice:
-                editedProductSalePrice === null ? null : editedProductSalePrice, // Handle the case where editedProductSalePrice is null
+                editedProductSalePrice === null ? null : editedProductSalePrice, 
               platform: editedProductPlatform,
               category: editedProductCategory,
               purchaseDate: editedProductPurchaseDate,
@@ -252,7 +252,7 @@ export default function Inventory() {
       setEditedProductSku("");
       setEditedProductStatus("Unlisted");
       setEditedProductPrice(0);
-      setEditedProductSalePrice(null); // Set the editedProductSalePrice to null after update
+      setEditedProductSalePrice(null);
       setEditedProductPlatform("");
       setEditedProductCategory("");
       setEditedProductPurchaseDate("");

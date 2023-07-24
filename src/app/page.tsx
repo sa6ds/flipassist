@@ -50,16 +50,16 @@ export default function Home() {
               </p>
 
               {user ? (
-                <Link href="/inventory">
+                <Link href="/dashboard">
                   <button
                     id="cta-button"
                     className="w-fit px-6 py-3 border-2 animate-background-shine border-purple-600 bg-[linear-gradient(110deg,#9533F5,45%,#B468E3,55%,#9533F5)] bg-[length:200%_100%] shadow-3xl shadow-purple-500/30 hover:shadow-purple-500/60 rounded-2xl"
                   >
                     <h3 className="text-lg font-medium text-white text-center">
-                      Try flipassist for Lifetime deal $19
+                      Welcome back {user.displayName}!
                     </h3>
                     <p className="text-sm font-normal text-white/80 text-center">
-                      20% off for the first 100 users
+                      Go to the Dashboard
                     </p>
                   </button>
                 </Link>
@@ -70,17 +70,13 @@ export default function Home() {
                   className="w-fit px-6 py-3 border-2 animate-background-shine border-purple-600 bg-[linear-gradient(110deg,#9533F5,45%,#B468E3,55%,#9533F5)] bg-[length:200%_100%] shadow-3xl shadow-purple-500/30 hover:shadow-purple-500/60 rounded-2xl"
                 >
                   <h3 className="text-lg font-medium text-white text-center">
-                    Try flipassist for Lifetime deal $19
+                    Try flipassist for free today
                   </h3>
                   <p className="text-sm font-normal text-white/80 text-center">
-                    20% off for the first 100 users
+                    20% off for the first 100 users when we launch!
                   </p>
                 </button>
               )}
-
-              {/* Background elements */}
-              {/* <div className="-z-10 absolute -top-24 left-1/2 transform -translate-x-1/2 w-96 h-96 md:w-[650px] md:h-[400px] bg-gradient-to-r dark:from-indigo-500 dark:via-purple-500 dark:to-pink-500 from-yellow-500 via-orange-500 to-pink-500 rounded-full mix-blend-multiply blur-3xl filter opacity-40" />
-            <div className="-z-10 absolute -bottom-10 left-1/2 transform -translate-x-1/2 w-96 h-96 md:w-[650px] md:h-[400px] bg-gradient-to-r dark:from-indigo-500 dark:via-purple-500 dark:to-pink-500 from-yellow-500 via-orange-500 to-pink-500 rounded-full mix-blend-multiply blur-3xl filter opacity-40" /> */}
             </div>
           </div>
         </main>
