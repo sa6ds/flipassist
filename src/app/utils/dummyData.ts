@@ -1,19 +1,15 @@
+import { v4 as uuidv4 } from "uuid";
+
 type Product = {
+  id: string;
   name: string;
-  size?: string | number;
+  size?: string;
   sku?: string;
-  status: "All" | "Listed" | "Sold";
+  status?: "Unlisted" | "Listed" | "Sold";
+  platform?: string | null;
+  category?: "Sneaker" | "Clothing" | "Collectible" | null;
   purchasePrice: number;
   salePrice?: number | null;
-  platform?:
-    | "StockX"
-    | "Goat"
-    | "Depop"
-    | "eBay"
-    | "OfferUp"
-    | "Mercari"
-    | "Grailed";
-  category?: "Sneaker" | "Clothing" | "Collectible";
   purchaseDate: string;
   saleDate?: string | null;
   dateAdded: string;
@@ -22,6 +18,7 @@ type Product = {
 
 export const listofproducts: Product[] = [
   {
+    id: uuidv4(),
     name: "Jordan 1 UNC Toe",
     size: "11",
     sku: "DZ5485 400",
@@ -36,6 +33,7 @@ export const listofproducts: Product[] = [
     notes: "Purchased off Shock Drop on SNKRS.",
   },
   {
+    id: uuidv4(),
     name: "Test Bad Profit Product",
     size: "10.5",
     sku: "SKU-456",
@@ -50,6 +48,7 @@ export const listofproducts: Product[] = [
     notes: "Purchased from A Ma Maniere site drop.",
   },
   {
+    id: uuidv4(),
     name: "Nike Air Jordan 1 Retro High OG",
     size: "9.5",
     sku: "SKU-123",
@@ -65,6 +64,7 @@ export const listofproducts: Product[] = [
       "Worn twice, excellent condition. Includes original box and laces. Limited edition colorway. Fits true to size.",
   },
   {
+    id: uuidv4(),
     name: "Nike Dunk Low Off-White",
     size: "8",
     sku: "SKU-789",
@@ -80,6 +80,7 @@ export const listofproducts: Product[] = [
       "Worn once, like new condition. Includes original box and extra laces. Highly sought-after collaboration with Off-White. Fits true to size.",
   },
   {
+    id: uuidv4(),
     name: "Nike Air Max 97",
     size: "9",
     sku: "SKU-654",
@@ -95,6 +96,7 @@ export const listofproducts: Product[] = [
       "Worn a handful of times, excellent condition. 'Metallic Gold' colorway. Fits true to size.",
   },
   {
+    id: uuidv4(),
     name: "Nike Air Force 1 '07",
     size: "9.5",
     sku: "SKU-121",
@@ -110,6 +112,7 @@ export const listofproducts: Product[] = [
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ac fermentum lorem, eu mollis nulla. Fusce hendrerit diam a justo eleifend, quis fringilla tellus elementum. Nam quis orci ut risus ullamcorper bibendum.",
   },
   {
+    id: uuidv4(),
     name: "Jordan 2 Retro SP Union Grey Fog",
     size: "10.5",
     sku: "SKU-456",
@@ -124,6 +127,7 @@ export const listofproducts: Product[] = [
     notes: "Purchased from A Ma Maniere site drop.",
   },
   {
+    id: uuidv4(),
     name: "Jordan 4 Fire Red",
     size: "10.5",
     sku: "SKU-456",
@@ -138,6 +142,7 @@ export const listofproducts: Product[] = [
     notes: null,
   },
   {
+    id: uuidv4(),
     name: "Jordan 3 A Ma Maniere",
     size: "9",
     sku: "SKU-456",
@@ -152,6 +157,7 @@ export const listofproducts: Product[] = [
     notes: "Purchased from A Ma Maniere site drop.",
   },
   {
+    id: uuidv4(),
     name: "Jordan 3 A Ma Maniere",
     size: "12.5",
     sku: "SKU-456",
@@ -166,6 +172,7 @@ export const listofproducts: Product[] = [
     notes: "Second Pair, Purchased from SNKRS.",
   },
   {
+    id: uuidv4(),
     name: "Jordan 4 Thunder (2023)",
     size: "11.5",
     sku: "SKU-123",
@@ -180,6 +187,7 @@ export const listofproducts: Product[] = [
     notes: null,
   },
   {
+    id: uuidv4(),
     name: "Jordan 4 Thunder (2023) GS",
     size: "7Y",
     sku: "SKU-123",
@@ -194,6 +202,7 @@ export const listofproducts: Product[] = [
     notes: null,
   },
   {
+    id: uuidv4(),
     name: "Jordan 4 Thunder (2023) PS",
     size: "3Y",
     sku: "SKU-123",
@@ -208,6 +217,7 @@ export const listofproducts: Product[] = [
     notes: null,
   },
   {
+    id: uuidv4(),
     name: "Jordan 4 Thunder (2023) PS",
     size: "3Y",
     sku: "SKU-123",
@@ -222,6 +232,7 @@ export const listofproducts: Product[] = [
     notes: "Second pair from alt account",
   },
   {
+    id: uuidv4(),
     name: "Nike Air Jordan 1 Retro OG University Blue",
     size: "11.5",
     sku: "SKU-321",
@@ -236,6 +247,7 @@ export const listofproducts: Product[] = [
     notes: "Purchased on SNKRS",
   },
   {
+    id: uuidv4(),
     name: "Nike Air Jordan 1 Lost and Found",
     size: "7Y",
     sku: "FD1437-612",
@@ -250,6 +262,7 @@ export const listofproducts: Product[] = [
     notes: "",
   },
   {
+    id: uuidv4(),
     name: "Nike Air Jordan 1 Lost and Found",
     size: "7Y",
     sku: "FD1437-612",
@@ -264,6 +277,7 @@ export const listofproducts: Product[] = [
     notes: "",
   },
   {
+    id: uuidv4(),
     name: "Nike Air Jordan 1 Lost and Found",
     size: "3Y",
     sku: "FD1412-612",
@@ -278,6 +292,7 @@ export const listofproducts: Product[] = [
     notes: "",
   },
   {
+    id: uuidv4(),
     name: "Nike Air Jordan 1 Lost and Found",
     size: "3Y",
     sku: "FD1412-612",
@@ -292,6 +307,7 @@ export const listofproducts: Product[] = [
     notes: "",
   },
   {
+    id: uuidv4(),
     name: "Nike Air Jordan 1 Retro High OG",
     size: "9.5",
     sku: "SKU-123",
@@ -307,6 +323,7 @@ export const listofproducts: Product[] = [
       "Worn twice, excellent condition. Includes original box and laces. Limited edition colorway. Fits true to size.",
   },
   {
+    id: uuidv4(),
     name: "Nike Dunk Low Off-White",
     size: "8",
     sku: "SKU-789",
@@ -322,6 +339,7 @@ export const listofproducts: Product[] = [
       "Worn once, like new condition. Includes original box and extra laces. Highly sought-after collaboration with Off-White. Fits true to size.",
   },
   {
+    id: uuidv4(),
     name: "Nike Air Max 97",
     size: "9",
     sku: "SKU-654",
@@ -337,6 +355,7 @@ export const listofproducts: Product[] = [
       "Worn a handful of times, excellent condition. 'Metallic Gold' colorway. Fits true to size.",
   },
   {
+    id: uuidv4(),
     name: "Nike Air Force 1 '07",
     size: "9.5",
     sku: "SKU-121",
@@ -352,10 +371,11 @@ export const listofproducts: Product[] = [
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ac fermentum lorem, eu mollis nulla. Fusce hendrerit diam a justo eleifend, quis fringilla tellus elementum. Nam quis orci ut risus ullamcorper bibendum.",
   },
   {
+    id: uuidv4(),
     name: "Yeezy Boost 350 V2",
     size: "11",
     sku: "SKU-321",
-    status: "Listed",
+    status: "Unlisted",
     purchasePrice: 250,
     salePrice: null,
     platform: "eBay",
@@ -367,6 +387,7 @@ export const listofproducts: Product[] = [
       "Brand new, never worn. Comes with original box and tags. Limited edition colorway.",
   },
   {
+    id: uuidv4(),
     name: "Adidas Ultra Boost",
     size: "10",
     sku: "SKU-555",
@@ -382,6 +403,7 @@ export const listofproducts: Product[] = [
       "Worn once, like new. Cleaned and sanitized. Very comfortable and stylish.",
   },
   {
+    id: uuidv4(),
     name: "Nike Air Max 90",
     size: "9",
     sku: "SKU-789",
@@ -397,10 +419,11 @@ export const listofproducts: Product[] = [
       "Worn a few times, but in great condition. No scuffs or scratches. Will ship with original box. Fits true to size.",
   },
   {
+    id: uuidv4(),
     name: "Supreme Box Logo Hoodie",
     size: "M",
     sku: "SU1234",
-    status: "Listed",
+    status: "Unlisted",
     purchasePrice: 450,
     salePrice: null,
     platform: "StockX",
@@ -411,6 +434,7 @@ export const listofproducts: Product[] = [
     notes: "Limited edition colorway",
   },
   {
+    id: uuidv4(),
     name: "Bape Shark Hoodie",
     size: "XL",
     sku: "BA4567",
@@ -425,10 +449,11 @@ export const listofproducts: Product[] = [
     notes: "Rare collaboration with street artist",
   },
   {
+    id: uuidv4(),
     name: "OFF-WHITE Air Force 1",
     size: "11",
     sku: "OW8910",
-    status: "Listed",
+    status: "Unlisted",
     purchasePrice: 350,
     salePrice: null,
     platform: "StockX",
@@ -439,6 +464,7 @@ export const listofproducts: Product[] = [
     notes: "Virgil Abloh's iconic design",
   },
   {
+    id: uuidv4(),
     name: "Palace Tri-ferg Tee",
     size: "L",
     sku: "PA2345",
@@ -453,6 +479,7 @@ export const listofproducts: Product[] = [
     notes: "Limited edition collaboration with famous photographer",
   },
   {
+    id: uuidv4(),
     name: "KAWS Companion Resting Place",
     size: "16 inches",
     sku: "KAWS101",
@@ -467,6 +494,7 @@ export const listofproducts: Product[] = [
     notes: "Limited edition of 2000 pieces worldwide",
   },
   {
+    id: uuidv4(),
     name: "Takashi Murakami Flower Cushion",
     size: "18 inches",
     sku: "TM5001",
@@ -481,6 +509,7 @@ export const listofproducts: Product[] = [
     notes: "Brand new in original packaging",
   },
   {
+    id: uuidv4(),
     name: "Supreme Oreo Cookies",
     sku: "SUPREMEO",
     status: "Sold",

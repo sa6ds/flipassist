@@ -2,7 +2,7 @@ import React from "react";
 
 function WorkInProgress() {
   return (
-    <div className="">
+    <div>
       <div className="flex justify-center">
         <div className="flex h-[450px]">
           <div className="m-auto">

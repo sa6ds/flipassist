@@ -1,24 +1,43 @@
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SidebarData } from "./SidebarData";
 import { useRouter, usePathname } from "next/navigation";
-// import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import Hamburger from "hamburger-react";
 import { Tooltip } from "@mui/material";
+import { onAuthStateChanged, signOut, User } from "firebase/auth";
+import { auth } from "../Firebase";
 
 function Sidebar() {
   const router = useRouter();
   const pathname = usePathname();
 
-  //   const { data: sessionData } = useSession();
-  const [isOpen, setIsOpen] = useState(false); // Add this state variable
+  const [isOpen, setIsOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+    });
+    return () => unsubscribe();
+  }, [user]);
+
+  const handleLogout = () => {
+    signOut(auth)
+      .then(() => {
+        router.push("/");
+        localStorage.removeItem("user");
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
 
   return (
     <div className="text-sm">
       <button
         className="bg-slate-50 absolute right-10 top-8 z-50 block md:hidden"
-        onClick={() => setIsOpen(!isOpen)} // Toggle the value of isOpen
+        onClick={() => setIsOpen(!isOpen)} 
       >
         <Hamburger size={25} />
       </button>
@@ -69,61 +88,69 @@ function Sidebar() {
                       }}
                     >
                       <i className="ml-8">{val.icon}</i>
-                      <p className="">{val.title}</p>
+                      <p>{val.title}</p>
                     </div>
                   );
                 })}
               </ul>
 
               {/* SIDE BAR FOOTER */}
+              {user ? (
+                <div>
+                  <div className="absolute bottom-0 flex h-16 w-full items-center text-sm">
+                    <div className="ml-6 justify-center">
+                      <Image
+                        src={user?.photoURL ?? ""}
+                        className="w-8 rounded-full"
+                        width={40}
+                        height={40}
+                        alt="profile"
+                      ></Image>
+                    </div>
+                    <div className="ml-5">
+                      <div className="max-w-[160px] truncate">
+                        <h2 className="text-[#757575]">Signed in as</h2>
+                        <h1 className="font-bold">{user?.displayName}</h1>
+                      </div>
+                    </div>
 
-              <div className="absolute bottom-0 flex h-16 w-full items-center bg-gray-300 text-sm">
-                <div className="ml-6 justify-center">
-                  <Image
-                    src=""
-                    //   src={sessionData?.user.image ?? ""}
-                    className="w-8 rounded-full"
-                    width={40}
-                    height={40}
-                    alt="profile"
-                  ></Image>
-                </div>
-                <div className="ml-5">
-                  <div className="max-w-[160px] truncate">
-                    {/* <h1>{sessionData?.user.name}</h1> */}
+                    <Tooltip title="Sign Out">
+                      <button
+                        className="my-auto ml-auto mr-8"
+                        onClick={handleLogout}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="20"
+                          height="20"
+                          fill="currentColor"
+                          className="bi bi-box-arrow-in-right"
+                          viewBox="0 0 16 16"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M6 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 0-1 0v2A1.5 1.5 0 0 0 6.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-8A1.5 1.5 0 0 0 5 3.5v2a.5.5 0 0 0 1 0v-2z"
+                          />
+                          <path
+                            fillRule="evenodd"
+                            d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"
+                          />
+                        </svg>
+                      </button>
+                    </Tooltip>
                   </div>
-                  <div className="text-[#757575]">Account</div>
                 </div>
-
-                <Tooltip title="Sign Out">
-                  <button
-                    className=" my-auto ml-auto mr-8"
-                    //   onClick={() => {
-                    //     signOut({ callbackUrl: "/" }).catch((e) => {
-                    //       console.error(e);
-                    //     });
-                    //   }}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="20"
-                      height="20"
-                      fill="currentColor"
-                      className="bi bi-box-arrow-in-right"
-                      viewBox="0 0 16 16"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M6 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 0-1 0v2A1.5 1.5 0 0 0 6.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-8A1.5 1.5 0 0 0 5 3.5v2a.5.5 0 0 0 1 0v-2z"
-                      />
-                      <path
-                        fillRule="evenodd"
-                        d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"
-                      />
-                    </svg>
-                  </button>
-                </Tooltip>
-              </div>
+              ) : (
+                <div>
+                  <div className="absolute bottom-0 flex h-16 w-full items-center text-sm">
+                    <div className="rounded-lg px-6 py-1.5 mx-auto justify-center">
+                      <Link className="" href="/">
+                        You are logged out
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
