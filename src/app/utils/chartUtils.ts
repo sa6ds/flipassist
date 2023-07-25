@@ -1,10 +1,24 @@
-import { listofproducts } from "./dummyData";
+interface Product {
+  id: string;
+  name: string;
+  size?: string;
+  sku?: string;
+  status?: "Unlisted" | "Listed" | "Sold";
+  platform?: string | null;
+  category?: "Sneaker" | "Clothing" | "Collectible" | null;
+  purchasePrice: number;
+  salePrice?: number | null;
+  purchaseDate: string;
+  saleDate?: string | null;
+  dateAdded: string;
+  notes?: string | null;
+}
 
-export const generateChartData = () => {
+export const generateChartData = (products: Product[]) => {
   const salesMap = new Map<string, number>();
   const profitMap = new Map<string, number>();
 
-  listofproducts.forEach((product) => {
+  products.forEach((product) => {
     const { saleDate, salePrice, purchasePrice } = product;
     if (saleDate && salePrice) {
       const formattedDate = new Date(saleDate).toLocaleDateString();

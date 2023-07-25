@@ -73,13 +73,13 @@ function Sidebar() {
 
             <ul className="mt-10">
               {SidebarData.map((val, key) => {
-                const isActive = pathname === val.path;
-
                 return (
                   <div
                     key={key}
-                    className={`w-48 my-3 text-slate-500 font-semibold hover:shadow-md hover:bg-white mx-auto py-2 cursor-pointer hover:shadow-purple-100 font-semibolds rounded-lg ${
-                      isActive ? "active" : ""
+                    className={`w-48 my-3 hover:text-purple-500 font-semibold hover:shadow-md shadow-purple-100 hover:shadow-purple-100 hover:bg-white mx-auto py-2 cursor-pointer font-semibolds rounded-lg ${
+                      pathname == val.path
+                        ? "bg-purple-50 shadow-lg shadow-purple-100 text-purple-600"
+                        : ""
                     }`}
                     onClick={() => {
                       router.push(val.path);

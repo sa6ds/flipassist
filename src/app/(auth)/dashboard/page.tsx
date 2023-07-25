@@ -5,7 +5,6 @@ import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import SavingsOutlinedIcon from "@mui/icons-material/SavingsOutlined";
 import SellOutlinedIcon from "@mui/icons-material/SellOutlined";
 import Header from "@/app/components/Header";
-import { listofproducts } from "@/app/utils/dummyData";
 import { Tooltip } from "@mui/material";
 import { generateChartData } from "@/app/utils/chartUtils";
 import { Chart } from "chart.js";
@@ -13,52 +12,110 @@ import sneakerIcon from "../../assets/icons/recentActivity/shoe.svg";
 import clothingIcon from "../../assets/icons/recentActivity/shirt.svg";
 import collectibleIcon from "../../assets/icons/recentActivity/diamond.svg";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Footer from "@/app/components/Footer";
+import { collection, doc, getDoc } from "firebase/firestore";
+import { User, onAuthStateChanged } from "firebase/auth";
+import { auth, db } from "../../Firebase";
 
 export default function Dashboard() {
   const [totalProfits, setTotalProfits] = useState(0);
   const [totalProducts, setTotalProducts] = useState(0);
   const [totalInventoryValue, settotalInventoryValue] = useState(0);
   const [totalSales, setTotalSales] = useState(0);
+  const [user, setUser] = useState<User | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
+
+  interface Product {
+    id: string;
+    name: string;
+    size?: string;
+    sku?: string;
+    status?: "Unlisted" | "Listed" | "Sold";
+    platform?: string | null;
+    category?: "Sneaker" | "Clothing" | "Collectible" | null;
+    purchasePrice: number;
+    salePrice?: number | null;
+    purchaseDate: string;
+    saleDate?: string | null;
+    dateAdded: string;
+    notes?: string | null;
+  }
+
+  const fetchProducts = useCallback(async () => {
+    try {
+      const usersCollectionRef = collection(db, "users");
+      const userRef = doc(usersCollectionRef, user?.uid || "");
+
+      const userSnapshot = await getDoc(userRef);
+      const userData = userSnapshot.data();
+      if (userData?.products) {
+        const productsWithId = userData.products
+          .filter((product: Product) => product.id)
+          .map((product: Product) => ({
+            ...product,
+            id: product.id,
+          }));
+        setProducts(productsWithId);
+      } else {
+        setProducts([]);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      if (user) {
+        fetchProducts();
+      }
+    });
+
+    return () => unsubscribe();
+  }, [fetchProducts]);
 
   useEffect(() => {
     // Increments curr by 1 for each item in listofproducts
-    const totalProducts = listofproducts.reduce((curr) => curr + 1, 0);
+    const totalProducts = products.length;
     setTotalProducts(totalProducts);
 
     // Represents sum of all unsold items is worth
-    const totalInventoryValue = listofproducts.reduce((sum, product) => {
-      return !product.salePrice ? sum + product.purchasePrice : sum;
+    const totalInventoryValue = products.reduce((sum, product) => {
+      return product.salePrice !== null && product.salePrice !== undefined
+        ? sum
+        : sum + product.purchasePrice;
     }, 0);
     settotalInventoryValue(totalInventoryValue);
 
     // Represents how much made from sales
-    const totalSales = listofproducts.reduce((sum, product) => {
+    const totalSales = products.reduce((sum, product) => {
       return sum + (product.salePrice ?? 0);
     }, 0);
     setTotalSales(totalSales);
 
-    // Represents profits made from only shoes that have been sold
-    const totalProfits = listofproducts.reduce((sum, product) => {
-      return product.salePrice
-        ? sum + product.salePrice - product.purchasePrice
+    // Represents profits made from only products that have been sold
+    const totalProfits = products.reduce((sum, product) => {
+      return product.salePrice !== null && product.salePrice !== undefined
+        ? sum + (product.salePrice - product.purchasePrice)
         : sum;
     }, 0);
     setTotalProfits(totalProfits);
-  }, []);
+  }, [products]);
 
-  const sortedRecentActivity = listofproducts.sort((a, b) => {
+  const sortedRecentActivity = products.sort((a, b) => {
     return new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime();
   });
 
-  const chartRef = useRef<HTMLCanvasElement>(null);
+  const chartRef = useRef<HTMLCanvasElement | null>(null);
+  const chartInstanceRef = useRef<Chart | null>(null);
 
   useEffect(() => {
     if (chartRef.current) {
       const ctx = chartRef.current.getContext("2d");
       if (ctx) {
-        const chartData = generateChartData();
+        const chartData = generateChartData(products);
 
         const chartConfig = {
           type: "line",
@@ -77,10 +134,15 @@ export default function Dashboard() {
           },
         };
 
-        new Chart(ctx, chartConfig);
+        // Check if chartInstanceRef.current exists before creating a new chart instance
+        if (chartInstanceRef.current) {
+          chartInstanceRef.current.destroy();
+        }
+
+        chartInstanceRef.current = new Chart(ctx, chartConfig);
       }
     }
-  }, []);
+  }, [products]);
 
   return (
     <div className="min-h-screen">
@@ -188,15 +250,25 @@ export default function Dashboard() {
                             alt="Shirt Icon"
                             className="not-highlightable w-6"
                           />
+                        ) : product.category === "Collectible" ? (
+                          <Image
+                            src={collectibleIcon as string}
+                            alt="Collectible Icon"
+                            className="not-highlightable w-6"
+                          />
                         ) : (
-                          product.category === "Collectible" && (
-                            <Image
-                              src={collectibleIcon as string}
-                              alt="Collectible Icon"
-                              className="not-highlightable w-6"
-                            />
-                          )
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="25"
+                            height="25"
+                            fill="currentColor"
+                            className="bi bi-box-seam text-black"
+                            viewBox="0 0 16 16"
+                          >
+                            <path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2l-2.218-.887zm3.564 1.426L5.596 5 8 5.961 14.154 3.5l-2.404-.961zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923l6.5 2.6zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464L7.443.184z" />
+                          </svg>
                         )}
+
                         <p className="ml-4 max-w-[50%] truncate">
                           {product.name}
                         </p>

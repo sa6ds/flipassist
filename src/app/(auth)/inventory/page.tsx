@@ -106,7 +106,6 @@ export default function Inventory() {
   }, [user]);
 
   const onSubmit: SubmitHandler<Product> = async (data) => {
-    console.log("data", data);
     if (user) {
       const userRef = doc(db, "users", user.uid);
       const userSnapshot = await getDoc(userRef);

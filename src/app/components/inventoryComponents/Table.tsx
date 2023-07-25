@@ -125,7 +125,9 @@ const Table: React.FC<TableProps> = ({
                     }
                   )}
                 </td>
-              ) : <p></p>}
+              ) : (
+                <td></td>
+              )}
 
               <td className="p-3 text-sm">{product.platform || ""}</td>
 
