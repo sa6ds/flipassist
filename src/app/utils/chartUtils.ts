@@ -64,7 +64,7 @@ export const generateChartData = (products: Product[]) => {
       {
         label: "Sales",
         data: salesData,
-        borderColor: "#8B5CF6",
+        borderColor: "#9333ea",
       },
       {
         label: "Profits",
