@@ -46,13 +46,6 @@
     background-position: -200% 0;
   }
 }
-.active {
-  --tw-border-opacity: 1;
-  border-right-color: rgb(31 41 55 / var(--tw-border-opacity));
-  border-right-width: 4px;
-  --tw-border-opacity: 1;
-  background-color: rgb(229 231 240 / var(--tw-border-opacity));
-}
 
 .not-highlightable {
   user-select: none; /* Disable text selection */

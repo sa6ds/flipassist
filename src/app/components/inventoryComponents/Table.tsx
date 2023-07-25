@@ -108,7 +108,7 @@ const Table: React.FC<TableProps> = ({
                 }) || ""}
               </td>
 
-              {product.salePrice ? (
+              {product.salePrice !== null && product.salePrice !== undefined ? (
                 <td
                   className={`p-3 text-sm ${
                     product.salePrice - product.purchasePrice < 0
@@ -126,14 +126,7 @@ const Table: React.FC<TableProps> = ({
                   )}
                 </td>
               ) : (
-                <td className="p-3 text-sm text-red-500">
-                  -
-                  {product.purchasePrice.toLocaleString("en-US", {
-                    style: "currency",
-                    currency: "USD",
-                    minimumFractionDigits: 2,
-                  })}
-                </td>
+                <td></td>
               )}
 
               <td className="p-3 text-sm">{product.platform || ""}</td>

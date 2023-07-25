@@ -20,7 +20,7 @@ View the live demo at [flipassist.app](https://www.flipassist.app/).
 
 - **Frontend:** flipassist is built with Next.js, a React framework for server-side rendering and static site generation. TypeScript is used for type safety and a better development experience. Tailwind CSS is employed for styling the user interface.
 
-- **Backend:** The backend utilizes tRPC for API handling and Prisma for database access. NextAuth provides authentication functionality to ensure secure access to the application.
+- **Backend:** flipassist utilizes Firebase for backend operations, providing secure, scalable cloud-based solutions for database management, authentication, and storage.
 
 ## Installation and Usage
 
@@ -54,19 +54,24 @@ To run flipassist locally, follow these steps:
 
 6. Access flipassist in your browser at `http://localhost:3000`.
 
+
 ## Configuration
 
 To configure flipassist, you need to set up the following environment variables:
 
-- `DATABASE_URL`: Set this variable to the URL of your database. This is required for the connection to your database.
+- `NEXT_PUBLIC_FIREBASE_API_KEY`: Set this variable to the API Key of your Firebase project.
 
-- `NEXTAUTH_SECRET`: Set this variable to a secure secret key for NextAuth. You can generate a new secret using a command-line tool like `openssl rand -base64 32`. This secret is used to sign and encrypt session tokens.
+- `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`: Set this variable to the Authentication domain of your Firebase project.
 
-- `NEXTAUTH_URL`: Set this variable to the URL of your flipassist application. In this case, it should be set to `http://localhost:3000` for local development.
+- `NEXT_PUBLIC_FIREBASE_PROJECT_ID`: Set this variable to the Project ID of your Firebase project.
 
-- `GOOGLE_CLIENT_ID`: Set this variable to the client ID of your Google OAuth application. This is required for authentication with Google.
+- `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`: Set this variable to the Storage Bucket URL of your Firebase project.
 
-- `GOOGLE_CLIENT_SECRET`: Set this variable to the client secret of your Google OAuth application. This is also required for authentication with Google.
+- `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`: Set this variable to the Messaging Sender ID of your Firebase project.
+
+- `NEXT_PUBLIC_FIREBASE_APP_ID`: Set this variable to the App ID of your Firebase project.
+
+- `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID`: Set this variable to the Measurement ID of your Firebase project.
 
 Make sure to obtain the necessary values for these variables and set them in your environment configuration before running flipassist.
 
