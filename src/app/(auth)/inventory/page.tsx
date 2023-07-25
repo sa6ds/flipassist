@@ -114,7 +114,6 @@ export default function Inventory() {
 
       const updatedProducts = existingProducts ? existingProducts : [];
 
-    
       const salePrice =
         data.salePrice !== undefined &&
         data.salePrice !== null &&
@@ -228,7 +227,7 @@ export default function Inventory() {
               status: editedProductStatus,
               purchasePrice: editedProductPrice,
               salePrice:
-                editedProductSalePrice === null ? null : editedProductSalePrice, 
+                editedProductSalePrice === null ? null : editedProductSalePrice,
               platform: editedProductPlatform,
               category: editedProductCategory,
               purchaseDate: editedProductPurchaseDate,

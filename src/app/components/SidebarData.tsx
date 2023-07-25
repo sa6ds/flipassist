@@ -8,28 +8,28 @@ import GridViewOutlinedIcon from "@mui/icons-material/GridViewOutlined";
 export const SidebarData = [
   {
     title: "Dashboard",
-    icon: <GridViewOutlinedIcon className="mr-5 w-8" />,
+    icon: <GridViewOutlinedIcon fontSize="small" />,
     path: "/dashboard",
   },
   {
     title: "Inventory",
-    icon: <Inventory2OutlinedIcon className="mr-5 w-8" />,
+    icon: <Inventory2OutlinedIcon fontSize="small" />,
     path: "/inventory",
   },
   // Work in Progress
   // {
   //   title: "Calculators",
-  //   icon: <CalculateOutlinedIcon className="mr-5 w-8" />,
+  //   icon: <CalculateOutlinedIcon fontSize="small" />,
   //   path: "/calculators",
   // },
   // {
   //   title: "Tools",
-  //   icon: <HandymanOutlinedIcon className="mr-5 w-8" />,
+  //   icon: <HandymanOutlinedIcon fontSize="small"  />,
   //   path: "/tools",
   // },
   {
     title: "Monitors",
-    icon: <MonitorHeartOutlinedIcon className="mr-5 w-8" />,
+    icon: <MonitorHeartOutlinedIcon fontSize="small" />,
     path: "/monitors",
   },
 ];
