@@ -1,8 +1,13 @@
 # flipassist
 
+[![Twitter](https://img.shields.io/badge/flipassist-blue?logo=twitter&style=flat-square)](https://twitter.com/flipassist)
+[![Discord](https://img.shields.io/badge/flipassist.app-7289DA?logo=discord&style=flat-square)](https://discord.gg/ewTSMprYdg)
+
 flipassist is a full-stack web application tailored for resellers, streamlining inventory management and maximizing profitability. It provides a comprehensive dashboard, inventory management system, advanced calculators, reseller tools, and real-time monitors for Twitter pages. With flipassist, resellers can gain real-time insights into their business performance, optimize pricing strategies, and enhance profitability.
 
-View the live demo at [flipassist.app](https://www.flipassist.app/).
+https://github.com/sa6ds/flipassist/assets/96222718/43c694d5-9be0-40bf-942e-b2244a8a774a
+
+View the site live at [flipassist.app](https://www.flipassist.app/).
 
 ## Features
 
