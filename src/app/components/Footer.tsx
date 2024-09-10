@@ -28,7 +28,7 @@ function Footer() {
   return (
     <div className="sticky top-full text-slate-500 text-sm  mx-12 lg:mx-32 font-light">
       <footer className="z-40 py-6 mx-auto lg:flex max-w-[1400px]">
-        <h2>© 2023 flipassist. All rights reserved.</h2>
+        <h2>© 2024 flipassist. All rights reserved.</h2>
         <div className="ml-auto flex mt-3 lg:mt-0 gap-5">
           <Link
             target=""
