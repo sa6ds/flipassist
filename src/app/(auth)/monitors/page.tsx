@@ -100,7 +100,7 @@ export default function Monitors() {
             className="duration-1500 duration-1500 bg-green-500 hover:bg-green-600 border border-green-600 py-1.5 text-center text-white transition-all mt-8 w-20 rounded-lg"
             onClick={handleAddMonitor}
           >
-            add
+            Add
           </button>
         </div>
         <div className="justify-center px-4 sm:flex sm:flex-wrap sm:gap-1">

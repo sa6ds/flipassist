@@ -22,8 +22,9 @@ export default function Inventory() {
   const [category, setCategory] = useState("");
 
   const [addModalVisible, setAddModalVisible] = useState(false);
-
   const [editProductModalVisible, setEditProductModalVisible] = useState(false);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<string | null>(null);
 
   const toggleEditProductModal = () => {
     setEditProductModalVisible(!editProductModalVisible);
@@ -31,6 +32,11 @@ export default function Inventory() {
 
   const toggleModal = () => {
     setAddModalVisible((prevState) => !prevState);
+  };
+
+  const toggleDeleteModal = (productId: string | null) => {
+    setProductToDelete(productId);
+    setDeleteModalVisible((prevState) => !prevState);
   };
 
   interface Product {
@@ -72,6 +78,8 @@ export default function Inventory() {
   const [editedProductSaleDate, setEditedProductSaleDate] =
     useState<string>("");
   const [editedProductNotes, setEditedProductNotes] = useState<string>("");
+  const [editedProductDateAdded, setEditedProductDateAdded] =
+    useState<string>("");
 
   const router = useRouter();
 
@@ -83,10 +91,9 @@ export default function Inventory() {
   } = useForm<Product>();
 
   const fetchProducts = useCallback(async () => {
+    if (!user) return;
     try {
-      const usersCollectionRef = collection(db, "users");
-      const userRef = doc(usersCollectionRef, user?.uid || "");
-
+      const userRef = doc(db, "users", user.uid);
       const userSnapshot = await getDoc(userRef);
       const userData = userSnapshot.data();
       if (userData?.products) {
@@ -106,19 +113,16 @@ export default function Inventory() {
   }, [user]);
 
   const onSubmit: SubmitHandler<Product> = async (data) => {
-    if (user) {
+    if (!user) return;
+    try {
+      // Ensure the product is marked as "Sold" if it has a sale price
+      if (data.salePrice && data.status !== "Sold") {
+        data.status = "Sold";
+      }
+
       const userRef = doc(db, "users", user.uid);
       const userSnapshot = await getDoc(userRef);
       const existingProducts = userSnapshot.data()?.products || [];
-
-      const updatedProducts = existingProducts ? existingProducts : [];
-
-      const salePrice =
-        data.salePrice !== undefined &&
-        data.salePrice !== null &&
-        !isNaN(data.salePrice)
-          ? Number(data.salePrice)
-          : null;
 
       const newProduct: Product = {
         id: uuidv4(),
@@ -127,16 +131,18 @@ export default function Inventory() {
         sku: data.sku,
         status: data.status,
         purchasePrice: data.purchasePrice,
-        salePrice: salePrice,
+        salePrice: data.salePrice ? Number(data.salePrice) : null,
         platform: data.platform || null,
         category: data.category || null,
-        purchaseDate: data.purchaseDate,
-        saleDate: data.saleDate || null,
-        dateAdded: new Date().toISOString().split("T")[0],
+        purchaseDate: new Date(data.purchaseDate).toLocaleDateString("en-US"),
+        saleDate: data.saleDate
+          ? new Date(data.saleDate).toLocaleDateString("en-US")
+          : null,
+        dateAdded: new Date().toLocaleDateString("en-US"),
         notes: data.notes || null,
       };
 
-      updatedProducts.push(newProduct);
+      const updatedProducts = [...existingProducts, newProduct];
 
       await setDoc(userRef, {
         email: user.email,
@@ -147,6 +153,8 @@ export default function Inventory() {
       setProducts(updatedProducts);
       setAddModalVisible(false);
       reset();
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -165,14 +173,15 @@ export default function Inventory() {
     }
   }, [user, fetchProducts]);
 
-  const deleteProduct = async (productId: string) => {
-    if (user) {
+  const deleteProduct = async () => {
+    if (!user || !productToDelete) return;
+    try {
       const userRef = doc(db, "users", user.uid);
       const userSnapshot = await getDoc(userRef);
       const existingProducts = userSnapshot.data()?.products || [];
 
       const updatedProducts = existingProducts.filter(
-        (product: Product) => product.id !== productId
+        (product: Product) => product.id !== productToDelete
       );
 
       await setDoc(userRef, {
@@ -182,8 +191,12 @@ export default function Inventory() {
       });
 
       setProducts(updatedProducts);
+      toggleDeleteModal(null);
+    } catch (error) {
+      console.error(error);
     }
   };
+
   const handleStartEditing = (product: Product) => {
     setEditingProductId(product.id);
     setEditedProductName(product.name || "");
@@ -194,9 +207,18 @@ export default function Inventory() {
     setEditedProductSalePrice(product.salePrice || null);
     setEditedProductPlatform(product.platform || "");
     setEditedProductCategory(product.category || "");
-    setEditedProductPurchaseDate(product.purchaseDate);
-    setEditedProductSaleDate(product.saleDate || "");
+    setEditedProductPurchaseDate(
+      new Date(product.purchaseDate).toLocaleDateString("en-US")
+    );
+    setEditedProductSaleDate(
+      product.saleDate
+        ? new Date(product.saleDate).toLocaleDateString("en-US")
+        : ""
+    );
     setEditedProductNotes(product.notes || "");
+    setEditedProductDateAdded(
+      new Date(product.dateAdded).toLocaleDateString("en-US")
+    );
     toggleEditProductModal();
   };
 
@@ -211,7 +233,13 @@ export default function Inventory() {
       return alert("Please fill out all required fields");
     }
 
-    if (user) {
+    if (!user) return;
+    try {
+      // Ensure the product is marked as "Sold" if it has a sale price
+      if (editedProductSalePrice && editedProductStatus !== "Sold") {
+        setEditedProductStatus("Sold");
+      }
+
       const userRef = doc(db, "users", user.uid);
       const userSnapshot = await getDoc(userRef);
       const existingProducts = userSnapshot.data()?.products || [];
@@ -229,8 +257,15 @@ export default function Inventory() {
                 editedProductSalePrice === null ? null : editedProductSalePrice,
               platform: editedProductPlatform,
               category: editedProductCategory,
-              purchaseDate: editedProductPurchaseDate,
-              saleDate: editedProductSaleDate,
+              purchaseDate: new Date(
+                editedProductPurchaseDate
+              ).toLocaleDateString("en-US"),
+              saleDate: editedProductSaleDate
+                ? new Date(editedProductSaleDate).toLocaleDateString("en-US")
+                : null,
+              dateAdded: new Date(product.dateAdded).toLocaleDateString(
+                "en-US"
+              ),
               notes: editedProductNotes,
             }
           : product
@@ -243,21 +278,27 @@ export default function Inventory() {
       });
 
       setProducts(updatedProducts);
-
-      setEditingProductId(null);
-      setEditedProductName("");
-      setEditedProductSize("");
-      setEditedProductSku("");
-      setEditedProductStatus("Unlisted");
-      setEditedProductPrice(0);
-      setEditedProductSalePrice(null);
-      setEditedProductPlatform("");
-      setEditedProductCategory("");
-      setEditedProductPurchaseDate("");
-      setEditedProductSaleDate("");
-      setEditedProductNotes("");
+      resetEditingState();
       toggleEditProductModal();
+    } catch (error) {
+      console.error(error);
     }
+  };
+
+  const resetEditingState = () => {
+    setEditingProductId(null);
+    setEditedProductName("");
+    setEditedProductSize("");
+    setEditedProductSku("");
+    setEditedProductStatus("Unlisted");
+    setEditedProductPrice(0);
+    setEditedProductSalePrice(null);
+    setEditedProductPlatform("");
+    setEditedProductCategory("");
+    setEditedProductPurchaseDate("");
+    setEditedProductSaleDate("");
+    setEditedProductNotes("");
+    setEditedProductDateAdded("");
   };
 
   // Use memo to filter products only when either the search word or the filters change
@@ -666,13 +707,16 @@ export default function Inventory() {
           <Table
             filteredProducts={filteredProducts}
             handleStartEditing={handleStartEditing}
-            deleteProduct={deleteProduct}
+            deleteProduct={async (productId) => {
+              toggleDeleteModal(productId);
+              return Promise.resolve();
+            }}
           />
 
           {/* BOOKMARK 5 MOBILE TABLE */}
           <MobileTable
             filteredProducts={filteredProducts}
-            deleteProduct={deleteProduct}
+            deleteProduct={(productId) => toggleDeleteModal(productId)}
             handleStartEditing={handleStartEditing}
             handleUpdateProduct={handleUpdateProduct}
             editingProductId={editingProductId}
@@ -683,6 +727,60 @@ export default function Inventory() {
       <div className="sticky top-full md:ml-[250px]">
         <Footer />
       </div>
+
+      {/* DELETE CONFIRMATION MODAL */}
+      {deleteModalVisible && productToDelete && (
+        <div
+          id="delete-confirmation-modal"
+          tabIndex={-1}
+          aria-hidden="true"
+          className="fixed top-0 left-0 right-0 z-50 w-full h-screen flex justify-center items-center bg-black bg-opacity-50"
+        >
+          <div className="relative mx-4 md:mx-14 w-full sm:w-[500px] bg-white rounded-lg shadow">
+            <button
+              type="button"
+              className="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center"
+              onClick={() => toggleDeleteModal(null)}
+            >
+              <svg
+                className="w-3 h-3"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 14 14"
+              >
+                <path
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                />
+              </svg>
+              <span className="sr-only">Close modal</span>
+            </button>
+            <div className="px-6 py-6">
+              <h3 className="mb-4 text-xl text-gray-900">
+                Are you sure you want to delete this product?
+              </h3>
+              <div className="flex justify-end gap-4">
+                <button
+                  className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
+                  onClick={() => toggleDeleteModal(null)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600"
+                  onClick={deleteProduct}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

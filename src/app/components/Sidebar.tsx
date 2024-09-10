@@ -39,7 +39,7 @@ function Sidebar() {
         className="bg-slate-50 absolute right-10 top-8 z-50 block md:hidden"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <Hamburger size={25} />
+        <Hamburger size={23} />
       </button>
 
       {/* SIDEBAR  */}
@@ -54,9 +54,9 @@ function Sidebar() {
               <Link href="/" className="bg-purple-500 p-3 rounded-[18px]">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="18"
-                  height="18"
                   fill="white"
+                  width={15}
+                  height={15}
                   className="bi bi-box-fill"
                   viewBox="0 0 16 16"
                 >
@@ -76,7 +76,7 @@ function Sidebar() {
                 return (
                   <div
                     key={key}
-                    className={`w-48 my-3 hover:text-purple-500 font-semibold hover:shadow-md shadow-purple-100 hover:shadow-purple-100 hover:bg-white mx-auto py-2 cursor-pointer font-semibolds rounded-lg ${
+                    className={`w-48 my-3 hover:text-purple-500 font-semibold hover:shadow-md shadow-purple-100 hover:shadow-purple-100 hover:bg-white mx-auto py-2 cursor-pointer rounded-lg ${
                       pathname == val.path
                         ? "bg-purple-50 shadow-lg shadow-purple-100 text-purple-600"
                         : ""
