@@ -70,8 +70,10 @@ const MobileTable: React.FC<Props> = ({
                   />
                 )}
                 <p
-                  className={`max-w-[300px] truncate text-lg font-extrabold text-blue-500 ${
-                    isEditMode ? "cursor-pointer" : ""
+                  className={`max-w-[300px] truncate text-lg font-extrabold ${
+                    isEditMode
+                      ? "text-gray-700 font-semibold cursor-pointer"
+                      : "text-blue-500"
                   }`}
                   onClick={() => isEditMode && handleStartEditing(product)}
                 >

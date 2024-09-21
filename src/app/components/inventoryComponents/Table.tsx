@@ -49,7 +49,7 @@ const Table: React.FC<TableProps> = ({
               <th className="p-3 pr-4 text-slate-900 hover:bg-gray-100 text-center">
                 <input
                   type="checkbox"
-                  className="w-4 h-4 mx-auto"
+                  className="w-4 h-4 mx-auto rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                   checked={selectAll}
                   onChange={handleSelectAll}
                 />
@@ -101,16 +101,16 @@ const Table: React.FC<TableProps> = ({
                 <td className="p-3 text-sm text-center">
                   <input
                     type="checkbox"
-                    className="w-4 h-4 mx-auto"
+                    className="w-4 h-4 mx-auto rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                     checked={selectedProducts.includes(product.id)}
                     onChange={() => handleSelectProduct(product.id)}
                   />
                 </td>
               )}
               <td
-                className={`max-w-[350px] truncate text-sm p-3 ${
+                className={`max-w-[350px] truncate text-sm p-3 cursor-pointer ${
                   isEditMode
-                    ? "text-blue-500 hover:underline cursor-pointer"
+                    ? "text-gray-700 font-semibold"
                     : "text-blue-500 hover:underline"
                 }`}
                 onClick={() => isEditMode && handleStartEditing(product)}
