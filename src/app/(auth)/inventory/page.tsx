@@ -1,11 +1,12 @@
 "use client";
+
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Sidebar from "../../components/Sidebar";
 import Header from "@/app/components/Header";
 import AddIcon from "@mui/icons-material/Add";
 import Footer from "@/app/components/Footer";
-import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { useForm, SubmitHandler, set } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import { onAuthStateChanged } from "firebase/auth";
 import { collection, doc, getDoc, setDoc } from "firebase/firestore";
@@ -25,6 +26,11 @@ export default function Inventory() {
   const [editProductModalVisible, setEditProductModalVisible] = useState(false);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
+  const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [selectAll, setSelectAll] = useState(false);
+  const [deleteSelectedModalVisible, setDeleteSelectedModalVisible] =
+    useState(false);
 
   const toggleEditProductModal = () => {
     setEditProductModalVisible(!editProductModalVisible);
@@ -37,6 +43,15 @@ export default function Inventory() {
   const toggleDeleteModal = (productId: string | null) => {
     setProductToDelete(productId);
     setDeleteModalVisible((prevState) => !prevState);
+  };
+
+  const toggleEditMode = () => {
+    if (isEditMode) {
+      // Clear selected products when exiting edit mode
+      setSelectedProducts([]);
+      setSelectAll(false);
+    }
+    setIsEditMode((prevState) => !prevState);
   };
 
   interface Product {
@@ -316,6 +331,52 @@ export default function Inventory() {
     });
   }, [products, searchWord, status, platform, category]);
 
+  const handleSelectProduct = (productId: string) => {
+    setSelectedProducts((prevSelected) =>
+      prevSelected.includes(productId)
+        ? prevSelected.filter((id) => id !== productId)
+        : [...prevSelected, productId]
+    );
+  };
+
+  const toggleDeleteSelectedModal = () => {
+    setDeleteSelectedModalVisible((prevState) => !prevState);
+  };
+
+  const handleDeleteSelectedProducts = async () => {
+    if (!user) return;
+    try {
+      const userRef = doc(db, "users", user.uid);
+      const userSnapshot = await getDoc(userRef);
+      const existingProducts = userSnapshot.data()?.products || [];
+
+      const updatedProducts = existingProducts.filter(
+        (product: Product) => !selectedProducts.includes(product.id)
+      );
+
+      await setDoc(userRef, {
+        email: user.email,
+        displayName: displayName,
+        products: updatedProducts,
+      });
+
+      setProducts(updatedProducts);
+      setSelectedProducts([]);
+      toggleDeleteSelectedModal();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedProducts([]);
+    } else {
+      setSelectedProducts(filteredProducts.map((product) => product.id));
+    }
+    setSelectAll(!selectAll);
+  };
+
   return (
     <div className="min-h-screen">
       <Sidebar />
@@ -324,7 +385,7 @@ export default function Inventory() {
 
         <div className="mx-8 my-8">
           {/* BOOKMARK 1 FILTERS */}
-          <div className="xl:flex">
+          <div className="xl:flex xl:items-center xl:gap-5">
             <input
               type="text"
               placeholder="Search"
@@ -335,13 +396,35 @@ export default function Inventory() {
               className="border px-5 py-1.5 xl:w-4/12 border-gray-200 w-full rounded-lg flex"
             ></input>
 
-            <div className="ml-auto mt-4 flex flex-wrap gap-3 xl:mt-0">
-              <div className="gap-5">
+            <div className="ml-auto mt-4 flex flex-wrap gap-3 xl:mt-0 xl:flex-nowrap">
+              <div className="gap-3 flex">
                 <button
                   onClick={toggleModal}
                   className="border bg-white duration-100 hover:cursor-pointer hover:bg-purple-50 hover:text-purple-500 border-gray-200 duration-1500 rounded-md px-3 py-1.5 text-center transition-all"
                 >
                   <AddIcon />
+                </button>
+                {isEditMode && selectedProducts.length > 0 && (
+                  <button
+                    onClick={toggleDeleteSelectedModal}
+                    className="border bg-red-500 text-white duration-100 hover:cursor-pointer hover:bg-red-600 border-gray-200 duration-1500 rounded-md px-3 py-1.5 text-center transition-all"
+                  >
+                    Delete Selected
+                  </button>
+                )}
+                {isEditMode && (
+                  <button
+                    onClick={handleSelectAll}
+                    className="border bg-purple-500 text-white duration-100 hover:cursor-pointer hover:bg-purple-600 border-gray-200 duration-1500 rounded-md px-3 py-1.5 text-center transition-all "
+                  >
+                    {selectAll ? "Deselect All" : "Select All"}
+                  </button>
+                )}
+                <button
+                  onClick={toggleEditMode}
+                  className="border bg-blue-500 text-white duration-100 hover:cursor-pointer hover:bg-blue-600 border-gray-200 duration-1500 rounded-md px-3 py-1.5 text-center transition-all"
+                >
+                  {isEditMode ? "Done" : "Edit"}
                 </button>
               </div>
               <div className="flex">
@@ -711,6 +794,11 @@ export default function Inventory() {
               toggleDeleteModal(productId);
               return Promise.resolve();
             }}
+            handleSelectProduct={handleSelectProduct}
+            selectedProducts={selectedProducts}
+            isEditMode={isEditMode}
+            selectAll={selectAll}
+            handleSelectAll={handleSelectAll}
           />
 
           {/* BOOKMARK 5 MOBILE TABLE */}
@@ -721,6 +809,9 @@ export default function Inventory() {
             handleUpdateProduct={handleUpdateProduct}
             editingProductId={editingProductId}
             setEditingProductId={setEditingProductId}
+            handleSelectProduct={handleSelectProduct}
+            selectedProducts={selectedProducts}
+            isEditMode={isEditMode}
           />
         </div>
       </div>
@@ -734,7 +825,7 @@ export default function Inventory() {
           id="delete-confirmation-modal"
           tabIndex={-1}
           aria-hidden="true"
-          className="fixed top-0 left-0 right-0 z-50 w-full h-screen flex justify-center items-center bg-black bg-opacity-50"
+          className="fixed top-0 left-0 right-0 z-50 w-full h-screen flex justify-center items-center bg-black bg-opacity-30"
         >
           <div className="relative mx-4 md:mx-14 w-full sm:w-[500px] bg-white rounded-lg shadow">
             <button
@@ -773,6 +864,75 @@ export default function Inventory() {
                 <button
                   className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600"
                   onClick={deleteProduct}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* DELETE SELECTED CONFIRMATION MODAL */}
+      {deleteSelectedModalVisible && (
+        <div
+          id="delete-selected-confirmation-modal"
+          tabIndex={-1}
+          aria-hidden="true"
+          className="fixed top-0 left-0 right-0 z-50 w-full h-screen flex justify-center items-center bg-black bg-opacity-30"
+        >
+          <div className="relative mx-4 md:mx-14 w-full sm:w-[500px] bg-white rounded-lg shadow">
+            <button
+              type="button"
+              className="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center"
+              onClick={toggleDeleteSelectedModal}
+            >
+              <svg
+                className="w-3 h-3"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 14 14"
+              >
+                <path
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                />
+              </svg>
+              <span className="sr-only">Close modal</span>
+            </button>
+            <div className="px-6 py-6">
+              {selectedProducts.length === 1 ? (
+                <h3 className="mb-4 text-xl text-gray-900">
+                  Are you sure you want to delete{" "}
+                  {products.find((p) => p.id === selectedProducts[0])?.name}?
+                </h3>
+              ) : (
+                <>
+                  <h3 className="mb-4 text-xl text-gray-900">
+                    Are you sure you want to delete the following items?
+                  </h3>
+                  <ul className="mb-4 list-disc list-inside text-gray-900">
+                    {selectedProducts.map((productId) => {
+                      const product = products.find((p) => p.id === productId);
+                      return <li key={productId}>{product?.name}</li>;
+                    })}
+                  </ul>
+                </>
+              )}
+              <div className="flex justify-end gap-4">
+                <button
+                  className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
+                  onClick={toggleDeleteSelectedModal}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600"
+                  onClick={handleDeleteSelectedProducts}
                 >
                   Delete
                 </button>

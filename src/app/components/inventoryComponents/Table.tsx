@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import trashIcon from "../../assets/icons/inventory/trash.svg";
 import editIcon from "../../assets/icons/inventory/edit.svg";
 import Image from "next/image";
@@ -23,19 +23,38 @@ interface TableProps {
   filteredProducts: Product[];
   handleStartEditing: (product: Product) => void;
   deleteProduct: (productId: string) => Promise<void>;
+  handleSelectProduct: (productId: string) => void;
+  selectedProducts: string[];
+  isEditMode: boolean;
+  selectAll: boolean;
+  handleSelectAll: () => void;
 }
 
 const Table: React.FC<TableProps> = ({
   filteredProducts,
   handleStartEditing,
   deleteProduct,
+  handleSelectProduct,
+  selectedProducts,
+  isEditMode,
+  selectAll,
+  handleSelectAll,
 }) => {
   return (
     <div className="mb-24 rounded-md mt-6 hidden overflow-x-auto xl:block">
       <table className="w-full overflow-x-auto truncate">
         <thead className="border-b-2">
-          {/* TODO: Add Sort Functionality */}
           <tr className="text-left font-extrabold">
+            {isEditMode && (
+              <th className="p-3 pr-4 text-slate-900 hover:bg-gray-100 text-center">
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 mx-auto"
+                  checked={selectAll}
+                  onChange={handleSelectAll}
+                />
+              </th>
+            )}
             <th className="p-3 pr-64 text-slate-900 hover:bg-gray-100">Name</th>
             <th className="p-3 pr-10 text-slate-900 hover:bg-gray-100">Size</th>
             <th className="p-3 pr-16 text-slate-900 hover:bg-gray-100">SKU</th>
@@ -78,13 +97,34 @@ const Table: React.FC<TableProps> = ({
               }`}
               key={product.id}
             >
-              <td className="max-w-[350px] truncate text-sm p-3 text-blue-500 hover:underline">
-                <a
-                  target="_blank"
-                  href={`https://stockx.com/search?s=${product.name}`}
-                >
-                  {product.name}
-                </a>
+              {isEditMode && (
+                <td className="p-3 text-sm text-center">
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4 mx-auto"
+                    checked={selectedProducts.includes(product.id)}
+                    onChange={() => handleSelectProduct(product.id)}
+                  />
+                </td>
+              )}
+              <td
+                className={`max-w-[350px] truncate text-sm p-3 ${
+                  isEditMode
+                    ? "text-blue-500 hover:underline cursor-pointer"
+                    : "text-blue-500 hover:underline"
+                }`}
+                onClick={() => isEditMode && handleStartEditing(product)}
+              >
+                {isEditMode ? (
+                  <span>{product.name}</span>
+                ) : (
+                  <a
+                    target="_blank"
+                    href={`https://stockx.com/search?s=${product.name}`}
+                  >
+                    {product.name}
+                  </a>
+                )}
               </td>
               <td className="p-3 text-sm">{product.size || ""}</td>
               <td className="p-3 text-sm">{product.sku || ""}</td>
@@ -149,7 +189,6 @@ const Table: React.FC<TableProps> = ({
                     className="not-highlightable w-4 text-red-700"
                   />
                 </button>
-
                 <button onClick={() => deleteProduct(product.id)}>
                   <Image
                     src={trashIcon as string}
