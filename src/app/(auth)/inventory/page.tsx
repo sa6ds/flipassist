@@ -16,6 +16,8 @@ import AddModal from "@/app/components/inventoryComponents/AddModal";
 import Table from "@/app/components/inventoryComponents/Table";
 import MobileTable from "@/app/components/inventoryComponents/MobileTable";
 import { updateUserDocument } from "../../utils/firestoreUtils";
+import { DateUtils } from "@/app/utils/dateUtils";
+import { Product, ProductCategory } from "@/app/types";
 
 export default function Inventory() {
   const [searchWord, setSearchWord] = useState("");
@@ -87,7 +89,7 @@ export default function Inventory() {
   const [editedProductPlatform, setEditedProductPlatform] =
     useState<string>("");
   const [editedProductCategory, setEditedProductCategory] =
-    useState<string>("");
+    useState<ProductCategory>(null);
   const [editedProductPurchaseDate, setEditedProductPurchaseDate] =
     useState<string>("");
   const [editedProductSaleDate, setEditedProductSaleDate] =
@@ -134,11 +136,6 @@ export default function Inventory() {
         data.status = "Sold";
       }
 
-      const formatDate = (dateString: string) => {
-        const [year, month, day] = dateString.split("-");
-        return `${month}-${day}-${year}`;
-      };
-
       const newProduct: Product = {
         id: uuidv4(),
         name: data.name,
@@ -148,14 +145,12 @@ export default function Inventory() {
         purchasePrice: data.purchasePrice,
         salePrice: data.salePrice ? Number(data.salePrice) : null,
         platform: data.platform || null,
-        category: data.category || null,
-        purchaseDate: formatDate(
-          new Date(data.purchaseDate).toISOString().split("T")[0]
-        ),
+        category: (data.category as ProductCategory) || null,
+        purchaseDate: DateUtils.parseAndFormatDate(data.purchaseDate),
         saleDate: data.saleDate
-          ? formatDate(new Date(data.saleDate).toISOString().split("T")[0])
+          ? DateUtils.parseAndFormatDate(data.saleDate)
           : null,
-        dateAdded: formatDate(new Date().toISOString().split("T")[0]),
+        dateAdded: DateUtils.formatDate(new Date()),
         notes: data.notes || null,
       };
 
@@ -224,11 +219,15 @@ export default function Inventory() {
     setEditedProductPrice(product.purchasePrice);
     setEditedProductSalePrice(product.salePrice || null);
     setEditedProductPlatform(product.platform || "");
-    setEditedProductCategory(product.category || "");
-    setEditedProductPurchaseDate(product.purchaseDate);
-    setEditedProductSaleDate(product.saleDate || "");
+    setEditedProductCategory(product.category || null);
+    setEditedProductPurchaseDate(
+      DateUtils.parseAndFormatDate(product.purchaseDate)
+    );
+    setEditedProductSaleDate(
+      product.saleDate ? DateUtils.parseAndFormatDate(product.saleDate) : ""
+    );
     setEditedProductNotes(product.notes || "");
-    setEditedProductDateAdded(product.dateAdded);
+    setEditedProductDateAdded(DateUtils.parseAndFormatDate(product.dateAdded));
     toggleEditProductModal();
   };
 
@@ -249,9 +248,23 @@ export default function Inventory() {
         setEditedProductStatus("Sold");
       }
 
-      const formatDate = (dateString: string) => {
-        const [year, month, day] = dateString.split("-");
-        return `${month}-${day}-${year}`;
+      const updatedProduct: Product = {
+        id: productId,
+        name: editedProductName,
+        size: editedProductSize,
+        sku: editedProductSku,
+        status: editedProductStatus,
+        purchasePrice: editedProductPrice,
+        salePrice:
+          editedProductSalePrice === null ? null : editedProductSalePrice,
+        platform: editedProductPlatform,
+        category: editedProductCategory,
+        purchaseDate: DateUtils.parseAndFormatDate(editedProductPurchaseDate),
+        saleDate: editedProductSaleDate
+          ? DateUtils.parseAndFormatDate(editedProductSaleDate)
+          : null,
+        dateAdded: DateUtils.parseAndFormatDate(editedProductDateAdded),
+        notes: editedProductNotes,
       };
 
       const userRef = doc(db, "users", user.uid);
@@ -259,26 +272,7 @@ export default function Inventory() {
       const existingProducts = userSnapshot.data()?.products || [];
 
       const updatedProducts = existingProducts.map((product: Product) =>
-        product.id === productId
-          ? {
-              ...product,
-              name: editedProductName,
-              size: editedProductSize,
-              sku: editedProductSku,
-              status: editedProductStatus,
-              purchasePrice: editedProductPrice,
-              salePrice:
-                editedProductSalePrice === null ? null : editedProductSalePrice,
-              platform: editedProductPlatform,
-              category: editedProductCategory,
-              purchaseDate: formatDate(editedProductPurchaseDate),
-              saleDate: editedProductSaleDate
-                ? formatDate(editedProductSaleDate)
-                : null,
-              dateAdded: formatDate(editedProductDateAdded),
-              notes: editedProductNotes,
-            }
-          : product
+        product.id === productId ? updatedProduct : product
       );
 
       await updateUserDocument(user.uid, {
@@ -302,7 +296,7 @@ export default function Inventory() {
     setEditedProductPrice(0);
     setEditedProductSalePrice(null);
     setEditedProductPlatform("");
-    setEditedProductCategory("");
+    setEditedProductCategory(null);
     setEditedProductPurchaseDate("");
     setEditedProductSaleDate("");
     setEditedProductNotes("");
@@ -366,6 +360,11 @@ export default function Inventory() {
       setSelectedProducts(filteredProducts.map((product) => product.id));
     }
     setSelectAll(!selectAll);
+  };
+
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setEditedProductCategory(value === "" ? null : (value as ProductCategory));
   };
 
   return (
@@ -696,11 +695,9 @@ export default function Inventory() {
                           Category
                         </label>
                         <select
-                          value={editedProductCategory}
-                          onChange={(e) =>
-                            setEditedProductCategory(e.target.value)
-                          }
-                          className="sm:w-32 w-24  p-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                          value={editedProductCategory ?? ""}
+                          onChange={handleCategoryChange}
+                          className="sm:w-32 w-24 p-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                         >
                           <option value="">Select Category</option>
                           <option value="Sneaker">Sneaker</option>
