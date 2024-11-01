@@ -93,7 +93,7 @@ const RecentActivity = ({ products }: { products: Product[] }) => (
             )}
             <p className="ml-4 max-w-[50%] truncate">{product.name}</p>
             <p className="ml-auto">
-              {new Date(product.dateAdded).toLocaleDateString("en-US")}
+              {product.dateAdded}
             </p>
           </div>
         </div>

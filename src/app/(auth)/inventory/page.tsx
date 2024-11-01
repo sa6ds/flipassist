@@ -15,6 +15,7 @@ import { User } from "@firebase/auth";
 import AddModal from "@/app/components/inventoryComponents/AddModal";
 import Table from "@/app/components/inventoryComponents/Table";
 import MobileTable from "@/app/components/inventoryComponents/MobileTable";
+import { updateUserDocument } from "../../utils/firestoreUtils";
 
 export default function Inventory() {
   const [searchWord, setSearchWord] = useState("");
@@ -47,7 +48,6 @@ export default function Inventory() {
 
   const toggleEditMode = () => {
     if (isEditMode) {
-      // Clear selected products when exiting edit mode
       setSelectedProducts([]);
       setSelectAll(false);
     }
@@ -130,14 +130,14 @@ export default function Inventory() {
   const onSubmit: SubmitHandler<Product> = async (data) => {
     if (!user) return;
     try {
-      // Ensure the product is marked as "Sold" if it has a sale price
       if (data.salePrice && data.status !== "Sold") {
         data.status = "Sold";
       }
 
-      const userRef = doc(db, "users", user.uid);
-      const userSnapshot = await getDoc(userRef);
-      const existingProducts = userSnapshot.data()?.products || [];
+      const formatDate = (dateString: string) => {
+        const [year, month, day] = dateString.split("-");
+        return `${month}-${day}-${year}`;
+      };
 
       const newProduct: Product = {
         id: uuidv4(),
@@ -149,19 +149,23 @@ export default function Inventory() {
         salePrice: data.salePrice ? Number(data.salePrice) : null,
         platform: data.platform || null,
         category: data.category || null,
-        purchaseDate: new Date(data.purchaseDate).toLocaleDateString("en-US"),
+        purchaseDate: formatDate(
+          new Date(data.purchaseDate).toISOString().split("T")[0]
+        ),
         saleDate: data.saleDate
-          ? new Date(data.saleDate).toLocaleDateString("en-US")
+          ? formatDate(new Date(data.saleDate).toISOString().split("T")[0])
           : null,
-        dateAdded: new Date().toLocaleDateString("en-US"),
+        dateAdded: formatDate(new Date().toISOString().split("T")[0]),
         notes: data.notes || null,
       };
 
+      const userRef = doc(db, "users", user.uid);
+      const userSnapshot = await getDoc(userRef);
+      const existingProducts = userSnapshot.data()?.products || [];
+
       const updatedProducts = [...existingProducts, newProduct];
 
-      await setDoc(userRef, {
-        email: user.email,
-        displayName: displayName,
+      await updateUserDocument(user.uid, {
         products: updatedProducts,
       });
 
@@ -199,13 +203,12 @@ export default function Inventory() {
         (product: Product) => product.id !== productToDelete
       );
 
-      await setDoc(userRef, {
-        email: user.email,
-        displayName: displayName,
+      await updateUserDocument(user.uid, {
         products: updatedProducts,
       });
 
       setProducts(updatedProducts);
+      setIsEditMode(false);
       toggleDeleteModal(null);
     } catch (error) {
       console.error(error);
@@ -222,18 +225,10 @@ export default function Inventory() {
     setEditedProductSalePrice(product.salePrice || null);
     setEditedProductPlatform(product.platform || "");
     setEditedProductCategory(product.category || "");
-    setEditedProductPurchaseDate(
-      new Date(product.purchaseDate).toLocaleDateString("en-US")
-    );
-    setEditedProductSaleDate(
-      product.saleDate
-        ? new Date(product.saleDate).toLocaleDateString("en-US")
-        : ""
-    );
+    setEditedProductPurchaseDate(product.purchaseDate);
+    setEditedProductSaleDate(product.saleDate || "");
     setEditedProductNotes(product.notes || "");
-    setEditedProductDateAdded(
-      new Date(product.dateAdded).toLocaleDateString("en-US")
-    );
+    setEditedProductDateAdded(product.dateAdded);
     toggleEditProductModal();
   };
 
@@ -250,10 +245,14 @@ export default function Inventory() {
 
     if (!user) return;
     try {
-      // Ensure the product is marked as "Sold" if it has a sale price
       if (editedProductSalePrice && editedProductStatus !== "Sold") {
         setEditedProductStatus("Sold");
       }
+
+      const formatDate = (dateString: string) => {
+        const [year, month, day] = dateString.split("-");
+        return `${month}-${day}-${year}`;
+      };
 
       const userRef = doc(db, "users", user.uid);
       const userSnapshot = await getDoc(userRef);
@@ -272,23 +271,17 @@ export default function Inventory() {
                 editedProductSalePrice === null ? null : editedProductSalePrice,
               platform: editedProductPlatform,
               category: editedProductCategory,
-              purchaseDate: new Date(
-                editedProductPurchaseDate
-              ).toLocaleDateString("en-US"),
+              purchaseDate: formatDate(editedProductPurchaseDate),
               saleDate: editedProductSaleDate
-                ? new Date(editedProductSaleDate).toLocaleDateString("en-US")
+                ? formatDate(editedProductSaleDate)
                 : null,
-              dateAdded: new Date(product.dateAdded).toLocaleDateString(
-                "en-US"
-              ),
+              dateAdded: formatDate(editedProductDateAdded),
               notes: editedProductNotes,
             }
           : product
       );
 
-      await setDoc(userRef, {
-        email: user.email,
-        displayName: displayName,
+      await updateUserDocument(user.uid, {
         products: updatedProducts,
       });
 
@@ -316,7 +309,6 @@ export default function Inventory() {
     setEditedProductDateAdded("");
   };
 
-  // Use memo to filter products only when either the search word or the filters change
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
       const nameMatch = product.name
@@ -354,14 +346,13 @@ export default function Inventory() {
         (product: Product) => !selectedProducts.includes(product.id)
       );
 
-      await setDoc(userRef, {
-        email: user.email,
-        displayName: displayName,
+      await updateUserDocument(user.uid, {
         products: updatedProducts,
       });
 
       setProducts(updatedProducts);
       setSelectedProducts([]);
+      setIsEditMode(false);
       toggleDeleteSelectedModal();
     } catch (error) {
       console.error(error);
@@ -422,7 +413,7 @@ export default function Inventory() {
                 )}
                 <button
                   onClick={toggleEditMode}
-                  className="border bg-blue-500 text-white duration-100 hover:cursor-pointer hover:bg-blue-600 border-gray-200 duration-1500 rounded-md px-3 py-1.5 text-center transition-all"
+                  className="border bg-green-500 text-white duration-100 hover:cursor-pointer hover:bg-green-600 border-gray-200 duration-1500 rounded-md px-3 py-1.5 text-center transition-all"
                 >
                   {isEditMode ? "Done" : "Edit"}
                 </button>

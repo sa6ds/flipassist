@@ -1,3 +1,4 @@
+import CalculatorsLayoutClient from "./layout.client";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -6,14 +7,14 @@ export const metadata: Metadata = {
     "Calculate fees for popular selling platforms like StockX, GOAT, Grailed, and more. Optimize your profits with our fee calculators for hassle-free selling.",
 };
 
-export default function RootLayout({
+export default function CalculatorsLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
     <section>
-      <div>{children}</div>
+      <CalculatorsLayoutClient>{children}</CalculatorsLayoutClient>
     </section>
   );
 }

@@ -1,3 +1,4 @@
+import InventoryLayoutClient from "./layout.client";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -6,14 +7,14 @@ export const metadata: Metadata = {
     "Efficiently manage your products with our user-friendly inventory page. Keep track of essential details such as product name, size, SKU, and purchase price, ensuring easy organization.",
 };
 
-export default function RootLayout({
+export default function InventoryLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
     <section>
-      <div>{children}</div>
+      <InventoryLayoutClient>{children}</InventoryLayoutClient>
     </section>
   );
 }

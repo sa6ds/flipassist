@@ -167,17 +167,9 @@ const Table: React.FC<TableProps> = ({
               )}
               <td className="p-3 text-sm">{product.platform || ""}</td>
               <td className="p-3 text-sm">{product.category || ""}</td>
-              <td className="p-3 text-sm">
-                {new Date(product.purchaseDate).toLocaleDateString("en-US")}
-              </td>
-              <td className="p-3 text-sm">
-                {product.saleDate
-                  ? new Date(product.saleDate).toLocaleDateString("en-US")
-                  : ""}
-              </td>
-              <td className="p-3 text-sm">
-                {new Date(product.dateAdded).toLocaleDateString("en-US")}
-              </td>
+              <td className="p-3 text-sm">{product.purchaseDate}</td>
+              <td className="p-3 text-sm">{product.saleDate || ""}</td>
+              <td className="p-3 text-sm">{product.dateAdded}</td>
               <td className="p-3 text-sm max-w-[400px] truncate">
                 {product.notes || ""}
               </td>

@@ -1,3 +1,4 @@
+import ToolsLayoutClient from "./layout.client";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -6,14 +7,14 @@ export const metadata: Metadata = {
     "Access a suite of advanced tools to enhance your reselling experience.",
 };
 
-export default function RootLayout({
+export default function ToolsLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
     <section>
-      <div>{children}</div>
+      <ToolsLayoutClient>{children}</ToolsLayoutClient>
     </section>
   );
 }

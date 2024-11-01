@@ -9,8 +9,10 @@ import {
   signInWithPopup,
   signOut,
 } from "firebase/auth";
-import { auth, provider } from "./Firebase";
+import { auth, db, provider } from "./Firebase";
 import { useEffect, useState } from "react";
+import { setDoc, doc, getDoc } from "firebase/firestore";
+import { updateUserDocument } from "@/app/utils/firestoreUtils";
 
 export default function Home() {
   const router = useRouter();
@@ -26,7 +28,16 @@ export default function Home() {
 
   const signInWithGoogle = async () => {
     try {
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      const userData = {
+        displayName: user.displayName,
+        email: user.email,
+        photoURL: user.photoURL,
+        createdAt: new Date().toISOString(),
+      };
+
+      await updateUserDocument(user.uid, userData);
       router.push("/inventory");
     } catch (error) {
       console.error(error);
