@@ -15,6 +15,9 @@ import { User } from "@firebase/auth";
 import AddModal from "@/app/components/inventoryComponents/AddModal";
 import Table from "@/app/components/inventoryComponents/Table";
 import MobileTable from "@/app/components/inventoryComponents/MobileTable";
+import { updateUserDocument } from "../../utils/firestoreUtils";
+import { DateUtils } from "@/app/utils/dateUtils";
+import { Product, ProductCategory } from "@/app/types";
 
 export default function Inventory() {
   const [searchWord, setSearchWord] = useState("");
@@ -47,7 +50,6 @@ export default function Inventory() {
 
   const toggleEditMode = () => {
     if (isEditMode) {
-      // Clear selected products when exiting edit mode
       setSelectedProducts([]);
       setSelectAll(false);
     }
@@ -87,7 +89,7 @@ export default function Inventory() {
   const [editedProductPlatform, setEditedProductPlatform] =
     useState<string>("");
   const [editedProductCategory, setEditedProductCategory] =
-    useState<string>("");
+    useState<ProductCategory>(null);
   const [editedProductPurchaseDate, setEditedProductPurchaseDate] =
     useState<string>("");
   const [editedProductSaleDate, setEditedProductSaleDate] =
@@ -130,14 +132,9 @@ export default function Inventory() {
   const onSubmit: SubmitHandler<Product> = async (data) => {
     if (!user) return;
     try {
-      // Ensure the product is marked as "Sold" if it has a sale price
       if (data.salePrice && data.status !== "Sold") {
         data.status = "Sold";
       }
-
-      const userRef = doc(db, "users", user.uid);
-      const userSnapshot = await getDoc(userRef);
-      const existingProducts = userSnapshot.data()?.products || [];
 
       const newProduct: Product = {
         id: uuidv4(),
@@ -148,20 +145,22 @@ export default function Inventory() {
         purchasePrice: data.purchasePrice,
         salePrice: data.salePrice ? Number(data.salePrice) : null,
         platform: data.platform || null,
-        category: data.category || null,
-        purchaseDate: new Date(data.purchaseDate).toLocaleDateString("en-US"),
+        category: (data.category as ProductCategory) || null,
+        purchaseDate: DateUtils.parseAndFormatDate(data.purchaseDate),
         saleDate: data.saleDate
-          ? new Date(data.saleDate).toLocaleDateString("en-US")
+          ? DateUtils.parseAndFormatDate(data.saleDate)
           : null,
-        dateAdded: new Date().toLocaleDateString("en-US"),
+        dateAdded: DateUtils.formatDate(new Date()),
         notes: data.notes || null,
       };
 
+      const userRef = doc(db, "users", user.uid);
+      const userSnapshot = await getDoc(userRef);
+      const existingProducts = userSnapshot.data()?.products || [];
+
       const updatedProducts = [...existingProducts, newProduct];
 
-      await setDoc(userRef, {
-        email: user.email,
-        displayName: displayName,
+      await updateUserDocument(user.uid, {
         products: updatedProducts,
       });
 
@@ -199,13 +198,12 @@ export default function Inventory() {
         (product: Product) => product.id !== productToDelete
       );
 
-      await setDoc(userRef, {
-        email: user.email,
-        displayName: displayName,
+      await updateUserDocument(user.uid, {
         products: updatedProducts,
       });
 
       setProducts(updatedProducts);
+      setIsEditMode(false);
       toggleDeleteModal(null);
     } catch (error) {
       console.error(error);
@@ -221,19 +219,15 @@ export default function Inventory() {
     setEditedProductPrice(product.purchasePrice);
     setEditedProductSalePrice(product.salePrice || null);
     setEditedProductPlatform(product.platform || "");
-    setEditedProductCategory(product.category || "");
+    setEditedProductCategory(product.category || null);
     setEditedProductPurchaseDate(
-      new Date(product.purchaseDate).toLocaleDateString("en-US")
+      DateUtils.parseAndFormatDate(product.purchaseDate)
     );
     setEditedProductSaleDate(
-      product.saleDate
-        ? new Date(product.saleDate).toLocaleDateString("en-US")
-        : ""
+      product.saleDate ? DateUtils.parseAndFormatDate(product.saleDate) : ""
     );
     setEditedProductNotes(product.notes || "");
-    setEditedProductDateAdded(
-      new Date(product.dateAdded).toLocaleDateString("en-US")
-    );
+    setEditedProductDateAdded(DateUtils.parseAndFormatDate(product.dateAdded));
     toggleEditProductModal();
   };
 
@@ -250,45 +244,38 @@ export default function Inventory() {
 
     if (!user) return;
     try {
-      // Ensure the product is marked as "Sold" if it has a sale price
       if (editedProductSalePrice && editedProductStatus !== "Sold") {
         setEditedProductStatus("Sold");
       }
+
+      const updatedProduct: Product = {
+        id: productId,
+        name: editedProductName,
+        size: editedProductSize,
+        sku: editedProductSku,
+        status: editedProductStatus,
+        purchasePrice: editedProductPrice,
+        salePrice:
+          editedProductSalePrice === null ? null : editedProductSalePrice,
+        platform: editedProductPlatform,
+        category: editedProductCategory,
+        purchaseDate: DateUtils.parseAndFormatDate(editedProductPurchaseDate),
+        saleDate: editedProductSaleDate
+          ? DateUtils.parseAndFormatDate(editedProductSaleDate)
+          : null,
+        dateAdded: DateUtils.parseAndFormatDate(editedProductDateAdded),
+        notes: editedProductNotes,
+      };
 
       const userRef = doc(db, "users", user.uid);
       const userSnapshot = await getDoc(userRef);
       const existingProducts = userSnapshot.data()?.products || [];
 
       const updatedProducts = existingProducts.map((product: Product) =>
-        product.id === productId
-          ? {
-              ...product,
-              name: editedProductName,
-              size: editedProductSize,
-              sku: editedProductSku,
-              status: editedProductStatus,
-              purchasePrice: editedProductPrice,
-              salePrice:
-                editedProductSalePrice === null ? null : editedProductSalePrice,
-              platform: editedProductPlatform,
-              category: editedProductCategory,
-              purchaseDate: new Date(
-                editedProductPurchaseDate
-              ).toLocaleDateString("en-US"),
-              saleDate: editedProductSaleDate
-                ? new Date(editedProductSaleDate).toLocaleDateString("en-US")
-                : null,
-              dateAdded: new Date(product.dateAdded).toLocaleDateString(
-                "en-US"
-              ),
-              notes: editedProductNotes,
-            }
-          : product
+        product.id === productId ? updatedProduct : product
       );
 
-      await setDoc(userRef, {
-        email: user.email,
-        displayName: displayName,
+      await updateUserDocument(user.uid, {
         products: updatedProducts,
       });
 
@@ -309,14 +296,13 @@ export default function Inventory() {
     setEditedProductPrice(0);
     setEditedProductSalePrice(null);
     setEditedProductPlatform("");
-    setEditedProductCategory("");
+    setEditedProductCategory(null);
     setEditedProductPurchaseDate("");
     setEditedProductSaleDate("");
     setEditedProductNotes("");
     setEditedProductDateAdded("");
   };
 
-  // Use memo to filter products only when either the search word or the filters change
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
       const nameMatch = product.name
@@ -354,14 +340,13 @@ export default function Inventory() {
         (product: Product) => !selectedProducts.includes(product.id)
       );
 
-      await setDoc(userRef, {
-        email: user.email,
-        displayName: displayName,
+      await updateUserDocument(user.uid, {
         products: updatedProducts,
       });
 
       setProducts(updatedProducts);
       setSelectedProducts([]);
+      setIsEditMode(false);
       toggleDeleteSelectedModal();
     } catch (error) {
       console.error(error);
@@ -375,6 +360,11 @@ export default function Inventory() {
       setSelectedProducts(filteredProducts.map((product) => product.id));
     }
     setSelectAll(!selectAll);
+  };
+
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setEditedProductCategory(value === "" ? null : (value as ProductCategory));
   };
 
   return (
@@ -422,7 +412,7 @@ export default function Inventory() {
                 )}
                 <button
                   onClick={toggleEditMode}
-                  className="border bg-blue-500 text-white duration-100 hover:cursor-pointer hover:bg-blue-600 border-gray-200 duration-1500 rounded-md px-3 py-1.5 text-center transition-all"
+                  className="border bg-green-500 text-white duration-100 hover:cursor-pointer hover:bg-green-600 border-gray-200 duration-1500 rounded-md px-3 py-1.5 text-center transition-all"
                 >
                   {isEditMode ? "Done" : "Edit"}
                 </button>
@@ -705,11 +695,9 @@ export default function Inventory() {
                           Category
                         </label>
                         <select
-                          value={editedProductCategory}
-                          onChange={(e) =>
-                            setEditedProductCategory(e.target.value)
-                          }
-                          className="sm:w-32 w-24  p-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                          value={editedProductCategory ?? ""}
+                          onChange={handleCategoryChange}
+                          className="sm:w-32 w-24 p-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                         >
                           <option value="">Select Category</option>
                           <option value="Sneaker">Sneaker</option>

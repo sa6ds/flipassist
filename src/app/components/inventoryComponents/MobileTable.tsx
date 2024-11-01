@@ -123,7 +123,7 @@ const MobileTable: React.FC<Props> = ({
                     </>
                   )}
                   <p className="mt-4 font-bold">Purchase Date: </p>
-                  {new Date(product.purchaseDate).toLocaleDateString("en-US")}
+                  {product.purchaseDate}
                   <p className="mt-4 font-bold">Purchase Price: </p>
                   {product.purchasePrice.toLocaleString("en-US", {
                     style: "currency",

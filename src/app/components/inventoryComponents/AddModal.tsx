@@ -1,5 +1,7 @@
 import React, { BaseSyntheticEvent } from "react";
 import { SubmitHandler } from "react-hook-form";
+import { format, parseISO } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
 
 interface Product {
   id: string;
@@ -24,8 +26,8 @@ interface AddModalProps {
     onSubmit: SubmitHandler<Product>
   ) => (e: BaseSyntheticEvent) => Promise<void>;
   onSubmit: SubmitHandler<Product>;
-  register: any; 
-  errors: any; 
+  register: any;
+  errors: any;
 }
 
 const AddModal: React.FC<AddModalProps> = ({
@@ -36,6 +38,23 @@ const AddModal: React.FC<AddModalProps> = ({
   register,
   errors,
 }) => {
+  const timeZone = "America/New_York"; 
+
+  function convertToZonedDate(dateISO: string): string {
+    const zonedDate = toZonedTime(parseISO(dateISO), timeZone);
+    return format(zonedDate, "yyyy-MM-dd");
+  }
+
+  const handleFormSubmit: SubmitHandler<Product> = (data) => {
+    if (data.purchaseDate) {
+      data.purchaseDate = convertToZonedDate(data.purchaseDate);
+    }
+    if (data.saleDate) {
+      data.saleDate = convertToZonedDate(data.saleDate);
+    }
+    onSubmit(data);
+  };
+
   return isVisible ? (
     <div
       id="authentication-modal"
@@ -70,7 +89,7 @@ const AddModal: React.FC<AddModalProps> = ({
           <h3 className="mb-4 text-xl font-medium text-gray-900">
             Add Product
           </h3>
-          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+          <form className="space-y-6" onSubmit={handleSubmit(handleFormSubmit)}>
             {/* Product Name */}
             <div className="mb-4">
               <div className="my-0">

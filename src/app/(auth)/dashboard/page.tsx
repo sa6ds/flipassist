@@ -1,5 +1,7 @@
 "use client";
-import Sidebar from "../../components/Sidebar";
+import { Product } from "@/app/types";
+import { SummaryCard } from "@/app/components/dashboard/SummaryCard";
+import { RecentActivity } from "@/app/components/dashboard/RecentActivity";
 import InventoryOutlinedIcon from "@mui/icons-material/InventoryOutlined";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import SavingsOutlinedIcon from "@mui/icons-material/SavingsOutlined";
@@ -8,99 +10,13 @@ import Header from "@/app/components/Header";
 import { Tooltip } from "@mui/material";
 import { generateChartData } from "@/app/utils/chartUtils";
 import { Chart } from "chart.js";
-import sneakerIcon from "../../assets/icons/recentActivity/shoe.svg";
-import clothingIcon from "../../assets/icons/recentActivity/clothing.svg";
-import packageIcon from "../../assets/icons/recentActivity/product.svg";
-import collectibleIcon from "../../assets/icons/recentActivity/collectable.svg";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Footer from "@/app/components/Footer";
 import { collection, doc, getDoc } from "firebase/firestore";
 import { User, onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../../Firebase";
-
-interface Product {
-  id: string;
-  name: string;
-  size?: string;
-  sku?: string;
-  status?: "Unlisted" | "Listed" | "Sold";
-  platform?: string | null;
-  category?: "Sneaker" | "Clothing" | "Collectible" | null;
-  purchasePrice: number;
-  salePrice?: number | null;
-  purchaseDate: string;
-  saleDate?: string | null;
-  dateAdded: string;
-  notes?: string | null;
-}
-
-const SummaryCard = ({
-  icon: Icon,
-  title,
-  value,
-  tooltip,
-}: {
-  icon: any;
-  title: string;
-  value: string | number;
-  tooltip: string;
-}) => (
-  <div className="mb-5 w-full rounded-md px-4 py-4 shadow-lg drop-shadow-xl">
-    <div className="flex pt-1">
-      <Icon sx={{ fontSize: 32 }} className="mt-0.5" />
-      <Tooltip title={tooltip}>
-        <p className="ml-auto text-3xl text-slate-900 font-bold">{value}</p>
-      </Tooltip>
-    </div>
-    <h2 className="mt-8 text-xl">{title}</h2>
-  </div>
-);
-
-const RecentActivity = ({ products }: { products: Product[] }) => (
-  <div className="h-[500px] w-full rounded-md py-2 shadow-lg drop-shadow-xl xl:ml-auto xl:h-auto xl:w-4/12">
-    <h2 className="mx-8 my-5 text-2xl text-slate-900 font-bold">
-      Recent Activity
-    </h2>
-    <div className="mx-8 text-xl">
-      {products.slice(0, 7).map((product, index) => (
-        <div key={index} className="my-8">
-          <div className="mt-1 flex">
-            {product.category === "Sneaker" ? (
-              <Image
-                src={sneakerIcon as string}
-                alt="Shoe Icon"
-                className="not-highlightable w-6"
-              />
-            ) : product.category === "Clothing" ? (
-              <Image
-                src={clothingIcon as string}
-                alt="Shirt Icon"
-                className="not-highlightable w-6"
-              />
-            ) : product.category === "Collectible" ? (
-              <Image
-                src={collectibleIcon as string}
-                alt="Collectible Icon"
-                className="not-highlightable w-6"
-              />
-            ) : (
-              <Image
-                src={packageIcon as string}
-                alt="Package Icon"
-                className="not-highlightable w-6"
-              />
-            )}
-            <p className="ml-4 max-w-[50%] truncate">{product.name}</p>
-            <p className="ml-auto">
-              {new Date(product.dateAdded).toLocaleDateString("en-US")}
-            </p>
-          </div>
-        </div>
-      ))}
-    </div>
-  </div>
-);
+import Sidebar from "@/app/components/Sidebar";
 
 export default function Dashboard() {
   const [totalProfits, setTotalProfits] = useState(0);
