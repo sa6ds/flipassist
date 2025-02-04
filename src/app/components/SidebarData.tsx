@@ -19,13 +19,13 @@ export const SidebarData = [
     path: "/inventory",
     new: false,
   },
+  {
+    title: "Calculators",
+    icon: <CalculateOutlinedIcon fontSize="small" />,
+    path: "/calculators",
+    new: true,
+  },
   // Work in Progress
-  // {
-  //   title: "Calculators",
-  //   icon: <CalculateOutlinedIcon fontSize="small" />,
-  //   path: "/calculators",
-  //   new: true,
-  // },
   // {
   //   title: "Tools",
   //   icon: <HandymanOutlinedIcon fontSize="small"  />,
@@ -42,6 +42,6 @@ export const SidebarData = [
     title: "Settings",
     icon: <SettingsOutlinedIcon fontSize="small" />,
     path: "/settings",
-    new: true,
+    new: false,
   },
 ];

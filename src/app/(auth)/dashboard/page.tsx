@@ -166,7 +166,7 @@ export default function Dashboard() {
           </div>
 
           <div className="mt-14 xl:flex">
-            <div className="mb-16 flex h-96 items-center justify-center rounded-md p-4 shadow-lg drop-shadow-xl md:h-[525px] xl:mb-0 xl:w-7/12">
+            <div className="mb-16 flex h-96 items-center justify-center rounded-md p-4 shadow-md md:h-[525px] xl:mb-0 xl:w-7/12 bg-white">
               <canvas aria-label="Chart" role="img" id="myChart" ref={chartRef}>
                 <h2>Line Chart Here</h2>
               </canvas>

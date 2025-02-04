@@ -7,8 +7,13 @@ interface SummaryCardProps {
   tooltip: string;
 }
 
-export const SummaryCard = ({ icon: Icon, title, value, tooltip }: SummaryCardProps) => (
-  <div className="mb-5 w-full rounded-md px-4 py-4 shadow-lg drop-shadow-xl">
+export const SummaryCard = ({
+  icon: Icon,
+  title,
+  value,
+  tooltip,
+}: SummaryCardProps) => (
+  <div className="mb-5 w-full rounded-md bg-white px-4 py-4 shadow-md">
     <div className="flex pt-1">
       <Icon sx={{ fontSize: 32 }} className="mt-0.5" />
       <Tooltip title={tooltip}>
@@ -17,4 +22,4 @@ export const SummaryCard = ({ icon: Icon, title, value, tooltip }: SummaryCardPr
     </div>
     <h2 className="mt-8 text-xl">{title}</h2>
   </div>
-); 
+);

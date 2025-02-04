@@ -42,11 +42,11 @@ const Table: React.FC<TableProps> = ({
 }) => {
   return (
     <div className="mb-24 rounded-md mt-6 hidden overflow-x-auto xl:block">
-      <table className="w-full overflow-x-auto truncate">
+      <table className="w-full shadow-md overflow-x-auto truncate bg-white">
         <thead className="border-b-2">
-          <tr className="text-left font-extrabold">
+          <tr>
             {isEditMode && (
-              <th className="p-3 pr-4 text-slate-900 hover:bg-gray-100 text-center">
+              <th className="p-3 pr-4 text-slate-900 hover:bg-gray-100 text-center font-semibold">
                 <input
                   type="checkbox"
                   className="w-4 h-4 mx-auto rounded border-gray-300 text-purple-600 focus:ring-purple-500"
@@ -55,45 +55,55 @@ const Table: React.FC<TableProps> = ({
                 />
               </th>
             )}
-            <th className="p-3 pr-64 text-slate-900 hover:bg-gray-100">Name</th>
-            <th className="p-3 pr-10 text-slate-900 hover:bg-gray-100">Size</th>
-            <th className="p-3 pr-16 text-slate-900 hover:bg-gray-100">SKU</th>
-            <th className="p-3 pr-6 text-slate-900 hover:bg-gray-100">
+            <th className="p-3 pr-64 text-slate-900 hover:bg-gray-100 font-semibold">
+              Name
+            </th>
+            <th className="p-3 pr-10 text-slate-900 hover:bg-gray-100 font-semibold">
+              Size
+            </th>
+            <th className="p-3 pr-16 text-slate-900 hover:bg-gray-100 font-semibold">
+              SKU
+            </th>
+            <th className="p-3 pr-6 text-slate-900 hover:bg-gray-100 font-semibold">
               Status
             </th>
-            <th className="p-3 pr-5 text-slate-900 hover:bg-gray-100">
+            <th className="p-3 pr-5 text-slate-900 hover:bg-gray-100 font-semibold">
               Purchase Price
             </th>
-            <th className="p-3 pr-5 text-slate-900 hover:bg-gray-100">
+            <th className="p-3 pr-5 text-slate-900 hover:bg-gray-100 font-semibold">
               Sale Price
             </th>
-            <th className="p-3 pr-16 text-slate-900 hover:bg-gray-100">
+            <th className="p-3 pr-16 text-slate-900 hover:bg-gray-100 font-semibold">
               Profit
             </th>
-            <th className="p-3 pr-8 text-slate-900 hover:bg-gray-100">
+            <th className="p-3 pr-8 text-slate-900 hover:bg-gray-100 font-semibold">
               Platform
             </th>
-            <th className="p-3 pr-8 text-slate-900 hover:bg-gray-100">
+            <th className="p-3 pr-8 text-slate-900 hover:bg-gray-100 font-semibold">
               Category
             </th>
-            <th className="p-3 pr-6 text-slate-900 hover:bg-gray-100">
+            <th className="p-3 pr-6 text-slate-900 hover:bg-gray-100 font-semibold">
               Purchase Date
             </th>
-            <th className="p-3 pr-10 text-slate-900 hover:bg-gray-100">
+            <th className="p-3 pr-10 text-slate-900 hover:bg-gray-100 font-semibold">
               Sale Date
             </th>
-            <th className="p-3 pr-10 text-slate-900 hover:bg-gray-100">
+            <th className="p-3 pr-10 text-slate-900 hover:bg-gray-100 font-semibold">
               Date Added
             </th>
-            <th className="p-3 text-slate-900 hover:bg-gray-100">Notes</th>
-            <th className="p-3 text-slate-900 hover:bg-gray-100">Actions</th>
+            <th className="p-3 text-slate-900 hover:bg-gray-100 font-semibold">
+              Notes
+            </th>
+            <th className="p-3 text-slate-900 hover:bg-gray-100 font-semibold">
+              Actions
+            </th>
           </tr>
         </thead>
         <tbody>
           {filteredProducts.map((product, index) => (
             <tr
-              className={`hover:bg-slate-200 ${
-                index % 2 === 0 ? "" : "bg-slate-100"
+              className={`hover:bg-slate-100 ${
+                index % 2 === 0 ? "" : "bg-slate-50"
               }`}
               key={product.id}
             >
