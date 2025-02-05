@@ -28,7 +28,7 @@ export const SidebarData = [
   // Work in Progress
   // {
   //   title: "Tools",
-  //   icon: <HandymanOutlinedIcon fontSize="small"  />,
+  //   icon: <HandymanOutlinedIcon fontSize="small" />,
   //   path: "/tools",
   //   new: true,
   // },

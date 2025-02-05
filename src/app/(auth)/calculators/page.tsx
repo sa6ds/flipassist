@@ -3,6 +3,7 @@ import Sidebar from "@/app/components/Sidebar";
 import Header from "@/app/components/Header";
 import WorkInProgress from "@/app/components/WorkInProgress";
 import Footer from "@/app/components/Footer";
+import { toast } from "react-hot-toast";
 
 import { useState } from "react";
 
@@ -33,7 +34,7 @@ const platforms: Platform[] = [
     isStockX: true,
   },
   { name: "eBay", fee: 0.1325, color: "bg-blue-500", isEbay: true },
-  { name: "Grailed", fee: 0.09, color: "bg-orange-500", isGrailed: true },
+  { name: "Grailed", fee: 0.09, color: "bg-slate-500", isGrailed: true },
   { name: "Mercari", fee: 0.1, color: "bg-red-500", isMercari: true },
 ];
 
@@ -114,9 +115,19 @@ export default function Calculator() {
   const [totalReceived, setTotalReceived] = useState<number | null>(null);
 
   const calculateProfit = () => {
-    const purchase = Number.parseFloat(purchasePrice) || 0;
-    const sale = Number.parseFloat(salePrice) || 0;
+    if (!purchasePrice || !salePrice) {
+      toast.error("Please enter both purchase and sale price");
+      return;
+    }
+
+    const purchase = Number.parseFloat(purchasePrice);
+    const sale = Number.parseFloat(salePrice);
     const shipping = Number.parseFloat(shippingCost) || 0;
+
+    if (isNaN(purchase) || isNaN(sale)) {
+      toast.error("Please enter valid numbers");
+      return;
+    }
 
     let fee = 0;
     if (selectedPlatform.isStockX && selectedPlatform.fees) {
@@ -160,7 +171,7 @@ export default function Calculator() {
         case "Musical Instruments & Gear > Guitars & Basses":
           fee = sale <= 7500 ? 0.0635 * sale : 0.0235 * sale;
           break;
-        case "Select Clothing, Shoes & Accessories categories":
+        case "Select Clothing, Shoes & Accessories categories (Sneaker Fees)":
           fee = sale >= 150 ? 0.08 * sale : 0.1325 * sale;
           break;
         default:
@@ -169,6 +180,7 @@ export default function Calculator() {
     } else if (selectedPlatform.isGoat) {
       const locationFee = goatLocationFees[location] || 0;
       let commissionRate = 0.095;
+
       if (sellerRating === "below 50") {
         commissionRate = 0.25;
       } else if (sellerRating === "50-69") {
@@ -176,7 +188,9 @@ export default function Calculator() {
       } else if (sellerRating === "70-89") {
         commissionRate = 0.15;
       }
-      fee = commissionRate * sale + locationFee;
+
+      const sellerFee = 0.029;
+      fee = (commissionRate + sellerFee) * sale + locationFee;
     } else if (selectedPlatform.isGrailed) {
       fee = 0.09 * sale;
     } else {
@@ -190,10 +204,19 @@ export default function Calculator() {
       (selectedPlatform.isStockX || selectedPlatform.isGoat ? 0 : shipping);
     setProfit(totalProfit);
     setPlatformFee(fee);
+    setTotalReceived(sale - fee);
 
-    // Calculate the total amount received
-    const totalAmountReceived = sale - fee;
-    setTotalReceived(totalAmountReceived);
+    if (totalProfit > 0) {
+      toast.success(`Profit calculated: $${totalProfit.toFixed(2)}`);
+    } else {
+      toast("Loss calculated: $" + totalProfit.toFixed(2), {
+        icon: "📉",
+        style: {
+          background: "#FEE2E2",
+          color: "#991B1B",
+        },
+      });
+    }
   };
 
   return (
@@ -210,9 +233,9 @@ export default function Calculator() {
                   <button
                     key={platform.name}
                     onClick={() => setSelectedPlatform(platform)}
-                    className={`p-1 rounded-lg hover:bg-gray-100 transition-all duration-300 ${
+                    className={`p-1 rounded-lg transition-all duration-300 ${
                       selectedPlatform.name === platform.name
-                        ? "text-gray-900 font-semibold "
+                        ? "text-gray-900 bg-white font-semibold "
                         : "bg-transparent text-gray-600"
                     }`}
                   >
@@ -279,7 +302,7 @@ export default function Calculator() {
                       Coins & Paper Money &gt; Bullion
                     </option>
                     <option value="Clothing, Shoes & Accessories > Women > Women's Bags & Handbags">
-                      Women's Bags & Handbags
+                      Women&apos;s Bags & Handbags
                     </option>
                     <option value="Jewelry & Watches">Jewelry & Watches</option>
                     <option value="Jewelry & Watches > Watches, Parts & Accessories">
@@ -295,8 +318,9 @@ export default function Calculator() {
                     <option value="Musical Instruments & Gear > Guitars & Basses">
                       Guitars & Basses
                     </option>
-                    <option value="Select Clothing, Shoes & Accessories categories">
-                      Select Clothing, Shoes & Accessories categories
+                    <option value="Select Clothing, Shoes & Accessories categories (Sneaker Fees)">
+                      Select Clothing, Shoes & Accessories categories (Sneaker
+                      Fees)
                     </option>
                   </select>
                 </div>
@@ -401,7 +425,7 @@ export default function Calculator() {
 
               <button
                 onClick={calculateProfit}
-                className="w-36 text-sm bg-slate-900 hover:bg-slate-800 text-white p-2 rounded-md"
+                className="w-36 text-sm w-36 text-sm bg-green-500 hover:bg-green-600 text-white whitespace-normal h-auto min-h-[40px] transition-all duration-200 p-2 rounded-md"
               >
                 Calculate Profit
               </button>
