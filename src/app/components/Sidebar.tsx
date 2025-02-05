@@ -44,13 +44,13 @@ function Sidebar() {
 
       {/* SIDEBAR  */}
       <div
-        className={`fixed z-50 bg-slate-50 h-screen w-auto shadow-xl md:block ${
+        className={`fixed z-50 bg-white h-screen w-auto md:block ${
           !isOpen ? "hidden" : ""
         }`}
       >
         <div className="relative">
-          <div className="fixed z-50 h-screen bg-slate-50 min-w-[250px] shadow-xl">
-            <div className="flex mt-10 gap-3 flex-row ml-11">
+          <div className="fixed z-50 h-screen border-r-[1px] border-gray-200 bg-white min-w-[250px]">
+            <div className="flex mt-10 gap-3 flex-row ml-9">
               <Link href="/" className="flex gap-3">
                 <div className="bg-purple-500 p-3 rounded-[18px]">
                   <svg

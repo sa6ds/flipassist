@@ -59,7 +59,7 @@ const MobileTable: React.FC<Props> = ({
       {filteredProducts.map((product, index) => {
         return (
           <div key={index}>
-            <div className="mt-8 h-fit rounded-md px-5 py-5 shadow-lg sm:w-[450px]">
+            <div className="mt-8 h-fit bg-white rounded-md px-5 py-5 shadow-md sm:w-[450px]">
               <div className="flex gap-2 ">
                 {isEditMode && (
                   <input
