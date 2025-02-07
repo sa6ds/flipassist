@@ -803,8 +803,8 @@ export default function ToolsPage() {
                     }
                     className="block w-full p-2 border border-gray-300 rounded-md"
                   >
-                    <option value="mens">Men's</option>
-                    <option value="womens">Women's</option>
+                    <option value="mens">Men&apos;s</option>
+                    <option value="womens">Women&apos;s</option>
                   </select>
                 </div>
                 <div className="space-y-2">
