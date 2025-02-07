@@ -23,15 +23,14 @@ export const SidebarData = [
     title: "Calculators",
     icon: <CalculateOutlinedIcon fontSize="small" />,
     path: "/calculators",
+    new: false,
+  },
+  {
+    title: "Tools",
+    icon: <HandymanOutlinedIcon fontSize="small" />,
+    path: "/tools",
     new: true,
   },
-  // Work in Progress
-  // {
-  //   title: "Tools",
-  //   icon: <HandymanOutlinedIcon fontSize="small" />,
-  //   path: "/tools",
-  //   new: true,
-  // },
   {
     title: "Monitors",
     icon: <MonitorHeartOutlinedIcon fontSize="small" />,

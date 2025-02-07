@@ -13,12 +13,39 @@ import {
   deleteUserDocument,
 } from "@/app/utils/firestoreUtils";
 import { DateUtils } from "@/app/utils/dateUtils";
+import { getUserBadge, UserBadge } from "@/app/utils/badgeUtils";
+import { updateProfile } from "firebase/auth";
+
+const PencilIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="ml-2 cursor-pointer hover:text-purple-500"
+  >
+    <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+  </svg>
+);
 
 export default function Settings() {
   const [user, setUser] = useState<User | null>(null);
   const [userData, setUserData] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deleteInput, setDeleteInput] = useState("");
+  const [userBadge, setUserBadge] = useState<UserBadge>({
+    name: "",
+    badgeClass: "",
+    description: "",
+  });
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [newDisplayName, setNewDisplayName] = useState("");
+  const [isEditingName, setIsEditingName] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -32,14 +59,13 @@ export default function Settings() {
             const data = userSnapshot.data();
             if (data) {
               setUserData(data);
+              setUserBadge(getUserBadge(data.createdAt));
             } else {
               setUserData({});
             }
           } catch (error) {
             console.error("Error fetching user data:", error);
           }
-        } else {
-          console.error("User UID is undefined");
         }
       } else {
         setUser(null);
@@ -49,11 +75,17 @@ export default function Settings() {
     return () => unsubscribe();
   }, []);
 
+  useEffect(() => {
+    if (userData?.createdAt) {
+      setUserBadge(getUserBadge(userData.createdAt));
+    }
+  }, [userData]);
+
   const handleDeleteAccount = async () => {
     if (user) {
       try {
-        await deleteUserDocument(user.uid); // Delete user document from Firestore
-        await deleteUser(user); // Delete user from Firebase Authentication
+        await deleteUserDocument(user.uid);
+        await deleteUser(user);
         router.push("/");
       } catch (error) {
         console.error("Error deleting user:", error);
@@ -70,6 +102,21 @@ export default function Settings() {
     }
   };
 
+  const handleNameChange = async () => {
+    if (!user || !newDisplayName.trim()) return;
+
+    setIsUpdating(true);
+    try {
+      await updateProfile(user, { displayName: newDisplayName });
+      await updateUserDocument(user.uid, { displayName: newDisplayName });
+      window.location.reload();
+    } catch (error) {
+      console.error("Error updating display name:", error);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => {
     setIsModalOpen(false);
@@ -83,35 +130,152 @@ export default function Settings() {
         <Header pageTitle="Settings" />
         <div className="mx-8 my-8">
           {user && userData ? (
-            <div className="flex flex-col items-center">
-              <Image
-                src={user.photoURL ?? ""}
-                alt="Profile Picture"
-                width={100}
-                height={100}
-                className="rounded-full"
-              />
-              <h2 className="text-2xl font-bold mt-4">{user.displayName}</h2>
-              <p className="text-lg">{user.email}</p>
-              <p className="text-lg">
-                Account created{" "}
-                {userData.createdAt
-                  ? DateUtils.timeSince(userData.createdAt)
-                  : "unknown"}{" "}
-              </p>
-              <div className="flex mt-6 gap-4">
-                <button
-                  onClick={handleLogout}
-                  className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
-                >
-                  Logout
-                </button>
-                <button
-                  onClick={openModal}
-                  className="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-                >
-                  Delete Account
-                </button>
+            <div className="p-6 bg-white shadow-md rounded-lg">
+              {/* Header Section */}
+              <div className="border-b pb-4 mb-6">
+                <h2 className="text-2xl font-semibold">User Profile</h2>
+                <p className="text-sm text-gray-500">
+                  Manage your account settings and preferences.
+                </p>
+              </div>
+
+              {/* Content Section */}
+              <div className="space-y-6">
+                {/* Profile Picture and Name */}
+                <div className="flex items-start space-x-8">
+                  <div className="relative w-24 h-24 flex-shrink-0">
+                    <Image
+                      src={user.photoURL ?? ""}
+                      alt="Profile Picture"
+                      width={128}
+                      height={128}
+                      className="rounded-full object-cover w-24 h-24"
+                      priority
+                    />
+                    {!user.photoURL && (
+                      <div className="absolute inset-0 bg-gray-200 rounded-full flex items-center justify-center">
+                        <span className="text-4xl font-semibold text-gray-600">
+                          {user.displayName
+                            ?.split(" ")
+                            .map((n) => n[0])
+                            .join("")}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="pt-2">
+                    <div className="flex items-center">
+                      <h2 className="text-xl font-semibold">
+                        {user.displayName}
+                      </h2>
+                      <div className="badge-container group relative">
+                        <span className={`${userBadge.badgeClass} text-[10px]`}>
+                          {userBadge.name}
+                        </span>
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                          {userBadge.description}
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-500 mt-1">{user.email}</p>
+                  </div>
+                </div>
+
+                {/* Name Input */}
+                <div className="space-y-2">
+                  <div className="flex items-center">
+                    <label className="text-sm font-medium text-gray-700">
+                      Name
+                    </label>
+                    {!isEditingName && (
+                      <button
+                        onClick={() => setIsEditingName(true)}
+                        className="ml-2"
+                      >
+                        <PencilIcon />
+                      </button>
+                    )}
+                  </div>
+                  {isEditingName ? (
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={newDisplayName}
+                        onChange={(e) => setNewDisplayName(e.target.value)}
+                        placeholder={user.displayName ?? ""}
+                        disabled={isUpdating}
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                      />
+                      <button
+                        onClick={() => {
+                          handleNameChange();
+                          setIsEditingName(false);
+                        }}
+                        disabled={isUpdating || !newDisplayName.trim()}
+                        className={`px-4 py-2 text-sm font-medium text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 ${
+                          isUpdating || !newDisplayName.trim()
+                            ? "bg-gray-400 cursor-not-allowed"
+                            : "bg-purple-600 hover:bg-purple-700"
+                        }`}
+                      >
+                        {isUpdating ? "Saving..." : "Save"}
+                      </button>
+                      <button
+                        onClick={() => {
+                          setIsEditingName(false);
+                          setNewDisplayName("");
+                        }}
+                        className="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="px-3 py-2 text-gray-700">
+                      {user.displayName}
+                    </p>
+                  )}
+                </div>
+
+                {/* Account Creation Date */}
+                <div className="flex items-center space-x-2 text-sm text-gray-500">
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  <span>
+                    Account created{" "}
+                    {userData.createdAt
+                      ? DateUtils.timeSince(userData.createdAt)
+                      : "unknown"}
+                  </span>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex justify-start gap-4">
+                  <button
+                    onClick={handleLogout}
+                    className="px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                  >
+                    Logout
+                  </button>
+                  <button
+                    onClick={openModal}
+                    className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                  >
+                    Delete Account
+                  </button>
+                </div>
               </div>
             </div>
           ) : null}
