@@ -25,6 +25,7 @@ const tiers = [
       "No inventory export/import",
       "No access to monitors",
       "No live prices from StockX/Goat",
+      "Standard support only",
     ],
   },
   {
@@ -37,6 +38,7 @@ const tiers = [
       "Inventory export/import",
       "Access to monitors page",
       "Live prices from StockX and Goat",
+      "Priority support & feature requests",
     ],
   },
 ];

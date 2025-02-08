@@ -21,6 +21,11 @@ import { Product, ProductCategory } from "@/app/types";
 import { toast } from "react-hot-toast";
 import DownloadIcon from "@/app/assets/icons/inventory/DownloadIcon";
 import UploadIcon from "@/app/assets/icons/inventory/UploadIcon";
+import DowngradeWarningModal from "@/app/components/inventoryComponents/DowngradeWarningModal";
+import PlusIcon from "@/app/assets/icons/inventory/PlusIcon";
+import { requireProAccess } from "@/app/utils/subscriptionUtils";
+import { onSnapshot } from "firebase/firestore";
+import { DocumentSnapshot, DocumentData } from "firebase/firestore";
 
 export default function Inventory() {
   const [searchWord, setSearchWord] = useState("");
@@ -39,6 +44,9 @@ export default function Inventory() {
     useState(false);
 
   const [showImportExport, setShowImportExport] = useState(false);
+
+  const [showDowngradeWarning, setShowDowngradeWarning] = useState(false);
+  const [userData, setUserData] = useState<any>(null);
 
   const toggleEditProductModal = () => {
     setEditProductModalVisible(!editProductModalVisible);
@@ -112,6 +120,30 @@ export default function Inventory() {
     formState: { errors },
   } = useForm<Product>();
 
+  const fixTotalItemsCount = async () => {
+    if (!user) return;
+    try {
+      const userRef = doc(db, "users", user.uid);
+      const userSnapshot = await getDoc(userRef);
+      const userData = userSnapshot.data();
+
+      if (userData) {
+        const actualTotal = userData.products?.length || 0;
+        if (actualTotal !== userData.totalItems) {
+          await updateDoc(userRef, {
+            totalItems: actualTotal,
+          });
+          toast.success(
+            `Item count corrected from ${userData.totalItems} to ${actualTotal}`
+          );
+        }
+      }
+    } catch (error) {
+      console.error("Error fixing item count:", error);
+      toast.error("Error updating item count");
+    }
+  };
+
   const fetchProducts = useCallback(async () => {
     if (!user) return;
     try {
@@ -119,18 +151,13 @@ export default function Inventory() {
       const userSnapshot = await getDoc(userRef);
       const userData = userSnapshot.data();
       if (userData?.products) {
-        const productsWithId = userData.products
-          .filter((product: Product) => product.id)
-          .map((product: Product) => ({
-            ...product,
-            id: product.id,
-          }));
-        setProducts(productsWithId);
-      } else {
-        setProducts([]);
+        setProducts(userData.products);
+        if (userData.products.length !== userData.totalItems) {
+          fixTotalItemsCount();
+        }
       }
     } catch (error) {
-      console.error(error);
+      console.error("Error fetching products:", error);
     }
   }, [user]);
 
@@ -219,6 +246,36 @@ export default function Inventory() {
       fetchProducts();
     }
   }, [user, fetchProducts]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const userRef = doc(db, "users", user.uid);
+    const unsubscribe = onSnapshot(
+      userRef,
+      (doc: DocumentSnapshot<DocumentData>) => {
+        const userData = doc.data();
+        if (userData) {
+          setUserData(userData);
+
+          // Handle subscription change
+          if (!userData.isPro && products.length > 15) {
+            toast.error(
+              "Your account has been downgraded. Please reduce your inventory or upgrade to Pro."
+            );
+          }
+        }
+      }
+    );
+
+    return () => unsubscribe();
+  }, [user, products.length]);
+
+  useEffect(() => {
+    if (user) {
+      fixTotalItemsCount();
+    }
+  }, [user]);
 
   const deleteProduct = async () => {
     if (!user || !productToDelete) return;
@@ -451,78 +508,131 @@ export default function Inventory() {
     setShowImportExport(false);
   };
 
-  const importFromCSV = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const importFromCSV = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!user || !userData?.isPro) {
+      toast.error(
+        "Import/Export is a Pro feature. Please upgrade to continue."
+      );
+      return;
+    }
+
     const file = event.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
     reader.onload = async (e) => {
-      const text = e.target?.result as string;
-      const rows = text.split("\n").map((row) => row.split(","));
-      const header = rows[0];
-      const dataRows = rows.slice(1).filter((row) => row.length > 1); // Skip empty rows
-
-      const newProducts: Product[] = dataRows.map((row) => ({
-        id: uuidv4(),
-        name: row[0] || "Untitled Product",
-        size: row[1] || undefined,
-        sku: row[2] || undefined,
-        status: (row[3] as "Unlisted" | "Listed" | "Sold") || "Unlisted",
-        platform: row[4] || null,
-        category: (row[5] as ProductCategory) || null,
-        purchasePrice: parseFloat(row[6]) || 0,
-        salePrice: row[7] ? parseFloat(row[7]) : null,
-        purchaseDate: row[8] || DateUtils.formatDate(new Date()),
-        saleDate: row[9] || null,
-        notes: row[10] || null,
-        dateAdded: DateUtils.formatDate(new Date()),
-      }));
-
-      if (!user) return;
       try {
+        const csvData = e.target?.result as string;
+        const items = parseCSV(csvData); // Your CSV parsing logic
+
         const userRef = doc(db, "users", user.uid);
-        const userSnapshot = await getDoc(userRef);
-        const userData = userSnapshot.data();
+        const userDoc = await getDoc(userRef);
+        const currentProducts = userDoc.data()?.products || [];
 
-        if (!userData) {
-          toast.error("User data not found");
-          return;
-        }
-
-        const currentProducts = userData.products || [];
-        const currentTotal = userData.totalItems || 0;
-        const newTotal = currentTotal + newProducts.length;
-
-        if (!userData.isPro && newTotal > 15) {
+        // Check if user is still Pro before completing import
+        const freshUserData = userDoc.data();
+        if (!freshUserData?.isPro) {
           toast.error(
-            "Free plan limit reached! Upgrade to Pro for unlimited inventory items."
+            "Your Pro subscription has expired. Please upgrade to import items."
           );
           return;
         }
 
-        // Filter out any products with undefined required fields
-        const validProducts = newProducts.filter(
-          (product) =>
-            product.name &&
-            typeof product.purchasePrice === "number" &&
-            product.purchaseDate
-        );
-
         await updateDoc(userRef, {
-          products: [...currentProducts, ...validProducts],
-          totalItems: currentTotal + validProducts.length,
+          products: [...currentProducts, ...items],
+          totalItems: currentProducts.length + items.length,
         });
 
-        setProducts((prev) => [...prev, ...validProducts]);
-        toast.success("Products imported successfully!");
+        toast.success("Items imported successfully!");
       } catch (error) {
-        console.error(error);
-        toast.error("Error importing products");
+        console.error("Import error:", error);
+        toast.error("Error importing items. Please try again.");
       }
     };
     reader.readAsText(file);
-    setShowImportExport(false);
   };
+
+  const handleCloseWarning = () => {
+    setShowDowngradeWarning(false);
+  };
+
+  function parseCSV(csvData: string): Product[] {
+    const rows = csvData.split("\n").map((row) => row.split(","));
+    const header = rows[0];
+    const dataRows = rows.slice(1).filter((row) => row.length > 1);
+
+    return dataRows.map((row) => ({
+      id: uuidv4(),
+      name: row[0] || "",
+      size: row[1] || undefined,
+      sku: row[2] || undefined,
+      status: (row[3] as "Unlisted" | "Listed" | "Sold") || "Unlisted",
+      platform: row[4] || undefined,
+      category: (row[5] as "Sneaker" | "Clothing" | "Collectible") || undefined,
+      purchasePrice: parseFloat(row[6]) || 0,
+      salePrice: row[7] ? parseFloat(row[7]) : undefined,
+      purchaseDate: row[8] || new Date().toISOString().split("T")[0],
+      saleDate: row[9] || undefined,
+      notes: row[10] || undefined,
+      dateAdded: new Date().toISOString().split("T")[0],
+    }));
+  }
+
+  const handleDowngradedItems = async () => {
+    if (!user) return;
+
+    try {
+      const userRef = doc(db, "users", user.uid);
+      const userDoc = await getDoc(userRef);
+      const userData = userDoc.data();
+
+      if (!userData?.isPro && userData?.downgradeDate) {
+        const downgradeDate = new Date(userData.downgradeDate);
+        const threeDaysAfter = new Date(
+          downgradeDate.getTime() + 3 * 24 * 60 * 60 * 1000
+        );
+        const now = new Date();
+
+        if (now > threeDaysAfter && (userData.products?.length || 0) > 15) {
+          // Keep only the 15 oldest items
+          const sortedProducts = [...userData.products].sort(
+            (a, b) =>
+              new Date(a.dateAdded).getTime() - new Date(b.dateAdded).getTime()
+          );
+          const keptProducts = sortedProducts.slice(0, 15);
+
+          await updateDoc(userRef, {
+            products: keptProducts,
+            totalItems: 15,
+          });
+
+          setProducts(keptProducts);
+          toast.success(
+            "Your inventory has been adjusted to match your free plan limit."
+          );
+        }
+      }
+    } catch (error) {
+      console.error("Error handling downgraded items:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      handleDowngradedItems();
+    }
+  }, [user]);
+
+  const handleImportExport = requireProAccess(
+    () => {
+      setShowImportExport(!showImportExport);
+    },
+    () => {
+      toast.error(
+        "Import/Export is a Pro feature. Please upgrade to continue."
+      );
+    }
+  );
 
   return (
     <div className="min-h-screen">
@@ -545,61 +655,64 @@ export default function Inventory() {
 
             <div className="ml-auto mt-4 flex flex-wrap gap-3 xl:mt-0 xl:flex-nowrap">
               <div className="gap-3 flex">
-                <div className="relative">
-                  <input
-                    type="file"
-                    accept=".csv"
-                    onChange={importFromCSV}
-                    className="hidden"
-                    id="csvInput"
-                  />
-                  <button
-                    className="border bg-white duration-100 hover:cursor-pointer hover:bg-purple-50 hover:text-purple-500 border-gray-200 duration-1500 rounded-md px-3 py-1.5 text-center transition-all flex items-center gap-2"
-                    onClick={() => setShowImportExport(!showImportExport)}
-                  >
-                    <DownloadIcon />
-                    <span className="hidden sm:inline">Import/Export</span>
-                  </button>
+                {/* Import/Export Button and Dropdown */}
+                {userData?.isPro && (
+                  <div className="relative">
+                    <input
+                      type="file"
+                      accept=".csv"
+                      onChange={importFromCSV}
+                      className="hidden"
+                      id="csvInput"
+                    />
+                    <button
+                      className="border bg-white duration-100 hover:cursor-pointer hover:bg-purple-50 hover:text-purple-500 border-gray-200 duration-1500 rounded-md px-3 py-1.5 text-center transition-all flex items-center justify-center gap-2 h-[38px] min-w-[38px] sm:w-auto"
+                      onClick={handleImportExport}
+                    >
+                      <DownloadIcon />
+                      <span className="hidden sm:inline">Import/Export</span>
+                    </button>
+                    {showImportExport && (
+                      <>
+                        <div
+                          className="fixed inset-0 z-10"
+                          onClick={() => setShowImportExport(false)}
+                        />
 
-                  {showImportExport && (
-                    <>
-                      <div
-                        className="fixed inset-0 z-10"
-                        onClick={() => setShowImportExport(false)}
-                      />
-
-                      <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-20">
-                        <div className="py-1">
-                          <button
-                            className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              document.getElementById("csvInput")?.click();
-                            }}
-                          >
-                            <UploadIcon />
-                            <span className="ml-2">Import CSV</span>
-                          </button>
-                          <button
-                            className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              exportToCSV();
-                            }}
-                          >
-                            <DownloadIcon />
-                            <span className="ml-2">Export CSV</span>
-                          </button>
+                        <div className="absolute left-0 sm:right-0 sm:left-auto mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-20">
+                          <div className="py-1">
+                            <button
+                              className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                document.getElementById("csvInput")?.click();
+                              }}
+                            >
+                              <UploadIcon />
+                              <span className="ml-2">Import CSV</span>
+                            </button>
+                            <button
+                              className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                exportToCSV();
+                              }}
+                            >
+                              <DownloadIcon />
+                              <span className="ml-2">Export CSV</span>
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                    </>
-                  )}
-                </div>
+                      </>
+                    )}
+                  </div>
+                )}
                 <button
                   onClick={toggleModal}
-                  className="border bg-white duration-100 hover:cursor-pointer hover:bg-purple-50 hover:text-purple-500 border-gray-200 duration-1500 rounded-md px-3 py-1.5 text-center transition-all"
+                  className="border bg-white duration-100 hover:cursor-pointer hover:bg-purple-50 hover:text-purple-500 border-gray-200 duration-1500 rounded-md px-3 py-1.5 text-center transition-all flex items-center justify-center gap-2 sm:w-auto"
                 >
-                  <AddIcon />
+                  <PlusIcon />
+                  <span className="hidden sm:inline">Add Product</span>
                 </button>
                 {isEditMode && selectedProducts.length > 0 && (
                   <button
@@ -1076,10 +1189,10 @@ export default function Inventory() {
           aria-hidden="true"
           className="fixed top-0 left-0 right-0 z-50 w-full h-screen flex justify-center items-center bg-black bg-opacity-30"
         >
-          <div className="relative mx-4 md:mx-14 w-full sm:w-[500px] bg-white rounded-lg shadow">
+          <div className="relative mx-4 md:mx-14 w-full sm:w-[500px] max-h-[80vh] bg-white rounded-lg shadow flex flex-col">
             <button
               type="button"
-              className="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center"
+              className="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center z-10"
               onClick={toggleDeleteSelectedModal}
             >
               <svg
@@ -1099,7 +1212,7 @@ export default function Inventory() {
               </svg>
               <span className="sr-only">Close modal</span>
             </button>
-            <div className="px-6 py-6">
+            <div className="px-6 py-6 overflow-y-auto">
               {selectedProducts.length === 1 ? (
                 <h3 className="mb-4 text-xl text-gray-900">
                   Are you sure you want to delete{" "}
@@ -1110,7 +1223,7 @@ export default function Inventory() {
                   <h3 className="mb-4 text-xl text-gray-900">
                     Are you sure you want to delete the following items?
                   </h3>
-                  <ul className="mb-4 list-disc list-inside text-gray-900">
+                  <ul className="mb-4 list-disc list-inside text-gray-900 max-h-[40vh] overflow-y-auto">
                     {selectedProducts.map((productId) => {
                       const product = products.find((p) => p.id === productId);
                       return <li key={productId}>{product?.name}</li>;
@@ -1118,6 +1231,8 @@ export default function Inventory() {
                   </ul>
                 </>
               )}
+            </div>
+            <div className="px-6 py-4 border-t bg-gray-50 rounded-b-lg">
               <div className="flex justify-end gap-4">
                 <button
                   className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
@@ -1135,6 +1250,13 @@ export default function Inventory() {
             </div>
           </div>
         </div>
+      )}
+
+      {showDowngradeWarning && (
+        <DowngradeWarningModal
+          totalItems={userData?.totalItems || 0}
+          onClose={handleCloseWarning}
+        />
       )}
     </div>
   );
