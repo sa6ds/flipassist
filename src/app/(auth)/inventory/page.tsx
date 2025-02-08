@@ -19,6 +19,8 @@ import { updateUserDocument } from "../../utils/firestoreUtils";
 import { DateUtils } from "@/app/utils/dateUtils";
 import { Product, ProductCategory } from "@/app/types";
 import { toast } from "react-hot-toast";
+import DownloadIcon from "@/app/assets/icons/inventory/DownloadIcon";
+import UploadIcon from "@/app/assets/icons/inventory/UploadIcon";
 
 export default function Inventory() {
   const [searchWord, setSearchWord] = useState("");
@@ -35,6 +37,8 @@ export default function Inventory() {
   const [selectAll, setSelectAll] = useState(false);
   const [deleteSelectedModalVisible, setDeleteSelectedModalVisible] =
     useState(false);
+
+  const [showImportExport, setShowImportExport] = useState(false);
 
   const toggleEditProductModal = () => {
     setEditProductModalVisible(!editProductModalVisible);
@@ -399,6 +403,127 @@ export default function Inventory() {
     setEditedProductCategory(value === "" ? null : (value as ProductCategory));
   };
 
+  const exportToCSV = () => {
+    const csvContent = [
+      // Header row
+      [
+        "Name",
+        "Size",
+        "SKU",
+        "Status",
+        "Platform",
+        "Category",
+        "Purchase Price",
+        "Sale Price",
+        "Purchase Date",
+        "Sale Date",
+        "Notes",
+      ],
+      // Data rows
+      ...products.map((product) => [
+        product.name,
+        product.size || "",
+        product.sku || "",
+        product.status || "",
+        product.platform || "",
+        product.category || "",
+        product.purchasePrice.toString(),
+        product.salePrice?.toString() || "",
+        product.purchaseDate,
+        product.saleDate || "",
+        product.notes || "",
+      ]),
+    ]
+      .map((row) => row.join(","))
+      .join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute(
+      "download",
+      `inventory_export_${new Date().toISOString().split("T")[0]}.csv`
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setShowImportExport(false);
+  };
+
+  const importFromCSV = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const text = e.target?.result as string;
+      const rows = text.split("\n").map((row) => row.split(","));
+      const header = rows[0];
+      const dataRows = rows.slice(1).filter((row) => row.length > 1); // Skip empty rows
+
+      const newProducts: Product[] = dataRows.map((row) => ({
+        id: uuidv4(),
+        name: row[0] || "Untitled Product",
+        size: row[1] || undefined,
+        sku: row[2] || undefined,
+        status: (row[3] as "Unlisted" | "Listed" | "Sold") || "Unlisted",
+        platform: row[4] || null,
+        category: (row[5] as ProductCategory) || null,
+        purchasePrice: parseFloat(row[6]) || 0,
+        salePrice: row[7] ? parseFloat(row[7]) : null,
+        purchaseDate: row[8] || DateUtils.formatDate(new Date()),
+        saleDate: row[9] || null,
+        notes: row[10] || null,
+        dateAdded: DateUtils.formatDate(new Date()),
+      }));
+
+      if (!user) return;
+      try {
+        const userRef = doc(db, "users", user.uid);
+        const userSnapshot = await getDoc(userRef);
+        const userData = userSnapshot.data();
+
+        if (!userData) {
+          toast.error("User data not found");
+          return;
+        }
+
+        const currentProducts = userData.products || [];
+        const currentTotal = userData.totalItems || 0;
+        const newTotal = currentTotal + newProducts.length;
+
+        if (!userData.isPro && newTotal > 15) {
+          toast.error(
+            "Free plan limit reached! Upgrade to Pro for unlimited inventory items."
+          );
+          return;
+        }
+
+        // Filter out any products with undefined required fields
+        const validProducts = newProducts.filter(
+          (product) =>
+            product.name &&
+            typeof product.purchasePrice === "number" &&
+            product.purchaseDate
+        );
+
+        await updateDoc(userRef, {
+          products: [...currentProducts, ...validProducts],
+          totalItems: currentTotal + validProducts.length,
+        });
+
+        setProducts((prev) => [...prev, ...validProducts]);
+        toast.success("Products imported successfully!");
+      } catch (error) {
+        console.error(error);
+        toast.error("Error importing products");
+      }
+    };
+    reader.readAsText(file);
+    setShowImportExport(false);
+  };
+
   return (
     <div className="min-h-screen">
       <Sidebar />
@@ -420,6 +545,56 @@ export default function Inventory() {
 
             <div className="ml-auto mt-4 flex flex-wrap gap-3 xl:mt-0 xl:flex-nowrap">
               <div className="gap-3 flex">
+                <div className="relative">
+                  <input
+                    type="file"
+                    accept=".csv"
+                    onChange={importFromCSV}
+                    className="hidden"
+                    id="csvInput"
+                  />
+                  <button
+                    className="border bg-white duration-100 hover:cursor-pointer hover:bg-purple-50 hover:text-purple-500 border-gray-200 duration-1500 rounded-md px-3 py-1.5 text-center transition-all flex items-center gap-2"
+                    onClick={() => setShowImportExport(!showImportExport)}
+                  >
+                    <DownloadIcon />
+                    <span className="hidden sm:inline">Import/Export</span>
+                  </button>
+
+                  {showImportExport && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-10"
+                        onClick={() => setShowImportExport(false)}
+                      />
+
+                      <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-20">
+                        <div className="py-1">
+                          <button
+                            className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              document.getElementById("csvInput")?.click();
+                            }}
+                          >
+                            <UploadIcon />
+                            <span className="ml-2">Import CSV</span>
+                          </button>
+                          <button
+                            className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              exportToCSV();
+                            }}
+                          >
+                            <DownloadIcon />
+                            <span className="ml-2">Export CSV</span>
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
                 <button
                   onClick={toggleModal}
                   className="border bg-white duration-100 hover:cursor-pointer hover:bg-purple-50 hover:text-purple-500 border-gray-200 duration-1500 rounded-md px-3 py-1.5 text-center transition-all"
