@@ -9,6 +9,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { auth, provider } from "../Firebase";
+import { getDoc, doc, setDoc, updateDoc } from "firebase/firestore";
+import { db } from "../Firebase";
 
 function Navbar() {
   const router = useRouter();
@@ -25,7 +27,31 @@ function Navbar() {
 
   const signInWithGoogle = async () => {
     try {
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      // Check if user already exists
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+
+      if (!userDoc.exists()) {
+        // Initialize new user data
+        const userData = {
+          displayName: user.displayName,
+          email: user.email,
+          photoURL: user.photoURL,
+          createdAt: new Date().toISOString(),
+          isPro: false,
+          products: [], // Initialize empty products array
+          lastLogin: new Date().toISOString(),
+        };
+        await setDoc(doc(db, "users", user.uid), userData);
+      } else {
+        // Update last login for existing users
+        await updateDoc(doc(db, "users", user.uid), {
+          lastLogin: new Date().toISOString(),
+        });
+      }
+
       router.push("/dashboard");
     } catch (error) {
       console.error(error);

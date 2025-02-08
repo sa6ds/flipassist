@@ -11,7 +11,7 @@ import {
 } from "firebase/auth";
 import { auth, db, provider } from "./Firebase";
 import { useEffect, useState } from "react";
-import { setDoc, doc, getDoc } from "firebase/firestore";
+import { setDoc, doc, getDoc, updateDoc } from "firebase/firestore";
 import { updateUserDocument } from "@/app/utils/firestoreUtils";
 
 export default function Home() {
@@ -30,14 +30,30 @@ export default function Home() {
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-      const userData = {
-        displayName: user.displayName,
-        email: user.email,
-        photoURL: user.photoURL,
-        createdAt: new Date().toISOString(),
-      };
 
-      await updateUserDocument(user.uid, userData);
+
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+
+      if (!userDoc.exists()) {
+
+        const userData = {
+          displayName: user.displayName,
+          email: user.email,
+          photoURL: user.photoURL,
+          createdAt: new Date().toISOString(),
+          isPro: false,
+          products: [], 
+          totalItems: 0, 
+          lastLogin: new Date().toISOString(),
+        };
+        await setDoc(doc(db, "users", user.uid), userData);
+      } else {
+
+        await updateDoc(doc(db, "users", user.uid), {
+          lastLogin: new Date().toISOString(),
+        });
+      }
+
       router.push("/inventory");
     } catch (error) {
       console.error(error);
@@ -48,7 +64,7 @@ export default function Home() {
     <div className="bg-grid-gray-200 min-h-screen">
       <div className="bg-gradient-to-b from-transparent to-slate-50 min-h-screen">
         <Navbar />
-        <main className=" container mx-auto px-8">
+        <main className=" container mx-auto px-2 sm:px-8">
           <div className="mt-16 lg:mt-28 lg:text-center lg:mx-5">
             {/* Introduction */}
             <div className="relative z-50">

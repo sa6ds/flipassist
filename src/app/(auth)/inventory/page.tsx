@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import { onAuthStateChanged } from "firebase/auth";
-import { collection, doc, getDoc, setDoc } from "firebase/firestore";
+import { collection, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { auth, db } from "../../Firebase";
 import { User } from "@firebase/auth";
 import AddModal from "@/app/components/inventoryComponents/AddModal";
@@ -18,6 +18,7 @@ import MobileTable from "@/app/components/inventoryComponents/MobileTable";
 import { updateUserDocument } from "../../utils/firestoreUtils";
 import { DateUtils } from "@/app/utils/dateUtils";
 import { Product, ProductCategory } from "@/app/types";
+import { toast } from "react-hot-toast";
 
 export default function Inventory() {
   const [searchWord, setSearchWord] = useState("");
@@ -156,15 +157,43 @@ export default function Inventory() {
 
       const userRef = doc(db, "users", user.uid);
       const userSnapshot = await getDoc(userRef);
-      const existingProducts = userSnapshot.data()?.products || [];
+      const userData = userSnapshot.data();
+      const currentProducts = userData?.products || [];
+      const currentTotal = userData?.totalItems || 0;
 
-      const updatedProducts = [...existingProducts, newProduct];
+      // Check if user can add more items
+      if (!userData?.isPro && currentTotal >= 15) {
+        toast.error(
+          <div className="flex flex-col gap-2">
+            <span className="font-semibold">Free plan limit reached!</span>
+            <span className="text-sm">
+              Upgrade to Pro for unlimited inventory items.{" "}
+              <a
+                href="/upgrade"
+                className="text-purple-500 hover:text-purple-600 underline"
+              >
+                Upgrade now
+              </a>
+            </span>
+          </div>,
+          {
+            duration: 5000,
+            style: {
+              background: "#F9FAFB",
+              color: "#1F2937",
+              border: "1px solid #E5E7EB",
+            },
+          }
+        );
+        return;
+      }
 
-      await updateUserDocument(user.uid, {
-        products: updatedProducts,
+      await updateDoc(userRef, {
+        products: [...currentProducts, newProduct],
+        totalItems: currentTotal + 1,
       });
 
-      setProducts(updatedProducts);
+      setProducts([...products, newProduct]);
       setAddModalVisible(false);
       reset();
     } catch (error) {
@@ -192,14 +221,17 @@ export default function Inventory() {
     try {
       const userRef = doc(db, "users", user.uid);
       const userSnapshot = await getDoc(userRef);
-      const existingProducts = userSnapshot.data()?.products || [];
+      const userData = userSnapshot.data();
+      const existingProducts = userData?.products || [];
+      const currentTotal = userData?.totalItems || existingProducts.length;
 
       const updatedProducts = existingProducts.filter(
         (product: Product) => product.id !== productToDelete
       );
 
-      await updateUserDocument(user.uid, {
+      await updateDoc(userRef, {
         products: updatedProducts,
+        totalItems: currentTotal - 1,
       });
 
       setProducts(updatedProducts);
@@ -275,7 +307,7 @@ export default function Inventory() {
         product.id === productId ? updatedProduct : product
       );
 
-      await updateUserDocument(user.uid, {
+      await updateDoc(userRef, {
         products: updatedProducts,
       });
 
@@ -340,7 +372,7 @@ export default function Inventory() {
         (product: Product) => !selectedProducts.includes(product.id)
       );
 
-      await updateUserDocument(user.uid, {
+      await updateDoc(userRef, {
         products: updatedProducts,
       });
 
