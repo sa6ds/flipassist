@@ -257,7 +257,7 @@ export default function Settings() {
                           <div className="flex items-center space-x-3">
                             <ProBadge size="lg" />
                             <span className="text-gray-600">
-                              You're currently on the Pro plan
+                              You&apos;re currently on the Pro plan
                             </span>
                           </div>
                         </div>
@@ -303,7 +303,7 @@ export default function Settings() {
                         </div>
                         {(userData?.totalItems || 0) >= 15 && (
                           <p className="text-sm text-wrap text-red-500 font-medium break-words">
-                            You've reached the free plan limit. Upgrade to Pro
+                            You&apos;ve reached the free plan limit. Upgrade to Pro
                             for unlimited items!
                           </p>
                         )}

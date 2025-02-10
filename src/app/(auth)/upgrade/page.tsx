@@ -8,6 +8,14 @@ import { onAuthStateChanged, User } from "firebase/auth";
 import CheckIcon from "@/app/assets/icons/upgrade/CheckIcon";
 import XIcon from "@/app/assets/icons/upgrade/XIcon";
 
+type BillingPeriod = "monthly" | "yearly";
+
+const MONTHLY_PRICE = 9.99;
+const YEARLY_PRICE = 99.99;
+const MONTHLY_TOTAL = MONTHLY_PRICE * 12;
+const YEARLY_SAVINGS = Math.round((MONTHLY_TOTAL - YEARLY_PRICE) * 100) / 100;
+const YEARLY_MONTHLY_PRICE = (YEARLY_PRICE / 12).toFixed(2);
+
 const tiers = [
   {
     name: "Free",
@@ -30,7 +38,7 @@ const tiers = [
   },
   {
     name: "Pro",
-    price: "$19.99/month",
+    price: "$9.99/month",
     description: "For serious resellers",
     features: [
       "Everything in Free, plus:",
@@ -43,10 +51,52 @@ const tiers = [
   },
 ];
 
+const PricingToggle = ({
+  billingPeriod,
+  setBillingPeriod,
+}: {
+  billingPeriod: BillingPeriod;
+  setBillingPeriod: (period: BillingPeriod) => void;
+}) => {
+  return (
+    <div className="flex items-center justify-start space-x-3 mb-8">
+      <span
+        className={`text-sm font-medium ${
+          billingPeriod === "monthly" ? "text-gray-900" : "text-gray-500"
+        }`}
+      >
+        Monthly
+      </span>
+      <button
+        onClick={() =>
+          setBillingPeriod(billingPeriod === "monthly" ? "yearly" : "monthly")
+        }
+        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 ${
+          billingPeriod === "yearly" ? "bg-purple-500" : "bg-gray-200"
+        }`}
+      >
+        <span
+          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+            billingPeriod === "yearly" ? "translate-x-6" : "translate-x-1"
+          }`}
+        />
+      </button>
+      <span
+        className={`text-sm font-medium ${
+          billingPeriod === "yearly" ? "text-gray-900" : "text-gray-500"
+        }`}
+      >
+        Yearly
+      </span>
+    </div>
+  );
+};
+
 export default function UpgradePage() {
   const [isPro, setIsPro] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
+  const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>("monthly");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -66,12 +116,47 @@ export default function UpgradePage() {
     return () => unsubscribe();
   }, []);
 
+  const getTierPrice = (tierName: string) => {
+    if (tierName === "Free") return "$0";
+
+    if (billingPeriod === "monthly") {
+      return (
+        <div className="flex flex-col items-start">
+          <div className="flex items-baseline gap-2">
+            <span className="text-3xl font-bold">${MONTHLY_PRICE}</span>
+            <span className="text-lg text-gray-500">/month</span>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex flex-col items-start">
+        <div className="flex items-baseline gap-2">
+          <span className="text-3xl font-bold">${YEARLY_MONTHLY_PRICE}</span>
+          <span className="text-lg text-gray-500">/month</span>
+        </div>
+        <div className="flex flex-col items-start mt-2">
+          <span className="text-sm text-gray-500">billed annually at</span>
+          <div className="flex items-center gap-2">
+            <span className="text-base line-through text-gray-400">
+              ${MONTHLY_TOTAL}
+            </span>
+            <span className="text-lg font-semibold text-purple-600">
+              ${YEARLY_PRICE}
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-grid-gray-200">
       <div className="bg-gradient-to-b from-transparent to-slate-50 min-h-screen">
         <Navbar />
         <div className="flex flex-col items-center justify-center p-4">
-          <div className="max-w-4xl w-full text-center mb-8 mt-8">
+          <div className="max-w-4xl w-full text-center mb-8">
             <h1 className="text-slate-900 tracking-tighter text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
               Upgrade Your Reselling Experience
             </h1>
@@ -80,23 +165,35 @@ export default function UpgradePage() {
             </p>
           </div>
 
+          <PricingToggle
+            billingPeriod={billingPeriod}
+            setBillingPeriod={setBillingPeriod}
+          />
+
           <div className="grid md:grid-cols-2 gap-8 w-full max-w-4xl mb-8">
             {tiers.map((tier) => (
               <div
                 key={tier.name}
-                className={`bg-white rounded-lg shadow-md overflow-hidden ${
+                className={`bg-white rounded-lg shadow-md overflow-hidden relative ${
                   tier.name === "Pro"
                     ? "border-2 border-purple-500"
                     : "border border-gray-200"
                 }`}
               >
+                {tier.name === "Pro" && billingPeriod === "yearly" && (
+                  <div className="absolute top-4 right-4">
+                    <div className="bg-purple-100 text-purple-800 text-sm px-3 py-1 rounded-full">
+                      <span className="font-medium">Best Value 🌟</span>
+                    </div>
+                  </div>
+                )}
                 <div className="p-6">
                   <h2 className="text-2xl font-bold text-gray-900 mb-2">
                     {tier.name}
                   </h2>
                   <p className="text-gray-600 mb-4">{tier.description}</p>
                   <div className="text-3xl font-bold text-gray-900 mb-6">
-                    {tier.price}
+                    {getTierPrice(tier.name)}
                   </div>
                   <ul className="space-y-3 mb-6">
                     {tier.features.map((feature) => (
