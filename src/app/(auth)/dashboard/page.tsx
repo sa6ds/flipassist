@@ -17,6 +17,8 @@ import { collection, doc, getDoc } from "firebase/firestore";
 import { User, onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../../Firebase";
 import Sidebar from "@/app/components/Sidebar";
+import { useSearchParams } from "next/navigation";
+import WelcomeProModal from "@/app/components/WelcomeProModal";
 
 export default function Dashboard() {
   const [totalProfits, setTotalProfits] = useState(0);
@@ -25,6 +27,8 @@ export default function Dashboard() {
   const [totalSales, setTotalSales] = useState(0);
   const [user, setUser] = useState<User | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
+  const searchParams = useSearchParams();
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
 
   const fetchProducts = useCallback(async () => {
     try {
@@ -83,6 +87,12 @@ export default function Dashboard() {
     );
     setTotalProfits(totalProfits);
   }, [products]);
+
+  useEffect(() => {
+    if (searchParams.get("payment_success") === "true") {
+      setShowWelcomeModal(true);
+    }
+  }, [searchParams]);
 
   const sortedRecentActivity = products.sort(
     (a, b) => new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime()
@@ -178,6 +188,10 @@ export default function Dashboard() {
       <div className="sticky top-full md:ml-[250px]">
         <Footer />
       </div>
+      <WelcomeProModal
+        isOpen={showWelcomeModal}
+        onClose={() => setShowWelcomeModal(false)}
+      />
     </div>
   );
 }

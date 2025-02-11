@@ -18,6 +18,7 @@ import { updateProfile } from "firebase/auth";
 import ProBadge from "@/app/components/ProBadge";
 import Link from "next/link";
 import PencilIcon from "@/app/assets/icons/settings/PencilIcon";
+import toast from "react-hot-toast";
 
 export default function Settings() {
   const [user, setUser] = useState<User | null>(null);
@@ -107,6 +108,34 @@ export default function Settings() {
   const closeModal = () => {
     setIsModalOpen(false);
     setDeleteInput("");
+  };
+
+  const handleManageSubscription = async () => {
+    if (!user) {
+      toast.error("Please sign in to manage your subscription");
+      return;
+    }
+
+    try {
+      const token = await user.getIdToken();
+      const response = await fetch("/api/create-portal-session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ token }),
+      });
+
+      if (!response.ok) throw new Error("Failed to create portal session");
+
+      const { url, error } = await response.json();
+      if (error) throw new Error(error);
+
+      window.location.href = url;
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("Something went wrong");
+    }
   };
 
   return (
@@ -265,12 +294,12 @@ export default function Settings() {
                           Enjoy unlimited inventory items and all premium
                           features.
                         </p>
-                        <Link
-                          href="/upgrade"
+                        <button
+                          onClick={handleManageSubscription}
                           className="inline-block px-4 py-2 text-sm font-medium text-purple-600 bg-purple-50 rounded-md hover:bg-purple-100"
                         >
                           Manage Subscription
-                        </Link>
+                        </button>
                       </>
                     ) : (
                       <>
@@ -303,8 +332,8 @@ export default function Settings() {
                         </div>
                         {(userData?.totalItems || 0) >= 15 && (
                           <p className="text-sm text-wrap text-red-500 font-medium break-words">
-                            You&apos;ve reached the free plan limit. Upgrade to Pro
-                            for unlimited items!
+                            You&apos;ve reached the free plan limit. Upgrade to
+                            Pro for unlimited items!
                           </p>
                         )}
                         <p className="text-sm text-wrap text-gray-500 break-words">

@@ -523,7 +523,7 @@ export default function Inventory() {
     reader.onload = async (e) => {
       try {
         const csvData = e.target?.result as string;
-        const items = parseCSV(csvData); // Your CSV parsing logic
+        const items = parseCSV(csvData);
 
         const userRef = doc(db, "users", user.uid);
         const userDoc = await getDoc(userRef);
@@ -538,11 +538,16 @@ export default function Inventory() {
           return;
         }
 
+        const updatedProducts = [...currentProducts, ...items];
+
         await updateDoc(userRef, {
-          products: [...currentProducts, ...items],
-          totalItems: currentProducts.length + items.length,
+          products: updatedProducts,
+          totalItems: updatedProducts.length,
         });
 
+        // Update local state
+        setProducts(updatedProducts);
+        setShowImportExport(false);
         toast.success("Items imported successfully!");
       } catch (error) {
         console.error("Import error:", error);
@@ -564,16 +569,16 @@ export default function Inventory() {
     return dataRows.map((row) => ({
       id: uuidv4(),
       name: row[0] || "",
-      size: row[1] || undefined,
-      sku: row[2] || undefined,
+      size: row[1] || "",
+      sku: row[2] || "",
       status: (row[3] as "Unlisted" | "Listed" | "Sold") || "Unlisted",
-      platform: row[4] || undefined,
-      category: (row[5] as "Sneaker" | "Clothing" | "Collectible") || undefined,
+      platform: row[4] || "",
+      category: (row[5] as "Sneaker" | "Clothing" | "Collectible") || "Sneaker",
       purchasePrice: parseFloat(row[6]) || 0,
-      salePrice: row[7] ? parseFloat(row[7]) : undefined,
+      salePrice: row[7] ? parseFloat(row[7]) : null,
       purchaseDate: row[8] || new Date().toISOString().split("T")[0],
-      saleDate: row[9] || undefined,
-      notes: row[10] || undefined,
+      saleDate: row[9] || null,
+      notes: row[10] || "",
       dateAdded: new Date().toISOString().split("T")[0],
     }));
   }
@@ -679,7 +684,7 @@ export default function Inventory() {
                           onClick={() => setShowImportExport(false)}
                         />
 
-                        <div className="absolute left-0 sm:right-0 sm:left-auto mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-20">
+                        <div className="absolute left-0 sm:right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-20">
                           <div className="py-1">
                             <button
                               className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"

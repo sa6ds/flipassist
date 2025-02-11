@@ -3,10 +3,16 @@ import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
 import { useEffect, useState } from "react";
 import { auth, db } from "@/app/Firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { onAuthStateChanged, User } from "firebase/auth";
 import CheckIcon from "@/app/assets/icons/upgrade/CheckIcon";
 import XIcon from "@/app/assets/icons/upgrade/XIcon";
+
+import { getStripe } from "@/app/utils/stripe";
+import { useRouter } from "next/navigation";
+import { signInWithPopup } from "firebase/auth";
+import { provider } from "@/app/Firebase";
+import toast from "react-hot-toast";
 
 type BillingPeriod = "monthly" | "yearly";
 
@@ -15,6 +21,11 @@ const YEARLY_PRICE = 99.99;
 const MONTHLY_TOTAL = MONTHLY_PRICE * 12;
 const YEARLY_SAVINGS = Math.round((MONTHLY_TOTAL - YEARLY_PRICE) * 100) / 100;
 const YEARLY_MONTHLY_PRICE = (YEARLY_PRICE / 12).toFixed(2);
+
+const STRIPE_PRICE_IDS = {
+  monthly: process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID!,
+  yearly: process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID!,
+};
 
 const tiers = [
   {
@@ -97,6 +108,7 @@ export default function UpgradePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
   const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>("monthly");
+  const router = useRouter();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -149,6 +161,95 @@ export default function UpgradePage() {
         </div>
       </div>
     );
+  };
+
+  const handleUpgrade = async () => {
+    if (!user) {
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const token = await user.getIdToken();
+
+      const response = await fetch("/api/create-checkout-session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          price_id: STRIPE_PRICE_IDS[billingPeriod],
+          billing_period: billingPeriod,
+          token,
+        }),
+      });
+
+      const { sessionId, error } = await response.json();
+
+      if (error) {
+        toast.error("Failed to create checkout session");
+        return;
+      }
+
+      const stripe = await getStripe();
+      if (!stripe) {
+        toast.error("Something went wrong");
+        return;
+      }
+
+      const { error: stripeError } = await stripe.redirectToCheckout({
+        sessionId,
+      });
+
+      if (stripeError) {
+        toast.error(stripeError.message || "Payment failed");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("Something went wrong");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleUpgradeClick = () => {
+    if (!user) {
+      signInWithPopup(auth, provider)
+        .then(async (result) => {
+          const user = result.user;
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+
+          if (!userDoc.exists()) {
+            await setDoc(doc(db, "users", user.uid), {
+              displayName: user.displayName,
+              email: user.email,
+              photoURL: user.photoURL,
+              createdAt: new Date().toISOString(),
+              isPro: false,
+              products: [],
+              totalItems: 0,
+              lastLogin: new Date().toISOString(),
+            });
+          }
+          handleUpgrade();
+        })
+        .catch((error) => {
+          console.error("Error signing in:", error);
+          toast.error("Failed to sign in");
+        });
+      return;
+    }
+    handleUpgrade();
+  };
+
+  const getButtonText = (tierName: string) => {
+    if (isLoading) return "Loading...";
+    if (!user) return "Sign in to Upgrade";
+
+    if (tierName === "Pro") {
+      return isPro ? "Current Plan" : "Upgrade Now";
+    }
+    return isPro ? "Free Tier" : "Current Plan";
   };
 
   return (
@@ -213,22 +314,17 @@ export default function UpgradePage() {
                     ))}
                   </ul>
                   <button
-                    className={`w-full py-2 px-4 rounded-lg transition-all duration-200 ${
+                    className={`w-full py-2 px-4 rounded-md transition-colors ${
                       tier.name === "Pro"
-                        ? "bg-purple-500 hover:bg-purple-600 text-white"
+                        ? "bg-purple-600 hover:bg-purple-700 text-white"
                         : "bg-gray-500 hover:bg-gray-600 text-white"
                     } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-                    disabled={isLoading}
+                    disabled={isLoading || (tier.name === "Pro" && isPro)}
+                    onClick={
+                      tier.name === "Pro" ? handleUpgradeClick : undefined
+                    }
                   >
-                    {isLoading
-                      ? "Loading..."
-                      : tier.name === "Pro"
-                      ? isPro
-                        ? "Current Plan"
-                        : "Upgrade Now"
-                      : isPro
-                      ? "Free Tier"
-                      : "Current Plan"}
+                    {getButtonText(tier.name)}
                   </button>
                 </div>
               </div>
