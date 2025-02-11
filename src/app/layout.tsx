@@ -48,7 +48,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="m-0 bg-slate-50 top-full text-slate-700">
+      <body className="m-0 bg-slate-50 top-full font-medium text-slate-700">
         {children}
         <Toaster position="bottom-right" />
       </body>

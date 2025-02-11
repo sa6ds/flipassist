@@ -856,7 +856,7 @@ export default function Inventory() {
                   <span className="sr-only">Close modal</span>
                 </button>
                 <div className="px-6 py-6 ">
-                  <h3 className="mb-4 text-xl font-medium text-gray-900">
+                  <h3 className="mb-4 text-xl font-bold">
                     Edit {products.find((p) => p.id === editingProductId)?.name}
                   </h3>
                   <form
