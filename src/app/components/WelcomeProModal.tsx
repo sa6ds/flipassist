@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 interface WelcomeProModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -43,7 +41,6 @@ export default function WelcomeProModal({
               <li>Unlimited inventory items</li>
               <li>Monitor updates</li>
               <li>CSV import/export</li>
-              <li>Live prices from StockX and Goat</li>
               <li>Priority support</li>
             </ul>
           </div>

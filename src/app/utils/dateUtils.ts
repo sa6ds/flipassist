@@ -57,7 +57,6 @@ export const DateUtils = {
     }
   },
 
-  // Your existing timeSince function
   timeSince: (dateString: string | number): string => {
     try {
       // Convert date string to timestamp if it's not already a number

@@ -7,12 +7,12 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { onAuthStateChanged, User } from "firebase/auth";
 import CheckIcon from "@/app/assets/icons/upgrade/CheckIcon";
 import XIcon from "@/app/assets/icons/upgrade/XIcon";
-
 import { getStripe } from "@/app/utils/stripe";
 import { useRouter } from "next/navigation";
 import { signInWithPopup } from "firebase/auth";
 import { provider } from "@/app/Firebase";
 import toast from "react-hot-toast";
+import { sendGAEvent } from "@next/third-parties/google";
 
 type BillingPeriod = "monthly" | "yearly";
 
@@ -56,7 +56,6 @@ const tiers = [
       "Unlimited inventory items",
       "Inventory export/import",
       "Access to monitors page",
-      "Live prices from StockX and Goat",
       "Priority support & feature requests",
     ],
   },
@@ -170,8 +169,15 @@ export default function UpgradePage() {
 
     try {
       setIsLoading(true);
-      const token = await user.getIdToken();
 
+      sendGAEvent({
+        event: "upgrade_attempt",
+        category: "conversion",
+        action: "checkout_initiated",
+        label: billingPeriod,
+      });
+
+      const token = await user.getIdToken();
       const response = await fetch("/api/create-checkout-session", {
         method: "POST",
         headers: {
@@ -187,26 +193,57 @@ export default function UpgradePage() {
       const { sessionId, error } = await response.json();
 
       if (error) {
+        sendGAEvent({
+          event: "upgrade_error",
+          category: "error",
+          action: "checkout_failed",
+          label: error,
+        });
         toast.error("Failed to create checkout session");
         return;
       }
 
       const stripe = await getStripe();
       if (!stripe) {
+        sendGAEvent({
+          event: "upgrade_error",
+          category: "error",
+          action: "stripe_load_failed",
+          label: billingPeriod,
+        });
         toast.error("Something went wrong");
         return;
       }
+
+      sendGAEvent({
+        event: "checkout_redirect",
+        category: "conversion",
+        action: "redirect_to_stripe",
+        label: billingPeriod,
+      });
 
       const { error: stripeError } = await stripe.redirectToCheckout({
         sessionId,
       });
 
       if (stripeError) {
+        sendGAEvent({
+          event: "upgrade_error",
+          category: "error",
+          action: "stripe_redirect_failed",
+          label: stripeError.message || "Unknown error",
+        });
         toast.error(stripeError.message || "Payment failed");
       }
     } catch (error) {
       console.error("Error:", error);
       toast.error("Something went wrong");
+      sendGAEvent({
+        event: "upgrade_error",
+        category: "error",
+        action: "unexpected_error",
+        label: error instanceof Error ? error.message : "Unknown error",
+      });
     } finally {
       setIsLoading(false);
     }

@@ -19,6 +19,7 @@ import ProBadge from "@/app/components/ProBadge";
 import Link from "next/link";
 import PencilIcon from "@/app/assets/icons/settings/PencilIcon";
 import toast from "react-hot-toast";
+import { sendGAEvent } from "@next/third-parties/google";
 
 export default function Settings() {
   const [user, setUser] = useState<User | null>(null);
@@ -117,6 +118,13 @@ export default function Settings() {
     }
 
     try {
+      sendGAEvent({
+        event: "manage_subscription",
+        category: "engagement",
+        action: "portal_session_attempt",
+        label: "subscription_management",
+      });
+
       const token = await user.getIdToken();
       const response = await fetch("/api/create-portal-session", {
         method: "POST",
@@ -131,10 +139,24 @@ export default function Settings() {
       const { url, error } = await response.json();
       if (error) throw new Error(error);
 
+      sendGAEvent({
+        event: "manage_subscription_success",
+        category: "conversion",
+        action: "portal_session_success",
+        label: "redirect_to_portal",
+      });
+
       window.location.href = url;
     } catch (error) {
       console.error("Error:", error);
       toast.error("Something went wrong");
+
+      sendGAEvent({
+        event: "manage_subscription_error",
+        category: "error",
+        action: "portal_session_failed",
+        label: error instanceof Error ? error.message : "Unknown error",
+      });
     }
   };
 
@@ -149,7 +171,7 @@ export default function Settings() {
               {/* Header Section */}
               <div className="border-b pb-4 mb-6">
                 <h2 className="text-xl font-semibold">User Profile</h2>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 text-wrap">
                   Manage your account settings and preferences.
                 </p>
               </div>
@@ -285,12 +307,12 @@ export default function Settings() {
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-3">
                             <ProBadge size="lg" />
-                            <span className="text-gray-600">
+                            <span className="text-gray-600 text-wrap">
                               You&apos;re currently on the Pro plan
                             </span>
                           </div>
                         </div>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-gray-500 text-wrap">
                           Enjoy unlimited inventory items and all premium
                           features.
                         </p>

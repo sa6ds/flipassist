@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { Toaster } from "react-hot-toast";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 export const metadata: Metadata = {
   title: "flipassist - Elevate Your Reselling Game",
@@ -51,6 +52,7 @@ export default function RootLayout({
       <body className="m-0 bg-slate-50 top-full font-medium text-slate-700">
         {children}
         <Toaster position="bottom-right" />
+        <GoogleAnalytics gaId="G-8MS547E0RB" />
       </body>
     </html>
   );

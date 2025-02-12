@@ -21,7 +21,12 @@ export const generateChartData = (products: Product[]) => {
   products.forEach((product) => {
     const { saleDate, salePrice, purchasePrice } = product;
     if (saleDate && salePrice) {
-      const formattedDate = new Date(saleDate).toLocaleDateString();
+      const date = new Date(saleDate);
+      const formattedDate = date.toLocaleDateString("en-US", {
+        month: "short",
+        year: "numeric",
+      });
+
       const accumulatedSales = salesMap.get(formattedDate) || 0;
       const profit = salePrice - purchasePrice;
       salesMap.set(formattedDate, accumulatedSales + salePrice);
@@ -65,11 +70,13 @@ export const generateChartData = (products: Product[]) => {
         label: "Sales",
         data: salesData,
         borderColor: "#9333ea",
+        tension: 0.3,
       },
       {
         label: "Profits",
         data: profitData,
         borderColor: "#111827",
+        tension: 0.3,
       },
     ],
   };

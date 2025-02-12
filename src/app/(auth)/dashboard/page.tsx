@@ -7,10 +7,8 @@ import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import SavingsOutlinedIcon from "@mui/icons-material/SavingsOutlined";
 import SellOutlinedIcon from "@mui/icons-material/SellOutlined";
 import Header from "@/app/components/Header";
-import { Tooltip } from "@mui/material";
 import { generateChartData } from "@/app/utils/chartUtils";
-import { Chart } from "chart.js";
-import Image from "next/image";
+import { Chart, ChartConfiguration } from "chart.js";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Footer from "@/app/components/Footer";
 import { collection, doc, getDoc } from "firebase/firestore";
@@ -106,12 +104,31 @@ export default function Dashboard() {
       const ctx = chartRef.current.getContext("2d");
       if (ctx) {
         const chartData = generateChartData(products);
-        const chartConfig = {
+        const chartConfig: ChartConfiguration = {
           type: "line",
           data: chartData,
           options: {
             responsive: true,
             maintainAspectRatio: false,
+            scales: {
+              xAxes: [
+                {
+                  type: "category" as const,
+                  ticks: {
+                    maxTicksLimit: 8,
+                    maxRotation: 45,
+                    minRotation: 45,
+                  },
+                },
+              ],
+              yAxes: [
+                {
+                  ticks: {
+                    beginAtZero: true,
+                  },
+                },
+              ],
+            },
             plugins: {
               legend: {
                 labels: {
