@@ -15,23 +15,11 @@ import {
 import { DateUtils } from "@/app/utils/dateUtils";
 import { getUserBadge, UserBadge } from "@/app/utils/badgeUtils";
 import { updateProfile } from "firebase/auth";
-
-const PencilIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="ml-2 cursor-pointer hover:text-purple-500"
-  >
-    <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
-  </svg>
-);
+import ProBadge from "@/app/components/ProBadge";
+import Link from "next/link";
+import PencilIcon from "@/app/assets/icons/settings/PencilIcon";
+import toast from "react-hot-toast";
+import { sendGAEvent } from "@next/third-parties/google";
 
 export default function Settings() {
   const [user, setUser] = useState<User | null>(null);
@@ -123,6 +111,55 @@ export default function Settings() {
     setDeleteInput("");
   };
 
+  const handleManageSubscription = async () => {
+    if (!user) {
+      toast.error("Please sign in to manage your subscription");
+      return;
+    }
+
+    try {
+      sendGAEvent({
+        event: "manage_subscription",
+        category: "engagement",
+        action: "portal_session_attempt",
+        label: "subscription_management",
+      });
+
+      const token = await user.getIdToken();
+      const response = await fetch("/api/create-portal-session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ token }),
+      });
+
+      if (!response.ok) throw new Error("Failed to create portal session");
+
+      const { url, error } = await response.json();
+      if (error) throw new Error(error);
+
+      sendGAEvent({
+        event: "manage_subscription_success",
+        category: "conversion",
+        action: "portal_session_success",
+        label: "redirect_to_portal",
+      });
+
+      window.location.href = url;
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("Something went wrong");
+
+      sendGAEvent({
+        event: "manage_subscription_error",
+        category: "error",
+        action: "portal_session_failed",
+        label: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen">
       <Sidebar />
@@ -133,8 +170,8 @@ export default function Settings() {
             <div className="p-6 bg-white shadow-md rounded-lg">
               {/* Header Section */}
               <div className="border-b pb-4 mb-6">
-                <h2 className="text-2xl font-semibold">User Profile</h2>
-                <p className="text-sm text-gray-500">
+                <h2 className="text-xl font-semibold">User Profile</h2>
+                <p className="text-sm text-gray-500 text-wrap">
                   Manage your account settings and preferences.
                 </p>
               </div>
@@ -259,6 +296,81 @@ export default function Settings() {
                       ? DateUtils.timeSince(userData.createdAt)
                       : "unknown"}
                   </span>
+                </div>
+
+                {/* Subscription Section */}
+                <div className="border-t pt-6 mt-6">
+                  <h3 className="text-lg font-semibold mb-4">Subscription</h3>
+                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                    {userData?.isPro ? (
+                      <>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <ProBadge size="lg" />
+                            <span className="text-gray-600 text-wrap">
+                              You&apos;re currently on the Pro plan
+                            </span>
+                          </div>
+                        </div>
+                        <p className="text-sm text-gray-500 text-wrap">
+                          Enjoy unlimited inventory items and all premium
+                          features.
+                        </p>
+                        <button
+                          onClick={handleManageSubscription}
+                          className="inline-block px-4 py-2 text-sm font-medium text-purple-600 bg-purple-50 rounded-md hover:bg-purple-100"
+                        >
+                          Manage Subscription
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex items-center justify-between flex-wrap gap-2">
+                          <span className="text-gray-600">Free Plan</span>
+                          <span
+                            className={`text-sm ${
+                              (userData?.totalItems || 0) >= 15
+                                ? "text-red-500 font-medium"
+                                : "text-gray-500"
+                            }`}
+                          >
+                            {userData?.totalItems || 0}/15 items used
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div
+                            className={`h-2 rounded-full transition-all duration-300 ${
+                              (userData?.totalItems || 0) >= 15
+                                ? "bg-red-500"
+                                : "bg-purple-500"
+                            }`}
+                            style={{
+                              width: `${Math.min(
+                                ((userData?.totalItems || 0) / 15) * 100,
+                                100
+                              )}%`,
+                            }}
+                          />
+                        </div>
+                        {(userData?.totalItems || 0) >= 15 && (
+                          <p className="text-sm text-wrap text-red-500 font-medium break-words">
+                            You&apos;ve reached the free plan limit. Upgrade to
+                            Pro for unlimited items!
+                          </p>
+                        )}
+                        <p className="text-sm text-wrap text-gray-500 break-words">
+                          Upgrade to Pro for unlimited inventory items and
+                          premium features.
+                        </p>
+                        <Link
+                          href="/upgrade"
+                          className="inline-block px-4 py-2 text-sm font-medium text-white bg-purple-500 rounded-md hover:bg-purple-600"
+                        >
+                          Upgrade to Pro
+                        </Link>
+                      </>
+                    )}
+                  </div>
                 </div>
 
                 {/* Action Buttons */}

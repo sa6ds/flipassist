@@ -7,16 +7,16 @@ import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import SavingsOutlinedIcon from "@mui/icons-material/SavingsOutlined";
 import SellOutlinedIcon from "@mui/icons-material/SellOutlined";
 import Header from "@/app/components/Header";
-import { Tooltip } from "@mui/material";
 import { generateChartData } from "@/app/utils/chartUtils";
-import { Chart } from "chart.js";
-import Image from "next/image";
+import { Chart, ChartConfiguration } from "chart.js";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Footer from "@/app/components/Footer";
 import { collection, doc, getDoc } from "firebase/firestore";
 import { User, onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../../Firebase";
 import Sidebar from "@/app/components/Sidebar";
+import { useSearchParams } from "next/navigation";
+import WelcomeProModal from "@/app/components/WelcomeProModal";
 
 export default function Dashboard() {
   const [totalProfits, setTotalProfits] = useState(0);
@@ -25,6 +25,8 @@ export default function Dashboard() {
   const [totalSales, setTotalSales] = useState(0);
   const [user, setUser] = useState<User | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
+  const searchParams = useSearchParams();
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
 
   const fetchProducts = useCallback(async () => {
     try {
@@ -84,6 +86,12 @@ export default function Dashboard() {
     setTotalProfits(totalProfits);
   }, [products]);
 
+  useEffect(() => {
+    if (searchParams.get("payment_success") === "true") {
+      setShowWelcomeModal(true);
+    }
+  }, [searchParams]);
+
   const sortedRecentActivity = products.sort(
     (a, b) => new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime()
   );
@@ -96,12 +104,31 @@ export default function Dashboard() {
       const ctx = chartRef.current.getContext("2d");
       if (ctx) {
         const chartData = generateChartData(products);
-        const chartConfig = {
+        const chartConfig: ChartConfiguration = {
           type: "line",
           data: chartData,
           options: {
             responsive: true,
             maintainAspectRatio: false,
+            scales: {
+              xAxes: [
+                {
+                  type: "category" as const,
+                  ticks: {
+                    maxTicksLimit: 8,
+                    maxRotation: 45,
+                    minRotation: 45,
+                  },
+                },
+              ],
+              yAxes: [
+                {
+                  ticks: {
+                    beginAtZero: true,
+                  },
+                },
+              ],
+            },
             plugins: {
               legend: {
                 labels: {
@@ -178,6 +205,10 @@ export default function Dashboard() {
       <div className="sticky top-full md:ml-[250px]">
         <Footer />
       </div>
+      <WelcomeProModal
+        isOpen={showWelcomeModal}
+        onClose={() => setShowWelcomeModal(false)}
+      />
     </div>
   );
 }

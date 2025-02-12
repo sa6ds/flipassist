@@ -1,8 +1,10 @@
 "use client";
+
 import React, { useRef } from "react";
 import emailjs from "@emailjs/browser";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import toast from "react-hot-toast";
 export default function Contact() {
   const form = useRef<HTMLFormElement | null>(null);
 
@@ -19,9 +21,7 @@ export default function Contact() {
         )
         .then(
           (result) => {
-            // TODO: Add Toasts
-            console.log(result);
-            alert("Sent!");
+            toast.success("Email sent successfully!");
           },
           (error) => {
             console.log(error);
