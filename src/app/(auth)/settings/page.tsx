@@ -118,11 +118,12 @@ export default function Settings() {
     }
 
     try {
-      sendGAEvent({
-        event: "manage_subscription",
-        category: "engagement",
-        action: "portal_session_attempt",
-        label: "subscription_management",
+      // Log initial state
+      console.log("Initial user state:", {
+        uid: user.uid,
+        isPro: userData?.isPro,
+        stripeCustomerId: userData?.stripeCustomerId,
+        subscriptionStatus: userData?.subscriptionStatus,
       });
 
       const token = await user.getIdToken();
@@ -134,29 +135,24 @@ export default function Settings() {
         body: JSON.stringify({ token }),
       });
 
-      if (!response.ok) throw new Error("Failed to create portal session");
+      const data = await response.json();
 
-      const { url, error } = await response.json();
-      if (error) throw new Error(error);
+      // Log response data
+      console.log("Portal session response:", data);
 
-      sendGAEvent({
-        event: "manage_subscription_success",
-        category: "conversion",
-        action: "portal_session_success",
-        label: "redirect_to_portal",
-      });
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to create portal session");
+      }
 
-      window.location.href = url;
+      window.location.href = data.url;
     } catch (error) {
-      console.error("Error:", error);
+      // Log the full error
+      console.error("Subscription management error:", error);
       toast.error("Something went wrong");
 
-      sendGAEvent({
-        event: "manage_subscription_error",
-        category: "error",
-        action: "portal_session_failed",
-        label: error instanceof Error ? error.message : "Unknown error",
-      });
+      // Log the state after error
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      console.log("User state after error:", userDoc.data());
     }
   };
 

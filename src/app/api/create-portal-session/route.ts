@@ -9,7 +9,6 @@ const stripe = new Stripe(process.env.NEXT_PUBLIC_STRIPE_SECRET_KEY!, {
   apiVersion: "2025-01-27.acacia",
 });
 
-
 if (!getApps().length) {
   initializeApp({
     credential: cert({
@@ -40,26 +39,48 @@ export async function POST(req: Request) {
     }
 
     try {
+      // First verify the customer exists
+      const customer = await stripe.customers.retrieve(
+        userData.stripeCustomerId
+      );
+
+      if (customer.deleted) {
+        return NextResponse.json(
+          { error: "Customer no longer exists" },
+          { status: 404 }
+        );
+      }
+
       const session = await stripe.billingPortal.sessions.create({
         customer: userData.stripeCustomerId,
         return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/settings`,
       });
+
       return NextResponse.json({ url: session.url });
     } catch (stripeError) {
-      // If customer doesn't exist in Stripe, remove the stripeCustomerId
-      await adminDB.collection("users").doc(userId).update({
-        stripeCustomerId: null,
-        isPro: false,
-        subscriptionId: null,
-        subscriptionStatus: "canceled",
-      });
+      // Only clear data if customer doesn't exist in Stripe
+      if (stripeError instanceof Error) {
+        if ((stripeError as any).code === "resource_missing") {
+          await adminDB.collection("users").doc(userId).update({
+            stripeCustomerId: null,
+            isPro: false,
+            subscriptionId: null,
+            subscriptionStatus: "canceled",
+          });
+        }
+
+        return NextResponse.json(
+          { error: stripeError.message },
+          { status: 500 }
+        );
+      }
+
       return NextResponse.json(
-        { error: "Subscription not found" },
-        { status: 404 }
+        { error: "Unknown error occurred" },
+        { status: 500 }
       );
     }
   } catch (error) {
-    console.error("Error:", error);
     return NextResponse.json(
       { error: "Error creating portal session" },
       { status: 500 }
