@@ -5,10 +5,7 @@
 
 flipassist is a full-stack web application tailored for resellers, streamlining inventory management and maximizing profitability. It provides a comprehensive dashboard, inventory management system, advanced calculators, reseller tools, and real-time monitors for Twitter pages. With flipassist, resellers can gain real-time insights into their business performance, optimize pricing strategies, and enhance profitability.
 
-
 https://github.com/user-attachments/assets/f802c3b9-0bd8-4f41-943f-a466fa2444fa
-
-
 
 View the site live at [flipassist.app](https://www.flipassist.app/).
 
@@ -61,7 +58,6 @@ To run flipassist locally, follow these steps:
    ```
 
 6. Access flipassist in your browser at `http://localhost:3000`.
-
 
 ## Configuration
 

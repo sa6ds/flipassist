@@ -43,7 +43,6 @@ const tiers = [
     limitations: [
       "No inventory export/import",
       "No access to monitors",
-      "No live prices from StockX/Goat",
       "Standard support only",
     ],
   },
