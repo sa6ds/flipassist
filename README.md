@@ -1,13 +1,12 @@
 # flipassist
 
-[![Twitter](https://img.shields.io/badge/flipassist-blue?logo=twitter&style=flat-square)](https://twitter.com/flipassist)
+[![Twitter](https://img.shields.io/badge/flipassist-black?logo=x&style=flat-square)](https://twitter.com/flipassist)
 [![Discord](https://img.shields.io/badge/flipassist.app-7289DA?logo=discord&style=flat-square)](https://discord.gg/ewTSMprYdg)
 
 flipassist is a full-stack web application tailored for resellers, streamlining inventory management and maximizing profitability. It provides a comprehensive dashboard, inventory management system, advanced calculators, reseller tools, and real-time monitors for Twitter pages. With flipassist, resellers can gain real-time insights into their business performance, optimize pricing strategies, and enhance profitability.
 
 
-https://github.com/user-attachments/assets/f802c3b9-0bd8-4f41-943f-a466fa2444fa
-
+https://github.com/user-attachments/assets/4a73ebc9-6ad3-4aa8-bb05-0b1ed3bd61ab
 
 
 View the site live at [flipassist.app](https://www.flipassist.app/).
@@ -28,7 +27,8 @@ View the site live at [flipassist.app](https://www.flipassist.app/).
 
 - **Frontend:** flipassist is built with Next.js, a React framework for server-side rendering and static site generation. TypeScript is used for type safety and a better development experience. Tailwind CSS is employed for styling the user interface.
 
-- **Backend:** flipassist utilizes Firebase for backend operations, providing secure, scalable cloud-based solutions for database management, authentication, and storage.
+- **Backend:** flipassist utilizes Firebase for backend operations, providing secure, scalable cloud-based solutions for database management, authentication, and storage. Stripe is integrated for handling transactions, subscriptions, and secure online payments.
+
 
 ## Installation and Usage
 
@@ -67,21 +67,40 @@ To run flipassist locally, follow these steps:
 
 To configure flipassist, you need to set up the following environment variables:
 
-- `NEXT_PUBLIC_FIREBASE_API_KEY`: Set this variable to the API Key of your Firebase project.
+#### Firebase Configuration
 
-- `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`: Set this variable to the Authentication domain of your Firebase project.
+These variables should be obtained from your Firebase project settings:
 
-- `NEXT_PUBLIC_FIREBASE_PROJECT_ID`: Set this variable to the Project ID of your Firebase project.
+- `NEXT_PUBLIC_FIREBASE_API_KEY`: API Key of your Firebase project.
+- `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`: Authentication domain of your Firebase project.
+- `NEXT_PUBLIC_FIREBASE_PROJECT_ID`: Project ID of your Firebase project.
+- `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`: Storage Bucket URL of your Firebase project.
+- `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`: Messaging Sender ID of your Firebase project.
+- `NEXT_PUBLIC_FIREBASE_APP_ID`: App ID of your Firebase project.
+- `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID`: Measurement ID of your Firebase project.
+- `NEXT_PUBLIC_FIREBASE_ADMIN_CLIENT_EMAIL`: Admin Client Email of your Firebase project.
+- `NEXT_PUBLIC_FIREBASE_ADMIN_PRIVATE_KEY`: Admin Private Key of your Firebase project.
 
-- `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`: Set this variable to the Storage Bucket URL of your Firebase project.
+#### TinyURL Configuration
 
-- `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`: Set this variable to the Messaging Sender ID of your Firebase project.
+- `NEXT_PUBLIC_TINY_URL_API_KEY`: API Key for the TinyURL service.
 
-- `NEXT_PUBLIC_FIREBASE_APP_ID`: Set this variable to the App ID of your Firebase project.
+#### Stripe Configuration
 
-- `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID`: Set this variable to the Measurement ID of your Firebase project.
+These variables should be obtained from your Stripe account:
+
+- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`: Publishable Key for your Stripe account.
+- `NEXT_PUBLIC_STRIPE_SECRET_KEY`: Secret Key for your Stripe account.
+- `NEXT_PUBLIC_STRIPE_WEBHOOK_SECRET`: Webhook Secret for Stripe events.
+- `NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID`: Price ID for the monthly subscription in Stripe.
+- `NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID`: Price ID for the yearly subscription in Stripe.
+
+#### Application Configuration
+
+- `NEXT_PUBLIC_BASE_URL`: Base URL of your application.
 
 Make sure to obtain the necessary values for these variables and set them in your environment configuration before running flipassist.
+
 
 ## License
 

@@ -118,14 +118,6 @@ export default function Settings() {
     }
 
     try {
-      // Log initial state
-      console.log("Initial user state:", {
-        uid: user.uid,
-        isPro: userData?.isPro,
-        stripeCustomerId: userData?.stripeCustomerId,
-        subscriptionStatus: userData?.subscriptionStatus,
-      });
-
       const token = await user.getIdToken();
       const response = await fetch("/api/create-portal-session", {
         method: "POST",
@@ -137,22 +129,14 @@ export default function Settings() {
 
       const data = await response.json();
 
-      // Log response data
-      console.log("Portal session response:", data);
-
       if (!response.ok) {
         throw new Error(data.error || "Failed to create portal session");
       }
 
       window.location.href = data.url;
     } catch (error) {
-      // Log the full error
-      console.error("Subscription management error:", error);
       toast.error("Something went wrong");
-
-      // Log the state after error
       const userDoc = await getDoc(doc(db, "users", user.uid));
-      console.log("User state after error:", userDoc.data());
     }
   };
 

@@ -281,10 +281,7 @@ export default function Home() {
                   loop
                   playsInline
                 >
-                  <source
-                    src="/assets/landing/flipassist.mp4"
-                    type="video/mp4"
-                  />
+                  <source src="/assets/landing/demo.mp4" type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
               </div>
@@ -300,22 +297,26 @@ export default function Home() {
               We&apos;ve got you covered with everything you need to take your
               flipping game to the next level.
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
               {features.map((feature, index) => (
                 <div
                   key={index}
-                  className="group relative bg-white rounded-2xl overflow-hidden shadow-md md:shadow-lg hover:shadow-lg md:hover:shadow-xl transition-all duration-300 p-6"
+                  className="group relative bg-white rounded-2xl overflow-hidden shadow-md md:shadow-lg hover:shadow-xl transition-all duration-300 p-8 min-h-[320px] flex flex-col"
                 >
-                  <div className="mb-4">{feature.icon}</div>
-                  <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
-                  <p className="text-gray-600">{feature.description}</p>
+                  <div className="mb-6 transform group-hover:scale-110 transition-transform duration-300">
+                    {feature.icon}
+                  </div>
+                  <h3 className="text-xl font-bold mb-4">{feature.title}</h3>
+                  <p className="text-gray-600 text-lg leading-relaxed">
+                    {feature.description}
+                  </p>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Pricing Section */}
-          <div className="mb-12 sm:mb-16 md:mb-24 lg:mb-32 px-4">
+          <div className="mb-12 sm:mb-16 md:mb-24 lg:mb-26 px-4">
             <h2 className="text-slate-900 tracking-tighter text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-4 md:mb-6">
               Pricing that fits your pocket!
             </h2>
@@ -346,7 +347,7 @@ export default function Home() {
                 />
               </button>
               <span
-                className={`text-lg font-semibold ${
+                className={`text-lg ${
                   isYearly ? "text-purple-600" : "text-gray-600"
                 }`}
               >
@@ -406,22 +407,38 @@ export default function Home() {
               </div>
 
               {/* Pro Tier */}
-              <div className="p-6 rounded-xl bg-purple-600 text-white shadow-md md:shadow-lg">
+              <div className="relative p-6 rounded-xl bg-purple-600 text-white shadow-md md:shadow-lg">
+                {/* Best Value Badge with transition */}
+                <div
+                  className={`absolute -top-3 -right-3 transition-all duration-300 ease-in-out transform ${
+                    isYearly
+                      ? "scale-100 opacity-100"
+                      : "scale-95 opacity-0 pointer-events-none"
+                  }`}
+                >
+                  <div className="bg-yellow-400 text-purple-900 text-sm font-bold px-3 py-1 rounded-full shadow-lg">
+                    Best Value
+                  </div>
+                </div>
+
                 <h3 className="text-xl md:text-2xl font-bold mb-3">Pro</h3>
                 <p className="text-purple-100 text-base mb-3">
                   For serious resellers
                 </p>
-                <p className="text-3xl md:text-4xl font-bold mb-6">
-                  {isYearly ? "$99.99" : "$9.99"}
-                  <span className="text-lg md:text-xl font-normal">
-                    /{isYearly ? "year" : "month"}
-                  </span>
+                <p className="text-3xl md:text-4xl font-bold mb-1">
+                  {isYearly ? "$8.33" : "$9.99"}
+                  <span className="text-lg md:text-xl font-normal">/month</span>
                 </p>
                 {isYearly && (
-                  <p className="text-sm text-purple-200 -mt-6 mb-8">
-                    Billed annually (Save 20%)
-                  </p>
+                  <div className="text-sm text-purple-200 mb-8">
+                    <p>billed annually at</p>
+                    <div className="flex items-center gap-2">
+                      <span className="line-through">$119.88</span>
+                      <span className="font-bold">$99.99</span>
+                    </div>
+                  </div>
                 )}
+                <div className="mb-6"></div>
                 <ul className="space-y-2 mb-6">
                   <li className="flex items-center">
                     <CheckIcon className="w-5 h-5 text-white mr-2" />
@@ -456,6 +473,21 @@ export default function Home() {
                 </button>
               </div>
             </div>
+          </div>
+          <div className="flex justify-center mb-24">
+            <a
+              href="https://www.producthunt.com/posts/flipassist-app?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-flipassist&#0045;app"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <img
+                src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=879005&theme=neutral&t=1739691732156"
+                alt="flipassist.app - Simplify Your Reselling Game with Our Comprehensive Toolkit"
+                style={{ width: "250px", height: "54px" }}
+                width="250"
+                height="54"
+              />
+            </a>
           </div>
         </main>
         <div className="container mx-auto sticky top-full">

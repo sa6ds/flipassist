@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import { SidebarData } from "./SidebarData";
 import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
-import Hamburger from "hamburger-react";
 import { Tooltip } from "@mui/material";
 import { onAuthStateChanged, signOut, User } from "firebase/auth";
 import { auth } from "../Firebase";

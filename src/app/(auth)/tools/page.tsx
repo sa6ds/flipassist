@@ -191,6 +191,7 @@ export default function ToolsPage() {
     }
 
     setProxyDelay((proxies / tasks) * delay);
+    toast.success("Proxy delay calculated successfully!");
   };
 
   const convertShoeSize = () => {

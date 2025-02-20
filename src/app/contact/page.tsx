@@ -67,7 +67,7 @@ export default function Contact() {
                   name="user_email"
                 />
                 <textarea
-                  className="min-h-6 my-2 h-48 min-h-[6px] w-full rounded-lg border border-gray-300 bg-gray-100 px-5 py-1.5"
+                  className="min-h-6 my-2 h-48 w-full rounded-lg border border-gray-300 bg-gray-100 px-5 py-1.5"
                   name="message"
                   placeholder="Description"
                   required

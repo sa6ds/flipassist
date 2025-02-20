@@ -227,6 +227,7 @@ export default function Inventory() {
       setProducts([...products, newProduct]);
       setAddModalVisible(false);
       reset();
+      toast.success("Product added successfully!");
     } catch (error) {
       console.error(error);
     }
@@ -257,9 +258,8 @@ export default function Inventory() {
         const userData = doc.data();
         if (userData) {
           setUserData(userData);
-
-          // Handle subscription change
-          if (!userData.isPro && products.length > 15) {
+          setProducts(userData.products || []);
+          if (!userData.isPro && (userData.products?.length || 0) > 15) {
             toast.error(
               "Your account has been downgraded. Please reduce your inventory or upgrade to Pro."
             );
@@ -269,7 +269,7 @@ export default function Inventory() {
     );
 
     return () => unsubscribe();
-  }, [user, products.length]);
+  }, [user]);
 
   useEffect(() => {
     if (user) {
@@ -298,6 +298,7 @@ export default function Inventory() {
       setProducts(updatedProducts);
       setIsEditMode(false);
       toggleDeleteModal(null);
+      toast.success("Product deleted successfully!");
     } catch (error) {
       console.error(error);
     }
@@ -375,6 +376,7 @@ export default function Inventory() {
       setProducts(updatedProducts);
       resetEditingState();
       toggleEditProductModal();
+      toast.success("Product updated successfully!");
     } catch (error) {
       console.error(error);
     }
@@ -441,6 +443,7 @@ export default function Inventory() {
       setSelectedProducts([]);
       setIsEditMode(false);
       toggleDeleteSelectedModal();
+      toast.success("Selected products deleted successfully!");
     } catch (error) {
       console.error(error);
     }
